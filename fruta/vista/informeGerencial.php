@@ -17,9 +17,12 @@ $ARRAYESPECIE = array_values(array_filter($ESPECIES_ADO->listarEspeciesCBX(), fu
     return isset($especie['ESTADO_REGISTRO']) ? intval($especie['ESTADO_REGISTRO']) === 1 : true;
 }));
 
+$especieDefault = '1';
+$empresaDefault = 'ALL';
+
 $temporadaFiltro = isset($_REQUEST['TEMPORADA_FILTRO']) ? $_REQUEST['TEMPORADA_FILTRO'] : $TEMPORADAS;
-$especieFiltro = isset($_REQUEST['ESPECIE_FILTRO']) ? $_REQUEST['ESPECIE_FILTRO'] : '1';
-$empresaFiltro = isset($_REQUEST['EMPRESA_FILTRO']) ? $_REQUEST['EMPRESA_FILTRO'] : 'ALL';
+$especieFiltro = isset($_REQUEST['ESPECIE_FILTRO']) ? $_REQUEST['ESPECIE_FILTRO'] : $especieDefault;
+$empresaFiltro = isset($_REQUEST['EMPRESA_FILTRO']) ? $_REQUEST['EMPRESA_FILTRO'] : $empresaDefault;
 $semanaActual = intval(date('W'));
 
 $empresaSeleccionada = $EMPRESA_ADO->verEmpresa($EMPRESAS);
@@ -71,15 +74,16 @@ $kilosBulkPorEmpresaPlanta = [];
 $empresasNombres = [];
 $plantasNombres = [];
 
-$empresasActivas = array_values(array_filter($EMPRESA_ADO->listarEmpresaCBX(), function ($empresa) {
+$empresasActivasFull = array_values(array_filter($EMPRESA_ADO->listarEmpresaCBX(), function ($empresa) {
     return isset($empresa['ESTADO_REGISTRO']) ? intval($empresa['ESTADO_REGISTRO']) === 1 : true;
 }));
-$empresasActivas = array_values(array_filter($empresasActivas, function ($empresa) use ($empresaFiltro) {
-    return $empresaFiltro === 'ALL' || intval($empresa['ID_EMPRESA']) === intval($empresaFiltro);
-}));
-foreach ($empresasActivas as $empresaActiva) {
+foreach ($empresasActivasFull as $empresaActiva) {
     $empresasNombres[$empresaActiva['ID_EMPRESA']] = $empresaActiva['NOMBRE_EMPRESA'];
 }
+
+$empresasActivas = array_values(array_filter($empresasActivasFull, function ($empresa) use ($empresaFiltro) {
+    return $empresaFiltro === 'ALL' || intval($empresa['ID_EMPRESA']) === intval($empresaFiltro);
+}));
 
 foreach ($proyeccionesFiltradas as $proyeccion) {
     $kgProyectado = isset($proyeccion['kg_proyectado']) ? floatval($proyeccion['kg_proyectado']) : 0;
@@ -106,6 +110,11 @@ foreach ($empresasActivas as $empresaActiva) {
     $existenciasEmpresa = $EXIMATERIAPRIMA_ADO->listarEximateriaprimaEmpresaTemporada($empresaId, $temporadaFiltro);
     foreach ($existenciasEmpresa as $existencia) {
         if (!isset($existencia['ESTADO_REGISTRO']) || intval($existencia['ESTADO_REGISTRO']) !== 1) {
+            continue;
+        }
+
+        $estadoExistencia = isset($existencia['ESTADO']) ? intval($existencia['ESTADO']) : null;
+        if ($estadoExistencia === 0 || $estadoExistencia === 5 || $estadoExistencia === 6) {
             continue;
         }
 
@@ -186,9 +195,9 @@ foreach ($kilosTotalesPorEmpresaPlanta as $empresaId => $plantasTotales) {
     }
 }
 
-$empresasReporteIds = array_map(function ($empresa) {
-    return $empresa['ID_EMPRESA'];
-}, $empresasActivas);
+$empresasReporteIds = array_values(array_filter(array_keys($empresasConDatos), function ($empresaId) use ($empresasNombres) {
+    return isset($empresasNombres[$empresaId]);
+}));
 $plantasReporte = array_keys($plantasNombres);
 
 ?>
@@ -218,6 +227,23 @@ $plantasReporte = array_keys($plantasNombres);
         .filter-compact .form-control { font-size: 12px; padding: 6px 8px; }
         .filter-compact button { padding: 6px 12px; }
     </style>
+    <script type="text/javascript">
+        function limpiarFiltrosGerencial() {
+            var form = document.getElementById('filtroInformeGerencial');
+            if (!form) {
+                return;
+            }
+            var especieSelect = form.querySelector('select[name="ESPECIE_FILTRO"]');
+            var empresaSelect = form.querySelector('select[name="EMPRESA_FILTRO"]');
+            if (especieSelect) {
+                especieSelect.value = '<?php echo $especieDefault; ?>';
+            }
+            if (empresaSelect) {
+                empresaSelect.value = '<?php echo $empresaDefault; ?>';
+            }
+            form.submit();
+        }
+    </script>
 </head>
 <body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
     <div class="wrapper">
@@ -242,7 +268,7 @@ $plantasReporte = array_keys($plantasNombres);
                                         <h4 class="box-title mb-0">Recepciones acumuladas y cumplimiento de lo proyectado</h4>
                                         <p class="mb-0 text-muted">Distribución por empresa y planta comparando kilos reales vs. proyectados.</p>
                                     </div>
-                                    <form method="post" class="d-flex align-items-end gap-2 filter-compact">
+                                    <form method="post" id="filtroInformeGerencial" class="d-flex align-items-end gap-2 filter-compact">
                                         <input type="hidden" name="TEMPORADA_FILTRO" value="<?php echo htmlspecialchars($temporadaFiltro); ?>">
                                         <div class="col-auto p-0">
                                             <label class="mb-1">Especie</label>
@@ -268,6 +294,9 @@ $plantasReporte = array_keys($plantasNombres);
                                         </div>
                                         <div class="col-auto p-0 d-flex align-items-end">
                                             <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
+                                        </div>
+                                        <div class="col-auto p-0 d-flex align-items-end ml-1">
+                                            <button type="button" class="btn btn-secondary btn-sm" onclick="limpiarFiltrosGerencial()">Limpiar</button>
                                         </div>
                                     </form>
                                 </div>
