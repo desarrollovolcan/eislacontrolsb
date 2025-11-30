@@ -5,6 +5,8 @@ include_once "../../assest/controlador/PLANTA_ADO.php";
 include_once "../../assest/controlador/ESPECIES_ADO.php";
 include_once "../../assest/controlador/VESPECIES_ADO.php";
 include_once "../../assest/controlador/ERECEPCION_ADO.php";
+include_once "../../assest/controlador/PROCESO_ADO.php";
+include_once "../../assest/controlador/TPROCESO_ADO.php";
 
 setlocale(LC_TIME, 'es_ES.UTF-8', 'es_CL.UTF-8', 'es_ES', 'es_CL');
 
@@ -13,13 +15,15 @@ $PLANTA_ADO = new PLANTA_ADO();
 $ESPECIES_ADO = new ESPECIES_ADO();
 $VESPECIES_ADO = new VESPECIES_ADO();
 $ERECEPCION_ADO = new ERECEPCION_ADO();
+$PROCESO_ADO = new PROCESO_ADO();
+$TPROCESO_ADO = new TPROCESO_ADO();
 
 $ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
 $ARRAYESPECIE = array_values(array_filter($ESPECIES_ADO->listarEspeciesCBX(), function ($especie) {
     return isset($especie['ESTADO_REGISTRO']) ? intval($especie['ESTADO_REGISTRO']) === 1 : true;
 }));
 
-$especieDefault = '1';
+$especieDefault = '';
 $empresaDefault = 'ALL';
 
 $temporadaFiltro = isset($_REQUEST['TEMPORADA_FILTRO']) ? $_REQUEST['TEMPORADA_FILTRO'] : $TEMPORADAS;
@@ -64,7 +68,7 @@ $proyeccionesFiltradas = array_values(array_filter(
     function ($proyeccion) use ($temporadaFiltro, $especieFiltro, $semanaActual, $empresaFiltro) {
         $habilitado = !isset($proyeccion['habilitado']) || $proyeccion['habilitado'];
         $especieProyeccion = isset($proyeccion['especie']) ? $proyeccion['especie'] : null;
-        $coincideEspecie = $especieFiltro === '' ? true : ($especieProyeccion ? $especieProyeccion == $especieFiltro : false);
+        $coincideEspecie = ($especieFiltro === '' || !$especieFiltro) ? true : ($especieProyeccion ? intval($especieProyeccion) === intval($especieFiltro) : false);
         $semanaProyeccion = isset($proyeccion['semana']) ? intval($proyeccion['semana']) : null;
         $anoProyeccion = isset($proyeccion['ano']) ? intval($proyeccion['ano']) : null;
         $dentroSemana = $semanaProyeccion !== null && $semanaProyeccion > 0 && $semanaProyeccion <= $semanaActual;
@@ -98,6 +102,10 @@ $kilosTotalesPorEmpresaPlanta = [];
 $kilosBulkPorEmpresaPlanta = [];
 $empresasNombres = [];
 $plantasNombres = [];
+$kilosProcesadosPorPlanta = [];
+$totalesProcesadosTipo = [];
+$plantasActivas = $PLANTA_ADO->listarPlantaCBX();
+$tipoProcesoNombres = [];
 
 $empresasActivasFull = array_values(array_filter($EMPRESA_ADO->listarEmpresaCBX(), function ($empresa) {
     return isset($empresa['ESTADO_REGISTRO']) ? intval($empresa['ESTADO_REGISTRO']) === 1 : true;
@@ -279,6 +287,78 @@ foreach ($kilosTotalesPorEmpresaPlanta as $empresaId => $plantasTotales) {
     }
 }
 
+foreach ($plantasActivas as $planta) {
+    if (!isset($planta['ESTADO_REGISTRO']) || intval($planta['ESTADO_REGISTRO']) !== 1) {
+        continue;
+    }
+
+    $plantaId = $planta['ID_PLANTA'];
+    $empresaPlanta = isset($planta['ID_EMPRESA']) ? $planta['ID_EMPRESA'] : null;
+
+    if (!$empresaPlanta || !isset($empresasNombres[$empresaPlanta])) {
+        continue;
+    }
+
+    if ($empresaFiltro !== 'ALL' && intval($empresaFiltro) !== intval($empresaPlanta)) {
+        continue;
+    }
+
+    if (!isset($plantasNombres[$plantaId])) {
+        $plantasNombres[$plantaId] = $planta['NOMBRE_PLANTA'];
+    }
+
+    $procesosPlanta = $PROCESO_ADO->listarProcesoEmpresaPlantaTemporadaCBX($empresaPlanta, $plantaId, $temporadaFiltro);
+    foreach ($procesosPlanta as $proceso) {
+        if (!isset($proceso['ESTADO_REGISTRO']) || intval($proceso['ESTADO_REGISTRO']) !== 1) {
+            continue;
+        }
+
+        $idVespeciesProceso = isset($proceso['ID_VESPECIES']) ? $proceso['ID_VESPECIES'] : null;
+        $especieProceso = $idVespeciesProceso && isset($mapVespeciesEspecie[$idVespeciesProceso]) ? $mapVespeciesEspecie[$idVespeciesProceso] : null;
+        if (!$especieProceso && isset($proceso['ID_ESPECIES'])) {
+            $especieProceso = $proceso['ID_ESPECIES'];
+        }
+
+        $coincideEspecieProceso = ($especieFiltro === '' || !$especieFiltro || !$especieProceso) ? true : intval($especieProceso) === intval($especieFiltro);
+        if (!$coincideEspecieProceso) {
+            continue;
+        }
+
+        $kgProcesados = isset($proceso['KILOS_NETO_PROCESO']) ? floatval($proceso['KILOS_NETO_PROCESO']) : (isset($proceso['NETO']) ? floatval($proceso['NETO']) : 0);
+        if ($kgProcesados <= 0) {
+            continue;
+        }
+
+        $tipoProcesoId = isset($proceso['ID_TPROCESO']) ? $proceso['ID_TPROCESO'] : null;
+        if ($tipoProcesoId && !isset($tipoProcesoNombres[$tipoProcesoId])) {
+            $tipoProceso = $TPROCESO_ADO->verTproceso($tipoProcesoId);
+            $tipoProcesoNombres[$tipoProcesoId] = $tipoProceso ? $tipoProceso[0]['NOMBRE_TPROCESO'] : 'Proceso';
+        }
+        $nombreTipo = $tipoProcesoId && isset($tipoProcesoNombres[$tipoProcesoId]) ? $tipoProcesoNombres[$tipoProcesoId] : 'Proceso';
+
+        if (!isset($kilosProcesadosPorPlanta[$plantaId])) {
+            $kilosProcesadosPorPlanta[$plantaId] = [
+                'planta' => $plantasNombres[$plantaId],
+                'empresa' => $empresaPlanta,
+                'tipos' => [],
+                'total' => 0,
+            ];
+        }
+
+        if (!isset($kilosProcesadosPorPlanta[$plantaId]['tipos'][$nombreTipo])) {
+            $kilosProcesadosPorPlanta[$plantaId]['tipos'][$nombreTipo] = 0;
+        }
+
+        $kilosProcesadosPorPlanta[$plantaId]['tipos'][$nombreTipo] += $kgProcesados;
+        $kilosProcesadosPorPlanta[$plantaId]['total'] += $kgProcesados;
+
+        if (!isset($totalesProcesadosTipo[$nombreTipo])) {
+            $totalesProcesadosTipo[$nombreTipo] = 0;
+        }
+        $totalesProcesadosTipo[$nombreTipo] += $kgProcesados;
+    }
+}
+
 $empresasReporteIds = array_values(array_filter(array_keys($empresasConDatos), function ($empresaId) use ($empresasNombres) {
     return isset($empresasNombres[$empresaId]);
 }));
@@ -314,6 +394,7 @@ $empresasSemanaIds = array_values(array_filter(array_keys($empresasConDatosSeman
         .alert-soft { background: #f3f7ff; border: 1px solid #d4e2ff; color: #2d4b7a; }
         .filter-compact .form-control { font-size: 12px; padding: 6px 8px; }
         .filter-compact button { padding: 6px 12px; }
+        .section-highlight { background: #f9e0c7; font-weight: 700; }
     </style>
     <script type="text/javascript">
         function limpiarFiltrosGerencial() {
@@ -454,6 +535,56 @@ $empresasSemanaIds = array_values(array_filter(array_keys($empresasConDatosSeman
                                         </table>
                                     <?php } else { ?>
                                         <div class="alert alert-soft mb-0">No hay datos de recepciones o proyecciones para construir el resumen por empresa.</div>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+                <section class="content pt-0">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="box metric-card">
+                                <div class="box-header with-border d-flex flex-wrap align-items-center justify-content-between">
+                                    <div>
+                                        <h4 class="box-title mb-0">Acumulado temporada actual</h4>
+                                        <p class="mb-0 text-muted">Kilos procesados por planta y tipo de proceso.</p>
+                                    </div>
+                                </div>
+                                <div class="box-body table-responsive">
+                                    <?php if ($kilosProcesadosPorPlanta) { ?>
+                                        <table class="table table-bordered table-sm projection-table text-center">
+                                            <thead>
+                                                <tr class="section-highlight">
+                                                    <th class="text-left">Packing</th>
+                                                    <th class="text-right">Kg procesados</th>
+                                                    <th>Tipo de proceso</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($kilosProcesadosPorPlanta as $plantaId => $datosPlanta) { ?>
+                                                    <?php foreach ($datosPlanta['tipos'] as $nombreTipo => $kgTipo) { ?>
+                                                        <tr>
+                                                            <td class="text-left"><?php echo htmlspecialchars($datosPlanta['planta']); ?></td>
+                                                            <td class="text-right"><?php echo number_format($kgTipo, 0, ',', '.'); ?></td>
+                                                            <td><?php echo htmlspecialchars($nombreTipo); ?></td>
+                                                        </tr>
+                                                    <?php } ?>
+                                                <?php } ?>
+                                                <tr class="font-weight-600">
+                                                    <td class="text-left">Totales</td>
+                                                    <td class="text-right"><?php echo number_format(array_sum($totalesProcesadosTipo), 0, ',', '.'); ?></td>
+                                                    <td>
+                                                        <?php foreach ($totalesProcesadosTipo as $nombreTipo => $kgTipo) { ?>
+                                                            <span class="d-inline-block mr-2"><?php echo htmlspecialchars($nombreTipo) . ': ' . number_format($kgTipo, 0, ',', '.'); ?></span>
+                                                        <?php } ?>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    <?php } else { ?>
+                                        <div class="alert alert-soft mb-0">No hay procesos registrados con los filtros seleccionados.</div>
                                     <?php } ?>
                                 </div>
                             </div>
