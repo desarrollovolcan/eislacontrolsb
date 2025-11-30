@@ -57,6 +57,17 @@ $ARRAYEXISMATERIPRIMAPROCESO = "";
 if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
     $ARRAYPROCESO = $PROCESO_ADO->listarProcesoEmpresaPlantaTemporadaCBX($EMPRESAS, $PLANTAS, $TEMPORADAS);
 }
+$ARRAYPROCESOSBAJOEXPORTACION = [];
+if ($ARRAYPROCESO) {
+    foreach ($ARRAYPROCESO as $proceso) {
+        if ($proceso['PDEXPORTACION_PROCESO'] < 85) {
+            $ARRAYPROCESOSBAJOEXPORTACION[] = [
+                "numero" => $proceso['NUMERO_PROCESO'],
+                "porcentaje" => number_format($proceso['PDEXPORTACION_PROCESO'], 2, ".", "")
+            ];
+        }
+    }
+}
 include_once "../../assest/config/validarDatosUrl.php";
 include_once "../../assest/config/datosUrLP.php";
 
@@ -84,6 +95,7 @@ include_once "../../assest/config/datosUrLP.php";
                 border-left: none;
                 border-top: 2px solid #f4c37d;
                 border-bottom: 2px solid #f4c37d;
+                border-left: 3px solid #f4c37d;
             }
 
             .proceso-bajo-exportacion .etiqueta-bajo-exportacion {
@@ -95,6 +107,11 @@ include_once "../../assest/config/datosUrLP.php";
                 background-color: #fffaf2;
                 color: #a0680d;
                 font-weight: 600;
+            .proceso-bajo-exportacion td {
+                background-color: #fff6e9 !important;
+                border-left: 4px solid #ffb74d;
+            .proceso-bajo-exportacion {
+                background-color: #ffcc80 !important;
             }
         </style>
         <!- FUNCIONES BASES -!>
@@ -260,6 +277,7 @@ include_once "../../assest/config/datosUrLP.php";
 
                                                     $esProcesoBajoExportacion = $r['PDEXPORTACION_PROCESO'] < 85;
                                                     $claseProceso = $esProcesoBajoExportacion ? 'proceso-bajo-exportacion' : '';
+                                                    $claseProceso = $r['PDEXPORTACION_PROCESO'] < 85 ? 'proceso-bajo-exportacion' : '';
                                                     ?>
                                                     <tr class="text-center <?php echo $claseProceso; ?>">
                                                         <td> <?php echo $r['NUMERO_PROCESO']; ?> </td>
