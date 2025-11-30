@@ -57,6 +57,17 @@ $ARRAYEXISMATERIPRIMAPROCESO = "";
 if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
     $ARRAYPROCESO = $PROCESO_ADO->listarProcesoEmpresaPlantaTemporadaCBX($EMPRESAS, $PLANTAS, $TEMPORADAS);
 }
+$ARRAYPROCESOSBAJOEXPORTACION = [];
+if ($ARRAYPROCESO) {
+    foreach ($ARRAYPROCESO as $proceso) {
+        if ($proceso['PDEXPORTACION_PROCESO'] < 85) {
+            $ARRAYPROCESOSBAJOEXPORTACION[] = [
+                "numero" => $proceso['NUMERO_PROCESO'],
+                "porcentaje" => number_format($proceso['PDEXPORTACION_PROCESO'], 2, ".", "")
+            ];
+        }
+    }
+}
 include_once "../../assest/config/validarDatosUrl.php";
 include_once "../../assest/config/datosUrLP.php";
 
@@ -399,6 +410,17 @@ include_once "../../assest/config/datosUrLP.php";
                 html: "<label>Los <b>procesos</b> Abiertos tienen que ser <b>Cerrados</b> para no afectar las operaciones posteriores.</label>"
             })
 
+            const procesosBajoExportacion = <?php echo json_encode($ARRAYPROCESOSBAJOEXPORTACION); ?>;
+            if (procesosBajoExportacion.length > 0) {
+                const listaProcesos = procesosBajoExportacion
+                    .map((proceso) => `<li><b>Proceso Nº ${proceso.numero}</b>: ${proceso.porcentaje}% exportación</li>`) 
+                    .join("");
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Procesos bajo 85% de exportación',
+                    html: `<p>Revisar los siguientes procesos que no alcanzan el 85% de exportación:</p><ul class="text-left" style="padding-left: 18px;">${listaProcesos}</ul>`
+                });
+            }
         </script>
 </body>
 
