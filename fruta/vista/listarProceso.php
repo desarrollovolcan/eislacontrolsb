@@ -75,6 +75,25 @@ include_once "../../assest/config/datosUrLP.php";
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
+        <style>
+            .low-export-indicator {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-weight: 600;
+                color: #c46b00;
+                letter-spacing: 0.02em;
+            }
+
+            .low-export-indicator::before {
+                content: '';
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #f7e2c2, #f0a040);
+                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+            }
+        </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
                 //REDIRECCIONAR A LA PAGINA SELECIONADA
@@ -236,6 +255,7 @@ include_once "../../assest/config/datosUrLP.php";
                                                         $NOMBRETEMPORADA = "Sin Datos";
                                                     }
 
+                                                    $esProcesoBajoExportacion = $r['PDEXPORTACION_PROCESO'] < 85;
                                                     ?>
                                                     <tr class="text-center">
                                                         <td> <?php echo $r['NUMERO_PROCESO']; ?> </td>
@@ -307,7 +327,13 @@ include_once "../../assest/config/datosUrLP.php";
                                                         <td><?php echo $r['SUMA_DIFERENCIA_PROCESO']; ?></td> 
                                                         <td><?php echo $r['SUMA_INDUSTRIAL_INFO']; ?></td> 
                                                         <td><?php echo number_format( $r['ENTRADA']-$r['EXPORTACION']-$r['SUMA_INDUSTRIAL_INFO']-$r['SUMA_DIFERENCIA_PROCESO'],2,".",""); ?></td>                                                        
-                                                        <td><?php echo $r['PDEXPORTACION_PROCESO']; ?></td>
+                                                        <td>
+                                                            <?php if ($esProcesoBajoExportacion) { ?>
+                                                                <span class="low-export-indicator" title="Bajo 85% de exportación"><?php echo $r['PDEXPORTACION_PROCESO']; ?>%</span>
+                                                            <?php } else { ?>
+                                                                <?php echo $r['PDEXPORTACION_PROCESO']; ?>%
+                                                            <?php } ?>
+                                                        </td>
                                                         <td><?php echo $r['PDEXPORTACIONCD_PROCESO']-$r['PDEXPORTACION_PROCESO']; ?></td>
                                                         <td><?php echo $r['PDINDUSTRIAL_PROCESO']; ?></td>
                                                         <td><?php echo number_format($r['PORCENTAJE_PROCESO'], 2, ".", "");  ?></td>
@@ -380,18 +406,8 @@ include_once "../../assest/config/datosUrLP.php";
     </div>
     <?php include_once "../../assest/config/urlBase.php"; ?>
         <script>
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                showConfirmButton: true
-            })
-
-            Toast.fire({
-                icon: "info",
-                title: "Informacion importante",
-                html: "<label>Los <b>procesos</b> Abiertos tienen que ser <b>Cerrados</b> para no afectar las operaciones posteriores.</label>"
-            })
+            // Aviso visual en tabla para procesos bajo 85% de exportación
+            // (sin popups adicionales)
         </script>
 </body>
 
