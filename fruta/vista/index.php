@@ -20,7 +20,6 @@ $query_acumuladoHastaCincoAm = $CONSULTA_ADO->TotalKgMpRecepcionadoHastaCincoAm(
 
 //proceso
 $query_totalesProceso = $CONSULTA_ADO->TotalKgProcesoEntradaSalida($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_procesosBajaExportacion = $CONSULTA_ADO->UltimosProcesosBajaExportacionCerrados($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
 //exportación
 $query_exportacionProductor = $CONSULTA_ADO->TopExportacionPorProductor($TEMPORADAS, $EMPRESAS, $PLANTAS);
@@ -28,39 +27,11 @@ $query_exportacionVariedad = $CONSULTA_ADO->TopExportacionPorVariedad($TEMPORADA
 
 //existencia materia prima
 $query_existenciaVariedad = $CONSULTA_ADO->ExistenciaMateriaPrimaPorVariedad($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_registrosAbiertos = $CONSULTA_ADO->contarRegistrosAbiertosFruta($EMPRESAS, $PLANTAS, $TEMPORADAS);
 
 $kilosMateriaPrimaAcumulado = $query_acumuladoMP ? $query_acumuladoMP[0]["TOTAL"] : 0;
 $kilosMateriaPrimaHastaCinco = $query_acumuladoHastaCincoAm ? $query_acumuladoHastaCincoAm[0]["TOTAL"] : 0;
 $kilosEntradaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["ENTRADA"])) ? $query_totalesProceso[0]["ENTRADA"] : 0;
 $kilosSalidaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["SALIDA"])) ? $query_totalesProceso[0]["SALIDA"] : 0;
-$recepcionesAbiertas = $query_registrosAbiertos ? $query_registrosAbiertos[0]["RECEPCION"] : 0;
-$procesosAbiertos = $query_registrosAbiertos ? $query_registrosAbiertos[0]["PROCESO"] : 0;
-$maxExportProd = 0;
-$maxExportVariedad = 0;
-$maxExistencia = 0;
-
-if ($query_exportacionProductor) {
-    foreach ($query_exportacionProductor as $fila) {
-        if ($fila["TOTAL"] > $maxExportProd) {
-            $maxExportProd = $fila["TOTAL"];
-        }
-    }
-}
-if ($query_exportacionVariedad) {
-    foreach ($query_exportacionVariedad as $fila) {
-        if ($fila["TOTAL"] > $maxExportVariedad) {
-            $maxExportVariedad = $fila["TOTAL"];
-        }
-    }
-}
-if ($query_existenciaVariedad) {
-    foreach ($query_existenciaVariedad as $fila) {
-        if ($fila["TOTAL"] > $maxExistencia) {
-            $maxExistencia = $fila["TOTAL"];
-        }
-    }
-}
 
 if ($query_datosPlanta) {
     $nombePlanta = $query_datosPlanta[0]['NOMBRE_PLANTA'];
@@ -161,7 +132,7 @@ if($ARRAYREGISTROSABIERTOS){
                                 <div class="box box-body bg-info-light">
                                     <div class="flexbox align-items-center">
                                         <div>
-                                            <p class="mb-0">Existencia neta hasta las 05:00</p>
+                                            <p class="mb-0">Kilos netos hasta las 05:00</p>
                                             <h3 class="mt-0 mb-0 text-info"><?php echo number_format(round($kilosMateriaPrimaHastaCinco, 0), 0, ",", "."); ?> kg</h3>
                                         </div>
                                         <span class="icon-Alarm-clock fs-40 text-info"></span>
@@ -195,56 +166,36 @@ if($ARRAYREGISTROSABIERTOS){
                         </div>
 
                         <div class="row">
-                            <div class="col-xl-3 col-md-6 col-12">
-                                <div class="box box-body bg-secondary-light">
-                                    <div class="flexbox align-items-center">
-                                        <div>
-                                            <p class="mb-0">Recepciones abiertas</p>
-                                            <h4 class="mt-0 mb-0 text-secondary"><?php echo intval($recepcionesAbiertas); ?></h4>
-                                        </div>
-                                        <span class="icon-Notes fs-30 text-secondary"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6 col-12">
-                                <div class="box box-body bg-secondary-light">
-                                    <div class="flexbox align-items-center">
-                                        <div>
-                                            <p class="mb-0">Procesos abiertos</p>
-                                            <h4 class="mt-0 mb-0 text-secondary"><?php echo intval($procesosAbiertos); ?></h4>
-                                        </div>
-                                        <span class="icon-Gear fs-30 text-secondary"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-xl-6 col-12">
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Top 5 exportación por productor</h4>
                                     </div>
-                                    <div class="box-body">
-                                        <?php if ($query_exportacionProductor) { ?>
-                                            <?php foreach ($query_exportacionProductor as $fila) { 
-                                                $nombreProd = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre";
-                                                $totalProd = round($fila["TOTAL"], 0);
-                                                $porcentajeProd = $maxExportProd > 0 ? ($totalProd / $maxExportProd) * 100 : 0;
-                                            ?>
-                                                <div class="mb-2">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span><?php echo $nombreProd; ?></span>
-                                                        <span><?php echo number_format($totalProd, 0, ",", "."); ?> kg</span>
-                                                    </div>
-                                                    <div class="progress progress-sm">
-                                                        <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $porcentajeProd; ?>%" aria-valuenow="<?php echo $porcentajeProd; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                </div>
-                                            <?php } ?>
-                                        <?php } else { ?>
-                                            <p class="text-center mb-0">Sin exportaciones registradas.</p>
-                                        <?php } ?>
+                                    <div class="box-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Productor</th>
+                                                        <th class="text-right">Kilos netos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if ($query_exportacionProductor) { ?>
+                                                        <?php foreach ($query_exportacionProductor as $fila) { ?>
+                                                            <tr>
+                                                                <td><?php echo $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre"; ?></td>
+                                                                <td class="text-right"><?php echo number_format(round($fila["TOTAL"], 0), 0, ",", "."); ?> kg</td>
+                                                            </tr>
+                                                        <?php } ?>
+                                                    <?php } else { ?>
+                                                        <tr>
+                                                            <td colspan="2" class="text-center">Sin exportaciones registradas.</td>
+                                                        </tr>
+                                                    <?php } ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -254,93 +205,67 @@ if($ARRAYREGISTROSABIERTOS){
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Top 5 exportación por variedad</h4>
                                     </div>
-                                    <div class="box-body">
-                                        <?php if ($query_exportacionVariedad) { ?>
-                                            <?php foreach ($query_exportacionVariedad as $fila) { 
-                                                $nombreVar = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre";
-                                                $totalVar = round($fila["TOTAL"], 0);
-                                                $porcentajeVar = $maxExportVariedad > 0 ? ($totalVar / $maxExportVariedad) * 100 : 0;
-                                            ?>
-                                                <div class="mb-2">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span><?php echo $nombreVar; ?></span>
-                                                        <span><?php echo number_format($totalVar, 0, ",", "."); ?> kg</span>
-                                                    </div>
-                                                    <div class="progress progress-sm">
-                                                        <div class="progress-bar bg-info" role="progressbar" style="width: <?php echo $porcentajeVar; ?>%" aria-valuenow="<?php echo $porcentajeVar; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                </div>
-                                            <?php } ?>
-                                        <?php } else { ?>
-                                            <p class="text-center mb-0">Sin exportaciones registradas.</p>
-                                        <?php } ?>
+                                    <div class="box-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Variedad</th>
+                                                        <th class="text-right">Kilos netos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if ($query_exportacionVariedad) { ?>
+                                                        <?php foreach ($query_exportacionVariedad as $fila) { ?>
+                                                            <tr>
+                                                                <td><?php echo $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre"; ?></td>
+                                                                <td class="text-right"><?php echo number_format(round($fila["TOTAL"], 0), 0, ",", "."); ?> kg</td>
+                                                            </tr>
+                                                        <?php } ?>
+                                                    <?php } else { ?>
+                                                        <tr>
+                                                            <td colspan="2" class="text-center">Sin exportaciones registradas.</td>
+                                                        </tr>
+                                                    <?php } ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-xl-6 col-12">
+                            <div class="col-12">
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Existencia de materia prima por variedad</h4>
                                     </div>
-                                    <div class="box-body">
-                                        <?php if ($query_existenciaVariedad) { ?>
-                                            <?php foreach ($query_existenciaVariedad as $fila) { 
-                                                $nombreExi = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre";
-                                                $totalExi = round($fila["TOTAL"], 0);
-                                                $porcentajeExi = $maxExistencia > 0 ? ($totalExi / $maxExistencia) * 100 : 0;
-                                            ?>
-                                                <div class="mb-2">
-                                                    <div class="d-flex justify-content-between">
-                                                        <span><?php echo $nombreExi; ?></span>
-                                                        <span><?php echo number_format($totalExi, 0, ",", "."); ?> kg</span>
-                                                    </div>
-                                                    <div class="progress progress-sm">
-                                                        <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $porcentajeExi; ?>%" aria-valuenow="<?php echo $porcentajeExi; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                </div>
-                                            <?php } ?>
-                                        <?php } else { ?>
-                                            <p class="text-center mb-0">No hay existencias registradas.</p>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-6 col-12">
-                                <div class="box">
-                                    <div class="box-header with-border">
-                                        <h4 class="box-title">Procesos cerrados con menor % de exportación</h4>
-                                    </div>
-                                    <div class="box-body">
-                                        <?php if ($query_procesosBajaExportacion) { ?>
-                                            <?php foreach ($query_procesosBajaExportacion as $proceso) { 
-                                                $porcentajeExpo = number_format($proceso["PDEXPORTACION_PROCESO"], 2, ".", "");
-                                                $porcentajeTotal = number_format($proceso["PDEXPORTACIONCD_PROCESO"], 2, ".", "");
-                                            ?>
-                                                <div class="mb-3 border-bottom pb-2">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <div>
-                                                            <strong>Proceso #<?php echo $proceso["NUMERO_PROCESO"]; ?></strong>
-                                                            <div class="text-muted small">Fecha: <?php echo $proceso["FECHA_PROCESO"]; ?></div>
-                                                        </div>
-                                                        <span class="badge badge-pill badge-warning">Expo: <?php echo $porcentajeExpo; ?>%</span>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between small mt-1">
-                                                        <span>Entrada: <?php echo number_format($proceso["KILOS_NETO_ENTRADA"], 0, ",", "."); ?> kg</span>
-                                                        <span>Exportado: <?php echo number_format($proceso["KILOS_EXPORTACION_PROCESO"], 0, ",", "."); ?> kg</span>
-                                                        <span>Total: <?php echo $porcentajeTotal; ?>%</span>
-                                                    </div>
-                                                    <div class="progress progress-sm mt-1">
-                                                        <div class="progress-bar bg-warning" role="progressbar" style="width: <?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>%" aria-valuenow="<?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                </div>
-                                            <?php } ?>
-                                        <?php } else { ?>
-                                            <p class="text-center mb-0">Sin procesos cerrados con baja exportación.</p>
-                                        <?php } ?>
+                                    <div class="box-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Variedad</th>
+                                                        <th class="text-right">Kilos netos disponibles</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if ($query_existenciaVariedad) { ?>
+                                                        <?php foreach ($query_existenciaVariedad as $fila) { ?>
+                                                            <tr>
+                                                                <td><?php echo $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre"; ?></td>
+                                                                <td class="text-right"><?php echo number_format(round($fila["TOTAL"], 0), 0, ",", "."); ?> kg</td>
+                                                            </tr>
+                                                        <?php } ?>
+                                                    <?php } else { ?>
+                                                        <tr>
+                                                            <td colspan="2" class="text-center">No hay existencias registradas.</td>
+                                                        </tr>
+                                                    <?php } ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
