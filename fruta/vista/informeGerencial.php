@@ -15,6 +15,7 @@ $ARRAYESPECIE = $ESPECIES_ADO->listarEspeciesCBX();
 
 $temporadaFiltro = isset($_REQUEST['TEMPORADA_FILTRO']) ? $_REQUEST['TEMPORADA_FILTRO'] : $TEMPORADAS;
 $especieFiltro = isset($_REQUEST['ESPECIE_FILTRO']) ? $_REQUEST['ESPECIE_FILTRO'] : '';
+$semanaActual = intval(date('W'));
 
 $empresaSeleccionada = $EMPRESA_ADO->verEmpresa($EMPRESAS);
 $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'] : '';
@@ -33,11 +34,12 @@ foreach ($ARRAYVESPECIES as $variedad) {
 
 $proyeccionesFiltradas = array_values(array_filter(
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'],
-    function ($proyeccion) use ($temporadaFiltro, $especieFiltro) {
+    function ($proyeccion) use ($temporadaFiltro, $especieFiltro, $semanaActual) {
         $habilitado = !isset($proyeccion['habilitado']) || $proyeccion['habilitado'];
         $especieProyeccion = isset($proyeccion['especie']) ? $proyeccion['especie'] : '';
-        $coincideEspecie = !$especieFiltro || !$especieProyeccion || $especieProyeccion == $especieFiltro;
-        return $habilitado && $proyeccion['temporada'] == $temporadaFiltro && $coincideEspecie;
+        $coincideEspecie = !$especieFiltro ? true : ($especieProyeccion && $especieProyeccion == $especieFiltro);
+        $dentroSemana = !isset($proyeccion['semana']) || intval($proyeccion['semana']) <= $semanaActual;
+        return $habilitado && $proyeccion['temporada'] == $temporadaFiltro && $coincideEspecie && $dentroSemana;
     }
 ));
 
@@ -52,15 +54,16 @@ $plantasNombres = [];
 
 $empresasActivas = $EMPRESA_ADO->listarEmpresaCBX();
 foreach ($empresasActivas as $empresaActiva) {
-    $empresasReporte[$empresaActiva['ID_EMPRESA']] = true;
     $empresasNombres[$empresaActiva['ID_EMPRESA']] = $empresaActiva['NOMBRE_EMPRESA'];
-    $proyeccionTotalEmpresa[$empresaActiva['ID_EMPRESA']] = 0;
-    $kilosRealesTotales[$empresaActiva['ID_EMPRESA']] = ['granel' => 0, 'bulk' => 0, 'total' => 0];
 }
 
 foreach ($proyeccionesFiltradas as $proyeccion) {
-    $kgProyectado = $proyeccion['kg_proyectado'];
-    $empresaId = $proyeccion['empresa'];
+    $kgProyectado = isset($proyeccion['kg_proyectado']) ? floatval($proyeccion['kg_proyectado']) : 0;
+    $empresaId = isset($proyeccion['empresa']) ? intval($proyeccion['empresa']) : null;
+
+    if (!$empresaId || !isset($empresasNombres[$empresaId]) || $kgProyectado <= 0) {
+        continue;
+    }
 
     if (!isset($proyeccionTotalEmpresa[$empresaId])) {
         $proyeccionTotalEmpresa[$empresaId] = 0;
@@ -68,9 +71,11 @@ foreach ($proyeccionesFiltradas as $proyeccion) {
 
     $proyeccionTotalEmpresa[$empresaId] += $kgProyectado;
     $totalProyectado += $kgProyectado;
+    $empresasReporte[$empresaId] = true;
 }
 
-foreach (array_keys($empresasReporte) as $empresaId) {
+foreach ($empresasActivas as $empresaActiva) {
+    $empresaId = $empresaActiva['ID_EMPRESA'];
     $existenciasEmpresa = $EXIMATERIAPRIMA_ADO->listarEximateriaprimaEmpresaTemporada($empresaId, $temporadaFiltro);
     foreach ($existenciasEmpresa as $existencia) {
         if (!isset($existencia['ESTADO_REGISTRO']) || $existencia['ESTADO_REGISTRO'] != 1) {
@@ -85,10 +90,18 @@ foreach (array_keys($empresasReporte) as $empresaId) {
 
         $kgReal = isset($existencia['KILOS_NETO_EXIMATERIAPRIMA']) ? floatval($existencia['KILOS_NETO_EXIMATERIAPRIMA']) : 0;
         $plantaId = isset($existencia['ID_PLANTA']) ? $existencia['ID_PLANTA'] : null;
-        $agrupacion = isset($existencia['ID_AGERENCIAL']) ? intval($existencia['ID_AGERENCIAL']) : 0;
+        $agrupacion = isset($existencia['ID_AGERENCIAL']) ? intval($existencia['ID_AGERENCIAL']) : null;
 
-        if (!$plantaId) {
+        if (!$plantaId || !$agrupacion || $kgReal <= 0) {
             continue;
+        }
+
+        if (!isset($kilosRealesPorEmpresaPlanta[$empresaId])) {
+            $kilosRealesPorEmpresaPlanta[$empresaId] = [];
+        }
+
+        if (!isset($kilosRealesTotales[$empresaId])) {
+            $kilosRealesTotales[$empresaId] = ['granel' => 0, 'bulk' => 0, 'total' => 0];
         }
 
         if (!isset($kilosRealesPorEmpresaPlanta[$empresaId][$plantaId])) {
@@ -98,13 +111,16 @@ foreach (array_keys($empresasReporte) as $empresaId) {
         if ($agrupacion === 2) {
             $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['bulk'] += $kgReal;
             $kilosRealesTotales[$empresaId]['bulk'] += $kgReal;
-        } else {
+        } elseif ($agrupacion === 1) {
             $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['granel'] += $kgReal;
             $kilosRealesTotales[$empresaId]['granel'] += $kgReal;
+        } else {
+            continue;
         }
 
         $kilosRealesTotales[$empresaId]['total'] += $kgReal;
         $totalReal += $kgReal;
+        $empresasReporte[$empresaId] = true;
 
         if (!isset($plantasNombres[$plantaId])) {
             $plantaInfo = $PLANTA_ADO->verPlanta($plantaId);
@@ -113,6 +129,7 @@ foreach (array_keys($empresasReporte) as $empresaId) {
     }
 }
 
+$empresasReporteIds = array_keys($empresasReporte);
 $plantasReporte = array_keys($plantasNombres);
 
 ?>
@@ -139,6 +156,8 @@ $plantasReporte = array_keys($plantasNombres);
         .section-title { font-weight: 600; font-size: 16px; }
         .badge-soft { padding: 6px 10px; border-radius: 10px; font-size: 12px; background: #f5f7fb; }
         .alert-soft { background: #f3f7ff; border: 1px solid #d4e2ff; color: #2d4b7a; }
+        .filter-compact .form-control { font-size: 12px; padding: 6px 8px; }
+        .filter-compact button { padding: 6px 12px; }
     </style>
 </head>
 <body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
@@ -164,11 +183,11 @@ $plantasReporte = array_keys($plantasNombres);
                                     <p class="mb-0 text-muted">Empresa base: <?php echo htmlspecialchars($nombreEmpresa); ?></p>
                                 </div>
                                 <div class="box-body">
-                                    <form method="post" class="row align-items-end">
+                                    <form method="post" class="d-flex flex-wrap align-items-end gap-2 filter-compact">
                                         <input type="hidden" name="TEMPORADA_FILTRO" value="<?php echo htmlspecialchars($temporadaFiltro); ?>">
-                                        <div class="col-lg-4 col-md-6 col-12">
-                                            <label>Especie</label>
-                                            <select name="ESPECIE_FILTRO" class="form-control" onchange="this.form.submit()">
+                                        <div class="col-auto">
+                                            <label class="mb-1">Especie</label>
+                                            <select name="ESPECIE_FILTRO" class="form-control form-control-sm" onchange="this.form.submit()">
                                                 <option value="" <?php echo $especieFiltro ? '' : 'selected'; ?>>Todas</option>
                                                 <?php foreach ($ARRAYESPECIE as $ESPECIE) { ?>
                                                     <option value="<?php echo $ESPECIE['ID_ESPECIES']; ?>" <?php echo $ESPECIE['ID_ESPECIES'] == $especieFiltro ? 'selected' : ''; ?>>
@@ -177,8 +196,8 @@ $plantasReporte = array_keys($plantasNombres);
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                        <div class="col-lg-8 col-md-6 col-12 d-flex align-items-end">
-                                            <button type="submit" class="btn btn-primary">Aplicar filtro</button>
+                                        <div class="col-auto d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
                                         </div>
                                     </form>
                                 </div>
@@ -194,12 +213,12 @@ $plantasReporte = array_keys($plantasNombres);
                                     <p class="mb-0 text-muted">Distribución por empresa y planta comparando kilos reales vs. proyectados.</p>
                                 </div>
                                 <div class="box-body table-responsive">
-                                    <?php if ($empresasReporte && $plantasReporte) { ?>
+                                    <?php if ($empresasReporteIds && $plantasReporte) { ?>
                                         <table class="table table-bordered projection-table text-center">
                                             <thead>
                                                 <tr>
                                                     <th rowspan="2" class="align-middle text-left">Planta</th>
-                                                    <?php foreach (array_keys($empresasReporte) as $empresaId) {
+                                                    <?php foreach ($empresasReporteIds as $empresaId) {
                                                         $proyectadoEmpresa = isset($proyeccionTotalEmpresa[$empresaId]) ? $proyeccionTotalEmpresa[$empresaId] : 0;
                                                         $realEmpresa = isset($kilosRealesTotales[$empresaId]['total']) ? $kilosRealesTotales[$empresaId]['total'] : 0;
                                                         $cumplimientoEmpresa = $proyectadoEmpresa > 0 ? ($realEmpresa / $proyectadoEmpresa) * 100 : 0;
@@ -215,7 +234,7 @@ $plantasReporte = array_keys($plantasNombres);
                                                     <?php } ?>
                                                 </tr>
                                                 <tr>
-                                                    <?php foreach (array_keys($empresasReporte) as $empresaId) { ?>
+                                                    <?php foreach ($empresasReporteIds as $empresaId) { ?>
                                                         <th>Real granel</th>
                                                         <th>Real bulk</th>
                                                         <th>Proyectado</th>
@@ -226,7 +245,7 @@ $plantasReporte = array_keys($plantasNombres);
                                                 <?php foreach ($plantasReporte as $plantaId) { ?>
                                                     <tr>
                                                         <td class="text-left"><?php echo htmlspecialchars($plantasNombres[$plantaId]); ?></td>
-                                                        <?php foreach (array_keys($empresasReporte) as $empresaId) {
+                                                        <?php foreach ($empresasReporteIds as $empresaId) {
                                                             $realPlantaGranel = isset($kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['granel']) ? $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['granel'] : 0;
                                                             $realPlantaBulk = isset($kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['bulk']) ? $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['bulk'] : 0;
                                                             $proyectadoEmpresa = isset($proyeccionTotalEmpresa[$empresaId]) ? $proyeccionTotalEmpresa[$empresaId] : 0;
@@ -239,7 +258,7 @@ $plantasReporte = array_keys($plantasNombres);
                                                 <?php } ?>
                                                 <tr class="font-weight-600">
                                                     <td class="text-left">Subtotal</td>
-                                                    <?php foreach (array_keys($empresasReporte) as $empresaId) {
+                                                    <?php foreach ($empresasReporteIds as $empresaId) {
                                                         $proyectadoEmpresa = isset($proyeccionTotalEmpresa[$empresaId]) ? $proyeccionTotalEmpresa[$empresaId] : 0;
                                                         $realEmpresaGranel = isset($kilosRealesTotales[$empresaId]['granel']) ? $kilosRealesTotales[$empresaId]['granel'] : 0;
                                                         $realEmpresaBulk = isset($kilosRealesTotales[$empresaId]['bulk']) ? $kilosRealesTotales[$empresaId]['bulk'] : 0;
