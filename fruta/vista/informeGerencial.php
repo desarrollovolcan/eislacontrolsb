@@ -32,6 +32,13 @@ if (!isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'])) {
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'] = [];
 }
 
+foreach ($_SESSION['INFORME_GERENCIAL_PROYECCIONES'] as &$proyeccionNormalizada) {
+    if (!isset($proyeccionNormalizada['ano'])) {
+        $proyeccionNormalizada['ano'] = isset($proyeccionNormalizada['creado']) ? intval(date('Y', strtotime($proyeccionNormalizada['creado']))) : intval(date('Y'));
+    }
+}
+unset($proyeccionNormalizada);
+
 $agrupacionPorEstandar = [];
 $ARRAYESTANDARES = $ERECEPCION_ADO->listarEstandarCBX();
 foreach ($ARRAYESTANDARES as $estandar) {
@@ -57,11 +64,23 @@ $proyeccionesFiltradas = array_values(array_filter(
         $especieProyeccion = isset($proyeccion['especie']) ? $proyeccion['especie'] : null;
         $coincideEspecie = $especieFiltro === '' ? true : ($especieProyeccion ? $especieProyeccion == $especieFiltro : true);
         $semanaProyeccion = isset($proyeccion['semana']) ? intval($proyeccion['semana']) : null;
+        $anoProyeccion = isset($proyeccion['ano']) ? intval($proyeccion['ano']) : null;
         $dentroSemana = $semanaProyeccion !== null && $semanaProyeccion > 0 && $semanaProyeccion <= $semanaActual;
         $coincideEmpresa = $empresaFiltro === 'ALL' ? true : (isset($proyeccion['empresa']) && intval($proyeccion['empresa']) === intval($empresaFiltro));
-        return $habilitado && $coincideEmpresa && $proyeccion['temporada'] == $temporadaFiltro && $coincideEspecie && $dentroSemana;
+        return $habilitado && $coincideEmpresa && $proyeccion['temporada'] == $temporadaFiltro && $coincideEspecie && $dentroSemana && $anoProyeccion;
     }
 ));
+
+usort($proyeccionesFiltradas, function ($a, $b) {
+    $anoA = isset($a['ano']) ? intval($a['ano']) : 0;
+    $anoB = isset($b['ano']) ? intval($b['ano']) : 0;
+    if ($anoA === $anoB) {
+        $semanaA = isset($a['semana']) ? intval($a['semana']) : 0;
+        $semanaB = isset($b['semana']) ? intval($b['semana']) : 0;
+        return $semanaA <=> $semanaB;
+    }
+    return $anoA <=> $anoB;
+});
 
 $totalProyectado = 0;
 $totalReal = 0;
@@ -220,7 +239,7 @@ $plantasReporte = array_keys($plantasNombres);
         .tag { padding: 3px 8px; border-radius: 999px; font-size: 11px; }
         .tag-bulk { background: #fff4e5; color: #d9822b; }
         .tag-envasado { background: #e7f6ef; color: #2f855a; }
-        .projection-table th, .projection-table td { font-size: 12px; }
+        .projection-table th, .projection-table td { font-size: 11px; padding: 6px 8px; }
         .section-title { font-weight: 600; font-size: 16px; }
         .badge-soft { padding: 6px 10px; border-radius: 10px; font-size: 12px; background: #f5f7fb; }
         .alert-soft { background: #f3f7ff; border: 1px solid #d4e2ff; color: #2d4b7a; }
@@ -302,7 +321,7 @@ $plantasReporte = array_keys($plantasNombres);
                                 </div>
                                 <div class="box-body table-responsive">
                                     <?php if ($empresasReporteIds && $plantasReporte) { ?>
-                                        <table class="table table-bordered projection-table text-center">
+                                        <table class="table table-bordered table-sm table-hover projection-table text-center">
                                             <thead>
                                                 <tr>
                                                     <th rowspan="2" class="align-middle text-left">Planta</th>
@@ -310,11 +329,12 @@ $plantasReporte = array_keys($plantasNombres);
                                                         $proyectadoEmpresa = isset($proyeccionTotalEmpresa[$empresaId]['total']) ? $proyeccionTotalEmpresa[$empresaId]['total'] : 0;
                                                         $realEmpresa = isset($kilosRealesTotales[$empresaId]['total']) ? $kilosRealesTotales[$empresaId]['total'] : 0;
                                                         $cumplimientoEmpresa = $proyectadoEmpresa > 0 ? ($realEmpresa / $proyectadoEmpresa) * 100 : 0;
+                                                        $cumplimientoColor = $proyectadoEmpresa > 0 ? ($realEmpresa < $proyectadoEmpresa ? '#c53030' : '#2f855a') : '#4a5568';
                                                     ?>
                                                         <th colspan="4">
                                                             <div class="d-flex flex-column align-items-center">
                                                                 <span><?php echo htmlspecialchars($empresasNombres[$empresaId]); ?></span>
-                                                                <span class="badge-soft" style="color: <?php echo $cumplimientoEmpresa >= 100 ? '#2f855a' : '#c53030'; ?>;">
+                                                                <span class="badge-soft" style="color: <?php echo $cumplimientoColor; ?>;">
                                                                     <?php echo round($cumplimientoEmpresa, 1); ?>%
                                                                 </span>
                                                             </div>
