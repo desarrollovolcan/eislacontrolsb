@@ -92,6 +92,9 @@ include_once "../../assest/config/datosUrLP.php";
             }
 
             .proceso-bajo-exportacion td {
+                border-left: none;
+                border-top: 2px solid #f4c37d;
+                border-bottom: 2px solid #f4c37d;
                 border-left: 3px solid #f4c37d;
             }
 
