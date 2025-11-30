@@ -1,8 +1,12 @@
 <?php
 include_once "../../assest/config/validarUsuarioFruta.php";
 include_once "../../assest/controlador/PRODUCTOR_ADO.php";
+include_once "../../assest/controlador/EXIMATERIAPRIMA_ADO.php";
+include_once "../../assest/controlador/ERECEPCION_ADO.php";
 
 $PRODUCTOR_ADO = new PRODUCTOR_ADO();
+$EXIMATERIAPRIMA_ADO = new EXIMATERIAPRIMA_ADO();
+$ERECEPCION_ADO = new ERECEPCION_ADO();
 
 $ARRAYEMPRESA = $EMPRESA_ADO->listarEmpresaCBX();
 $ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
@@ -15,6 +19,11 @@ if ($empresaFiltro) {
     $ARRAYPRODUCTORES = $PRODUCTOR_ADO->listarProductorPorEmpresaCBX($empresaFiltro);
 }
 
+$ARRAYESTANDAR = [];
+if ($empresaFiltro) {
+    $ARRAYESTANDAR = $ERECEPCION_ADO->listarEstandarPorEmpresaCBX($empresaFiltro);
+}
+
 if (!isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'])) {
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'] = [];
 }
@@ -24,14 +33,66 @@ foreach ($ARRAYPRODUCTORES as $productor) {
     $nombreProductores[$productor['ID_PRODUCTOR']] = $productor['NOMBRE_PRODUCTOR'];
 }
 
+$nombreEstandares = [];
+foreach ($ARRAYESTANDAR as $estandar) {
+    $nombreEstandares[$estandar['ID_ESTANDAR']] = $estandar['NOMBRE_ESTANDAR'];
+}
+
+$existencias = $EXIMATERIAPRIMA_ADO->listarEximateriaprimaEmpresaTemporada($empresaFiltro, $temporadaFiltro);
+$realesPorProductor = [];
+$realesPorSemana = [];
+$semanasRealesPorProductor = [];
+
+foreach ($existencias as $existencia) {
+    if (!isset($existencia['ESTADO_REGISTRO']) || $existencia['ESTADO_REGISTRO'] != 1) {
+        continue;
+    }
+
+    $productorReal = $existencia['ID_PRODUCTOR'];
+    $kgReal = isset($existencia['KILOS_NETO_EXIMATERIAPRIMA']) ? floatval($existencia['KILOS_NETO_EXIMATERIAPRIMA']) : 0;
+    $fechaReferencia = !empty($existencia['FECHA_RECEPCION']) ? $existencia['FECHA_RECEPCION'] : $existencia['FECHA_COSECHA_EXIMATERIAPRIMA'];
+    $semanaReal = $fechaReferencia ? intval(date('W', strtotime($fechaReferencia))) : null;
+    $estandarReal = isset($nombreEstandares[$existencia['ID_ESTANDAR']]) ? $nombreEstandares[$existencia['ID_ESTANDAR']] : '';
+    $esBulkReal = stripos($estandarReal, 'bulk') !== false;
+
+    if ($productorReal && $semanaReal) {
+        if (!isset($realesPorProductor[$productorReal])) {
+            $realesPorProductor[$productorReal] = [
+                'total' => 0,
+                'bulk' => 0,
+                'envasado' => 0,
+            ];
+        }
+
+        $realesPorProductor[$productorReal]['total'] += $kgReal;
+        if ($esBulkReal) {
+            $realesPorProductor[$productorReal]['bulk'] += $kgReal;
+        } else {
+            $realesPorProductor[$productorReal]['envasado'] += $kgReal;
+        }
+
+        if (!isset($realesPorSemana[$semanaReal])) {
+            $realesPorSemana[$semanaReal] = 0;
+        }
+        $realesPorSemana[$semanaReal] += $kgReal;
+
+        if (!isset($semanasRealesPorProductor[$productorReal])) {
+            $semanasRealesPorProductor[$productorReal] = [];
+        }
+        if (!in_array($semanaReal, $semanasRealesPorProductor[$productorReal])) {
+            $semanasRealesPorProductor[$productorReal][] = $semanaReal;
+        }
+    }
+}
+
 $mensajeExito = "";
 if (isset($_POST['AGREGAR_PROYECCION'])) {
     $semana = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : 0;
     $productor = isset($_POST['PRODUCTOR']) ? $_POST['PRODUCTOR'] : null;
     $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
-    $kgReal = isset($_POST['KG_REAL']) && $_POST['KG_REAL'] !== '' ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_REAL'])) : 0;
-    $tipoEmbalaje = isset($_POST['TIPO_EMBALAJE']) ? trim($_POST['TIPO_EMBALAJE']) : '';
-    $descripcionEstandar = isset($_POST['DESCRIPCION_ESTANDAR']) ? trim($_POST['DESCRIPCION_ESTANDAR']) : '';
+    $estandarSeleccionado = isset($_POST['ESTANDAR']) ? $_POST['ESTANDAR'] : '';
+    $descripcionEstandar = $estandarSeleccionado && isset($nombreEstandares[$estandarSeleccionado]) ? $nombreEstandares[$estandarSeleccionado] : '';
+    $tipoEmbalaje = $descripcionEstandar;
 
     if ($semana > 0 && $productor && $kgProyectado > 0) {
         $esBulk = stripos($tipoEmbalaje, 'bulk') !== false || stripos($descripcionEstandar, 'bulk') !== false;
@@ -42,7 +103,6 @@ if (isset($_POST['AGREGAR_PROYECCION'])) {
             'productor' => $productor,
             'semana' => $semana,
             'kg_proyectado' => $kgProyectado,
-            'kg_real' => $kgReal,
             'tipo_embalaje' => $tipoEmbalaje,
             'descripcion_estandar' => $descripcionEstandar,
             'es_bulk' => $esBulk,
@@ -63,18 +123,18 @@ $proyeccionesFiltradas = array_values(array_filter(
 $resumenProductores = [];
 $semanasPorProductor = [];
 $weeklyProjection = [];
-$weeklyReal = [];
+$weeklyReal = $realesPorSemana;
 $totalProyectado = 0;
-$totalReal = 0;
+$totalReal = array_sum($realesPorSemana);
 $totalBulk = 0;
 $totalEnvasado = 0;
 
 foreach ($proyeccionesFiltradas as $proyeccion) {
     $productorId = $proyeccion['productor'];
     $kgProyectado = $proyeccion['kg_proyectado'];
-    $kgReal = $proyeccion['kg_real'];
     $semana = $proyeccion['semana'];
     $esBulk = $proyeccion['es_bulk'];
+    $kgReal = isset($realesPorProductor[$productorId]['total']) ? $realesPorProductor[$productorId]['total'] : 0;
 
     if (!isset($resumenProductores[$productorId])) {
         $resumenProductores[$productorId] = [
@@ -106,8 +166,6 @@ foreach ($proyeccionesFiltradas as $proyeccion) {
     }
 
     $weeklyProjection[$semana] += $kgProyectado;
-    $weeklyReal[$semana] += $kgReal;
-
     if ($esBulk) {
         $resumenProductores[$productorId]['bulk'] += $kgProyectado;
         $totalBulk += $kgProyectado;
@@ -117,7 +175,34 @@ foreach ($proyeccionesFiltradas as $proyeccion) {
     }
 
     $totalProyectado += $kgProyectado;
-    $totalReal += $kgReal;
+}
+
+foreach ($realesPorProductor as $productorId => $datosReales) {
+    if (!isset($resumenProductores[$productorId])) {
+        $resumenProductores[$productorId] = [
+            'nombre' => isset($nombreProductores[$productorId]) ? $nombreProductores[$productorId] : 'Productor ' . $productorId,
+            'proyectado' => 0,
+            'real' => 0,
+            'bulk' => 0,
+            'envasado' => 0,
+            'registros' => 0,
+        ];
+    }
+
+    $resumenProductores[$productorId]['real'] = $datosReales['total'];
+    if (isset($semanasRealesPorProductor[$productorId])) {
+        if (!isset($semanasPorProductor[$productorId])) {
+            $semanasPorProductor[$productorId] = [];
+        }
+        $semanasPorProductor[$productorId] = array_unique(array_merge($semanasPorProductor[$productorId], $semanasRealesPorProductor[$productorId]));
+    }
+
+    if ($datosReales['bulk'] > 0) {
+        $resumenProductores[$productorId]['bulk'] = max($resumenProductores[$productorId]['bulk'], $datosReales['bulk']);
+    }
+    if ($datosReales['envasado'] > 0) {
+        $resumenProductores[$productorId]['envasado'] = max($resumenProductores[$productorId]['envasado'], $datosReales['envasado']);
+    }
 }
 
 ksort($weeklyProjection);
@@ -230,16 +315,13 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                                             <input type="number" step="0.01" name="KG_PROYECTADO" class="form-control" required>
                                         </div>
                                         <div class="col-md-4 col-12 mt-10">
-                                            <label>Kg netos reales (opcional)</label>
-                                            <input type="number" step="0.01" name="KG_REAL" class="form-control" placeholder="Ingresa si ya hay recepciones">
-                                        </div>
-                                        <div class="col-md-4 col-12 mt-10">
-                                            <label>Tipo embalaje</label>
-                                            <input type="text" name="TIPO_EMBALAJE" class="form-control" placeholder="Ej: Bin bulk, pallet, etc">
-                                        </div>
-                                        <div class="col-md-4 col-12 mt-10">
-                                            <label>Descripción estándar</label>
-                                            <input type="text" name="DESCRIPCION_ESTANDAR" class="form-control" placeholder="Usar \"bulk\" para identificarlos">
+                                            <label>Estandar / Tipo embalaje</label>
+                                            <select name="ESTANDAR" class="form-control" required>
+                                                <option value="">Seleccione un estandar</option>
+                                                <?php foreach ($ARRAYESTANDAR as $estandar) { ?>
+                                                    <option value="<?php echo $estandar['ID_ESTANDAR']; ?>"><?php echo $estandar['NOMBRE_ESTANDAR']; ?></option>
+                                                <?php } ?>
+                                            </select>
                                         </div>
                                         <div class="col-12 mt-15">
                                             <button type="submit" name="AGREGAR_PROYECCION" class="btn btn-primary">Agregar proyección</button>
@@ -287,7 +369,7 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                             <div class="box metric-card">
                                 <div class="box-header with-border">
                                     <h4 class="box-title mb-0">Real vs Proyectado por semana</h4>
-                                    <p class="mb-0 text-muted">Usa los valores reales ingresados o deja en blanco si aún no hay recepciones.</p>
+                                    <p class="mb-0 text-muted">Los kilos reales se calculan desde existencia de materia prima habilitada.</p>
                                 </div>
                                 <div class="box-body">
                                     <canvas id="chartSemanal" height="140"></canvas>
