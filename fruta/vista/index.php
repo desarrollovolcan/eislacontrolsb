@@ -12,32 +12,54 @@ $CONSULTA_ADO =  NEW CONSULTA_ADO;
 
 //INCIALIZAR VARIBALES A OCUPAR PARA LA FUNCIONALIDAD
 
-$query_kilosMpTotales = $CONSULTA_ADO->TotalKgMpRecepcionadosPlanta($TEMPORADAS, $PLANTAS);
 $query_datosPlanta = $CONSULTA_ADO->verPlanta($PLANTAS);
-$query_kilosMpTotalesEmpresaPlanta = $CONSULTA_ADO->TotalKgMpRecepcionadosEmpresaPlanta($TEMPORADAS, $PLANTAS);
 
-//recepciones
-$query_recepcionAbiertaMP = $CONSULTA_ADO->TotalRecepcionMpAbiertas($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_recepcionAbiertaIND = $CONSULTA_ADO->TotalRecepcionIndAbiertas($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_despachoAbiertoMP = $CONSULTA_ADO->TotalDespachoMpAbiertas($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_despachoAbiertoIND = $CONSULTA_ADO->TotalDespachoIndAbiertas($TEMPORADAS, $EMPRESAS, $PLANTAS);
+//acumulados materia prima
+$query_acumuladoMP = $CONSULTA_ADO->TotalKgMpRecepcionadoAcumulado($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_acumuladoHastaCincoAm = $CONSULTA_ADO->TotalKgMpRecepcionadoHastaCincoAm($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
 //proceso
-$query_procesoAbierto = $CONSULTA_ADO->TotalProcesosAbiertos($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_reembalajeAbierto = $CONSULTA_ADO->TotalReembalajesAbiertos($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_repaletizajeAbierto = $CONSULTA_ADO->TotalRepaletizajesAbiertos($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_totalesProceso = $CONSULTA_ADO->TotalKgProcesoEntradaSalida($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_procesosBajaExportacion = $CONSULTA_ADO->UltimosProcesosBajaExportacionCerrados($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
-//acumulado
-$query_acumuladoMP = $CONSULTA_ADO->TotalKgMpRecepcionadoAcumulado($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_acumuladoMPDiaAnterior = $CONSULTA_ADO->TotalKgMpRecepcionadoDiaAnterior($TEMPORADAS, $EMPRESAS, $PLANTAS);
+//exportación
+$query_exportacionProductor = $CONSULTA_ADO->TopExportacionPorProductor($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_exportacionVariedad = $CONSULTA_ADO->TopExportacionPorVariedad($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
-$query_acumuladoMPProcesado = $CONSULTA_ADO->TotalKgMpProcesado($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_acumuladoMPProcesadoDiaAnterior = $CONSULTA_ADO->TotalKgMpProcesadoDiaAnterior($TEMPORADAS, $EMPRESAS, $PLANTAS);
+//existencia materia prima
+$query_existenciaVariedad = $CONSULTA_ADO->ExistenciaMateriaPrimaPorVariedad($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_registrosAbiertos = $CONSULTA_ADO->contarRegistrosAbiertosFruta($EMPRESAS, $PLANTAS, $TEMPORADAS);
 
+$kilosMateriaPrimaAcumulado = $query_acumuladoMP ? $query_acumuladoMP[0]["TOTAL"] : 0;
+$kilosMateriaPrimaHastaCinco = $query_acumuladoHastaCincoAm ? $query_acumuladoHastaCincoAm[0]["TOTAL"] : 0;
+$kilosEntradaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["ENTRADA"])) ? $query_totalesProceso[0]["ENTRADA"] : 0;
+$kilosSalidaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["SALIDA"])) ? $query_totalesProceso[0]["SALIDA"] : 0;
+$recepcionesAbiertas = $query_registrosAbiertos ? $query_registrosAbiertos[0]["RECEPCION"] : 0;
+$procesosAbiertos = $query_registrosAbiertos ? $query_registrosAbiertos[0]["PROCESO"] : 0;
+$maxExportProd = 0;
+$maxExportVariedad = 0;
+$maxExistencia = 0;
 
-
-if($query_kilosMpTotales){
-    $kilosMpTotales = $query_kilosMpTotales[0]["TOTAL"];
+if ($query_exportacionProductor) {
+    foreach ($query_exportacionProductor as $fila) {
+        if ($fila["TOTAL"] > $maxExportProd) {
+            $maxExportProd = $fila["TOTAL"];
+        }
+    }
+}
+if ($query_exportacionVariedad) {
+    foreach ($query_exportacionVariedad as $fila) {
+        if ($fila["TOTAL"] > $maxExportVariedad) {
+            $maxExportVariedad = $fila["TOTAL"];
+        }
+    }
+}
+if ($query_existenciaVariedad) {
+    foreach ($query_existenciaVariedad as $fila) {
+        if ($fila["TOTAL"] > $maxExistencia) {
+            $maxExistencia = $fila["TOTAL"];
+        }
+    }
 }
 
 if ($query_datosPlanta) {
@@ -111,224 +133,218 @@ if($ARRAYREGISTROSABIERTOS){
             <!- LLAMADA ARCHIVO DEL DISEÑO DEL FOOTER Y MENU USUARIO -!>
             <div class="content-wrapper">
                 <div class="container-full">
-                    <!-- Content Header (Page header) -->
-                    <!--
-                        <div class="content-header">
-                        <div class="d-flex align-items-center">
-                            <div class="mr-auto">
-                                <h3 class="page-title">Dashboard</h3>
-                            </div>
-                            <?php include_once "../../assest/config/verIndicadorEconomico.php"; ?>
-                        </div>
-                    </div>
-                    <!-- Main content -->     
-                    <!--                   
                     <section class="content">
-                        <div class="row">
-
-                        <div class="col-xl-12 col-12">
-                                <div class="box">
-                                    <div class="box-body">
-                                        <div class="table-responsive">
-                                            <div class="text-center">
-                                                <p class="mb-0" style="padding: 0px 1.5rem!important;">TOTAL KG. PLANTA <?php echo strtoupper($nombePlanta); ?></p>
-                                                <h2 class="text-primary" style="padding: 0px 1.5rem!important;"><?php echo number_format(round($kilosMpTotales, 0), 0, ",", "."); ?> kg.</h2>
-                                            </div>
-                                            <table class="table no-border">
-                                                <tr>
-                                                    <td>
-                                                        <div class="new-progress-wrap" style="margin-top: 0px!important; margin-bottom: 0px!important;">
-                                                            <ul class="new-progress-line row list-unstyled" style="margin-top: 0px!important; margin-bottom: 0px!important;">
-
-                                                            <li class="col-12 current" style="display: flex; padding-left: 0px!important; padding-right:0px!important;">
-                                                            <?php foreach ($query_kilosMpTotalesEmpresaPlanta as $rowsKilosTotalesEmpresaPlanta) : 
-                                                                $porcentaje = round((round($rowsKilosTotalesEmpresaPlanta["TOTAL"], 0) * 100)/round($kilosMpTotales, 0),0); 
-                                                                $color = substr(md5(rand()), 0, 6);     
-                                                            ?>
-                                                                <div class="" style="width:<?php echo $porcentaje;?>%; text-align: center; line-height: 50px; cursor: pointer; color: white; background-color: #<?php echo $color; ?>;" data-toggle="tooltip" data-placement="bottom" title="<?php echo $rowsKilosTotalesEmpresaPlanta["NOMBRE_EMPRESA"].' ('.number_format(round($rowsKilosTotalesEmpresaPlanta["TOTAL"], 0), 0, ",", ".").' Kg.)'; ?>"><?php echo number_format(round($rowsKilosTotalesEmpresaPlanta["TOTAL"], 0), 0, ",", "."); ?> Kg.</div>
-                                                            <?php endforeach; ?> 
-                                                        
-                                                                <div class="progress bg-warning"></div>
-                                                            </li>
-
-                                                            </ul>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </div>				
-                                    </div>
-                                    <!-- /.box-body -->
+                        <div class="content-header">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-auto">
+                                    <h3 class="page-title">Dashboard planta <?php echo isset($nombePlanta) ? strtoupper($nombePlanta) : ""; ?></h3>
+                                    <p class="mb-0">Datos filtrados por empresa, temporada y planta activa.</p>
                                 </div>
-                            
-                            </div> 
-                                                            -->
-                                                            -->
-<!--
-                            <div class="col-xl-7 col-12">
+                                <?php include_once "../../assest/config/verIndicadorEconomico.php"; ?>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box box-body bg-primary-light">
+                                    <div class="flexbox align-items-center">
+                                        <div>
+                                            <p class="mb-0">Kilos netos materia prima acumulados</p>
+                                            <h3 class="mt-0 mb-0 text-primary"><?php echo number_format(round($kilosMateriaPrimaAcumulado, 0), 0, ",", "."); ?> kg</h3>
+                                        </div>
+                                        <span class="icon-Add-cart fs-40 text-primary"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box box-body bg-info-light">
+                                    <div class="flexbox align-items-center">
+                                        <div>
+                                            <p class="mb-0">Existencia neta hasta las 05:00</p>
+                                            <h3 class="mt-0 mb-0 text-info"><?php echo number_format(round($kilosMateriaPrimaHastaCinco, 0), 0, ",", "."); ?> kg</h3>
+                                        </div>
+                                        <span class="icon-Alarm-clock fs-40 text-info"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box box-body bg-success-light">
+                                    <div class="flexbox align-items-center">
+                                        <div>
+                                            <p class="mb-0">Proceso - kilos netos entrada</p>
+                                            <h3 class="mt-0 mb-0 text-success"><?php echo number_format(round($kilosEntradaProceso, 0), 0, ",", "."); ?> kg</h3>
+                                        </div>
+                                        <span class="icon-Incoming-mail fs-40 text-success"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box box-body bg-warning-light">
+                                    <div class="flexbox align-items-center">
+                                        <div>
+                                            <p class="mb-0">Proceso - kilos netos salida</p>
+                                            <h3 class="mt-0 mb-0 text-warning"><?php echo number_format(round($kilosSalidaProceso, 0), 0, ",", "."); ?> kg</h3>
+                                        </div>
+                                        <span class="icon-Outcoming-mail fs-40 text-warning"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box box-body bg-secondary-light">
+                                    <div class="flexbox align-items-center">
+                                        <div>
+                                            <p class="mb-0">Recepciones abiertas</p>
+                                            <h4 class="mt-0 mb-0 text-secondary"><?php echo intval($recepcionesAbiertas); ?></h4>
+                                        </div>
+                                        <span class="icon-Notes fs-30 text-secondary"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box box-body bg-secondary-light">
+                                    <div class="flexbox align-items-center">
+                                        <div>
+                                            <p class="mb-0">Procesos abiertos</p>
+                                            <h4 class="mt-0 mb-0 text-secondary"><?php echo intval($procesosAbiertos); ?></h4>
+                                        </div>
+                                        <span class="icon-Gear fs-30 text-secondary"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xl-6 col-12">
                                 <div class="box">
-                                    <div class="box-header with-border" style="padding: 7px 1.5rem!important;">
-                                    <h4 class="box-title">Información</h4>
+                                    <div class="box-header with-border">
+                                        <h4 class="box-title">Top 5 exportación por productor</h4>
                                     </div>
                                     <div class="box-body">
-                                        <div class="row">
-                                            <div class="col-lg-6 col-12">
-                                                <div class="box">
-                                                    <div class="box-body p-0">
-                                                        <div class="d-flex justify-content-between align-items-center p-5 bg-primary">
-                                                            <h4 class="font-weight-700 my-0">RECEPCIÓN MP</h4>
-                                                        </div>
-                                                        <div class="d-flex justify-content-around align-items-center p-5 bg-secondary-light">
-                                                            <div class="text-center br-1 w-p100">										
-                                                                <p class="mb-0">R. Abiertas MP</p>			
-                                                                <p class="mb-0"><?php if($query_recepcionAbiertaMP){ echo $query_recepcionAbiertaMP[0]["NUMERO"]; } ?></p>
-                                                            </div>
-                                                            <div class="text-center br-1 w-p100">										
-                                                                <p class="mb-0">R. Abiertas IND</p>			
-                                                                <p class="mb-0"><?php if($query_recepcionAbiertaIND){ echo $query_recepcionAbiertaIND[0]["NUMERO"]; } ?></p>
-                                                            </div>
-                                                            <div class="text-center br-1 w-p100">										
-                                                                <p class="mb-0">D. Abierto MP</p>			
-                                                                <p class="mb-0"><?php if($query_despachoAbiertoMP){ echo $query_despachoAbiertoMP[0]["NUMERO"]; } ?></p>
-                                                            </div>
-                                                            <div class="text-center w-p100">										
-                                                                <p class="mb-0">D. Abierto IND</p>			
-                                                                <p class="mb-0"><?php if($query_despachoAbiertoIND){ echo $query_despachoAbiertoIND[0]["NUMERO"]; } ?></p>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <div class="d-flex justify-content-around p-10">
-                                                            <div class="justify-content-between w-p100 p-10 bg-success-light mr-5 rounded">	
-                                                        								
-                                                                <p>MP ACUMULADO</p>	
-                                                                <br/>		
-                                                                <h3 class="text-align: center;"><?php if($query_acumuladoMP){ echo number_format(round($query_acumuladoMP[0]["TOTAL"], 0), 0, ",", "."); } ?></h3>
-                                                            </div>
-                                                            <div class="justify-content-between w-p100 p-10 bg-info-light ml-5 rounded">							
-                                                                <p>MP DÍA ANTERIOR</p>
-                                                                <br/>		
-                                                                <h3 class="text-align: center;"><?php if($query_acumuladoMPDiaAnterior){ echo number_format(round($query_acumuladoMPDiaAnterior[0]["TOTAL"], 0), 0, ",", "."); } ?></h3>
-                                                            </div>
-                                                        </div>
-                                                        <div class="d-flex justify-content-around p-10 bg-dark">
-                                                            <div class="w-p100 mr-5">										
-                                                            <h5 class="mb-0 mt-0">Seleccione Empresa</h5>
-                                                            </div>
-                                                            <div class="w-p100 ml-5">							
-                                                                <select class="form-control">
-                                                                    <option>Volcan Foods</option>
-                                                                 <!--   <option>Best Berry Chile</option> -->
-                                                                </select>
-                                                            </div>
-                                                        </div>
+                                        <?php if ($query_exportacionProductor) { ?>
+                                            <?php foreach ($query_exportacionProductor as $fila) { 
+                                                $nombreProd = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre";
+                                                $totalProd = round($fila["TOTAL"], 0);
+                                                $porcentajeProd = $maxExportProd > 0 ? ($totalProd / $maxExportProd) * 100 : 0;
+                                            ?>
+                                                <div class="mb-2">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span><?php echo $nombreProd; ?></span>
+                                                        <span><?php echo number_format($totalProd, 0, ",", "."); ?> kg</span>
                                                     </div>
-                                                </div>  
-                                            </div>
-                                                            -->
-                                            <!--
-                                            <div class="col-lg-6 col-12">
-                                                <div class="box">
-                                                    <div class="box-body p-0">
-                                                        <div class="d-flex justify-content-between align-items-center p-5 bg-warning">
-                                                            <h4 class="font-weight-700 my-0">PROCESO PACKING</h4>
-                                                        </div>
-                                                        <div class="d-flex justify-content-around align-items-center p-5 bg-secondary-light">
-                                                            <div class="text-center br-1 w-p100">										
-                                                                <p class="mb-0">Poce. Abiertos</p>			
-                                                                <p class="mb-0"><?php if($query_procesoAbierto){ echo $query_procesoAbierto[0]["NUMERO"]; } ?></p>
-                                                            </div>
-                                                            <div class="text-center br-1 w-p100">										
-                                                                <p class="mb-0">Rem. Abiertos</p>			
-                                                                <p class="mb-0"><?php if($query_reembalajeAbierto){ echo $query_reembalajeAbierto[0]["NUMERO"]; } ?></p>
-                                                            </div>
-                                                            <div class="text-center br-1 w-p100">										
-                                                                <p class="mb-0">Repa. Abierto</p>			
-                                                                <p class="mb-0"><?php if($query_repaletizajeAbierto){ echo $query_repaletizajeAbierto[0]["NUMERO"]; } ?></p>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <div class="d-flex justify-content-around p-10">
-                                                            <div class="justify-content-between w-p100 p-10 bg-success-light mr-5 rounded">	
-                                                        								
-                                                                <p>MP PROCESADA</p>	
-                                                                <br/>		
-                                                                <h3 class="text-align: center;"><?php if($query_acumuladoMPProcesado){ echo number_format(round($query_acumuladoMPProcesado[0]["TOTAL"], 0), 0, ",", "."); } ?></h3>
-                                                            </div>
-                                                            <div class="justify-content-between w-p100 p-10 bg-info-light ml-5 rounded">							
-                                                                <p>PROCE. DÍA ANTERIOR</p>
-                                                                <br/>		
-                                                                <h3 class="text-align: center;"><?php if($query_acumuladoMPProcesadoDiaAnterior){ echo number_format(round($query_acumuladoMPProcesadoDiaAnterior[0]["TOTAL"], 0), 0, ",", "."); } ?></h3>
-                                                            </div>
-                                                        </div>
-                                                        <div class="d-flex justify-content-around p-10 bg-dark">
-                                                            <div class="w-p100 mr-5">										
-                                                            <h5 class="mb-0 mt-0">Seleccione Empresa</h5>
-                                                            </div>
-                                                            <div class="w-p100 ml-5">							
-                                                                <select class="form-control">
-                                                                    <option>Volcan Foods</option>
-                                                                    <!--<option>Best Berry Chile</option>-->
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>  
-                                            </div>
-                                            <!-- col -->
-                                            <!--<div class="col-12">
-                                                <div class="box">
-                                                    <div class="box-body">
-                                                        <h4 class="box-title">Despacho PT</h4>
-                                                        <div id="graficofrigorifico"></div>
+                                                    <div class="progress progress-sm">
+                                                        <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $porcentajeProd; ?>%" aria-valuenow="<?php echo $porcentajeProd; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                                            -->
-                                            <!-- /col -->
-                                        </div> 
+                                            <?php } ?>
+                                        <?php } else { ?>
+                                            <p class="text-center mb-0">Sin exportaciones registradas.</p>
+                                        <?php } ?>
                                     </div>
                                 </div>
-				            </div>
-                                                            -->
-                       <!-- <div class="col-xl-5 col-12">
+                            </div>
+
+                            <div class="col-xl-6 col-12">
                                 <div class="box">
-                                    <div class="box-header with-border" style="padding: 7px 1.5rem!important;">
-                                    <h4 class="box-title">Notificaciones</h4>
+                                    <div class="box-header with-border">
+                                        <h4 class="box-title">Top 5 exportación por variedad</h4>
                                     </div>
                                     <div class="box-body">
-                                        <div class="callout callout-danger">
-                                            <h5>Problemas en sistema</h5>
-                                            <p style="font-size: 11px;">Add the layout-boxed class to the body tag to get this layout. The boxed layout is helpful when working on
-                                            large screens because it prevents the site from stretching very wide.</p>
-                                            <button class="btn btn-primary" style="font-size: 10px;">Marcar como leído</button>
-                                        </div>
-                                        <div class="callout callout-success">
-                                            <h5>Actualizaciones</h5>
-                                            <p style="font-size: 11px;">Add the layout-boxed class to the body tag to get this layout. The boxed layout is helpful when working on
-                                            large screens because it prevents the site from stretching very wide.</p>
-                                            <button class="btn btn-primary" style="font-size: 10px;">Marcar como leído</button>
-                                        </div>
-
-                                        <div class="callout callout-warning">
-                                            <h5>Actualizaciones</h5>
-                                            <p style="font-size: 11px;">Add the layout-boxed class to the body tag to get this layout. The boxed layout is helpful when working on
-                                            large screens because it prevents the site from stretching very wide.</p>
-                                            <button class="btn btn-primary" style="font-size: 10px;">Marcar como leído</button>
-                                        </div>
-
+                                        <?php if ($query_exportacionVariedad) { ?>
+                                            <?php foreach ($query_exportacionVariedad as $fila) { 
+                                                $nombreVar = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre";
+                                                $totalVar = round($fila["TOTAL"], 0);
+                                                $porcentajeVar = $maxExportVariedad > 0 ? ($totalVar / $maxExportVariedad) * 100 : 0;
+                                            ?>
+                                                <div class="mb-2">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span><?php echo $nombreVar; ?></span>
+                                                        <span><?php echo number_format($totalVar, 0, ",", "."); ?> kg</span>
+                                                    </div>
+                                                    <div class="progress progress-sm">
+                                                        <div class="progress-bar bg-info" role="progressbar" style="width: <?php echo $porcentajeVar; ?>%" aria-valuenow="<?php echo $porcentajeVar; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                            <?php } ?>
+                                        <?php } else { ?>
+                                            <p class="text-center mb-0">Sin exportaciones registradas.</p>
+                                        <?php } ?>
                                     </div>
                                 </div>
-				            </div>
-                       
-                                                            -->
+                            </div>
+                        </div>
 
-                            
+                        <div class="row">
+                            <div class="col-xl-6 col-12">
+                                <div class="box">
+                                    <div class="box-header with-border">
+                                        <h4 class="box-title">Existencia de materia prima por variedad</h4>
+                                    </div>
+                                    <div class="box-body">
+                                        <?php if ($query_existenciaVariedad) { ?>
+                                            <?php foreach ($query_existenciaVariedad as $fila) { 
+                                                $nombreExi = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre";
+                                                $totalExi = round($fila["TOTAL"], 0);
+                                                $porcentajeExi = $maxExistencia > 0 ? ($totalExi / $maxExistencia) * 100 : 0;
+                                            ?>
+                                                <div class="mb-2">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span><?php echo $nombreExi; ?></span>
+                                                        <span><?php echo number_format($totalExi, 0, ",", "."); ?> kg</span>
+                                                    </div>
+                                                    <div class="progress progress-sm">
+                                                        <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $porcentajeExi; ?>%" aria-valuenow="<?php echo $porcentajeExi; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                            <?php } ?>
+                                        <?php } else { ?>
+                                            <p class="text-center mb-0">No hay existencias registradas.</p>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
 
-                           
-                              
-                            
-                            
-                        </div>  
+                            <div class="col-xl-6 col-12">
+                                <div class="box">
+                                    <div class="box-header with-border">
+                                        <h4 class="box-title">Procesos cerrados con menor % de exportación</h4>
+                                    </div>
+                                    <div class="box-body">
+                                        <?php if ($query_procesosBajaExportacion) { ?>
+                                            <?php foreach ($query_procesosBajaExportacion as $proceso) { 
+                                                $porcentajeExpo = number_format($proceso["PDEXPORTACION_PROCESO"], 2, ".", "");
+                                                $porcentajeTotal = number_format($proceso["PDEXPORTACIONCD_PROCESO"], 2, ".", "");
+                                            ?>
+                                                <div class="mb-3 border-bottom pb-2">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <strong>Proceso #<?php echo $proceso["NUMERO_PROCESO"]; ?></strong>
+                                                            <div class="text-muted small">Fecha: <?php echo $proceso["FECHA_PROCESO"]; ?></div>
+                                                        </div>
+                                                        <span class="badge badge-pill badge-warning">Expo: <?php echo $porcentajeExpo; ?>%</span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between small mt-1">
+                                                        <span>Entrada: <?php echo number_format($proceso["KILOS_NETO_ENTRADA"], 0, ",", "."); ?> kg</span>
+                                                        <span>Exportado: <?php echo number_format($proceso["KILOS_EXPORTACION_PROCESO"], 0, ",", "."); ?> kg</span>
+                                                        <span>Total: <?php echo $porcentajeTotal; ?>%</span>
+                                                    </div>
+                                                    <div class="progress progress-sm mt-1">
+                                                        <div class="progress-bar bg-warning" role="progressbar" style="width: <?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>%" aria-valuenow="<?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                            <?php } ?>
+                                        <?php } else { ?>
+                                            <p class="text-center mb-0">Sin procesos cerrados con baja exportación.</p>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </section>
                     <!-- /.content -->
                 </div>
