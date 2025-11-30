@@ -32,6 +32,7 @@ $PESOPALLETESTANDAR = "";
 $ESPECIES = "";
 $ESTADO = "";
 $PRODUCTO="";
+$AGRUPACIONGERENCIALMP="";
 $TRATAMIENTO1="";
 $TRATAMIENTO2="";
 $IDOP = "";
@@ -101,6 +102,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TRATAMIENTO2 = "" . $r['TRATAMIENTO2'];
             $ESPECIES = "" . $r['ID_ESPECIES'];
             $PRODUCTO = "" . $r['ID_PRODUCTO'];
+            $AGRUPACIONGERENCIALMP = isset($r['AGRUPACION_GERENCIAL_MP']) ? "" . $r['AGRUPACION_GERENCIAL_MP'] : "";
 
         endforeach;
 
@@ -123,6 +125,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TRATAMIENTO2 = "" . $r['TRATAMIENTO2'];
             $ESPECIES = "" . $r['ID_ESPECIES'];
             $PRODUCTO = "" . $r['ID_PRODUCTO'];
+            $AGRUPACIONGERENCIALMP = isset($r['AGRUPACION_GERENCIAL_MP']) ? "" . $r['AGRUPACION_GERENCIAL_MP'] : "";
 
         endforeach;
 
@@ -143,6 +146,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TRATAMIENTO2 = "" . $r['TRATAMIENTO2'];
             $ESPECIES = "" . $r['ID_ESPECIES'];
             $PRODUCTO = "" . $r['ID_PRODUCTO'];
+            $AGRUPACIONGERENCIALMP = isset($r['AGRUPACION_GERENCIAL_MP']) ? "" . $r['AGRUPACION_GERENCIAL_MP'] : "";
         endforeach;
     }
 
@@ -164,12 +168,31 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TRATAMIENTO2 = "" . $r['TRATAMIENTO2'];
             $ESPECIES = "" . $r['ID_ESPECIES'];
             $PRODUCTO = "" . $r['ID_PRODUCTO'];
+            $AGRUPACIONGERENCIALMP = isset($r['AGRUPACION_GERENCIAL_MP']) ? "" . $r['AGRUPACION_GERENCIAL_MP'] : "";
 
         endforeach;
     }
 }
 
+//Asegurar que el producto del registro esté disponible en el selector, incluso si no pertenece al listado filtrado
+if ($PRODUCTO) {
+    $existeProducto = false;
+    if (is_array($ARRAYPRODUCTO)) {
+        foreach ($ARRAYPRODUCTO as $p) {
+            if (isset($p['ID_PRODUCTO']) && $p['ID_PRODUCTO'] == $PRODUCTO) {
+                $existeProducto = true;
+                break;
+            }
+        }
+    }
 
+    if (!$existeProducto) {
+        $ARRAYVERPRODUCTO = $PRODUCTO_ADO->verProducto($PRODUCTO);
+        if ($ARRAYVERPRODUCTO) {
+            $ARRAYPRODUCTO = array_merge(is_array($ARRAYPRODUCTO) ? $ARRAYPRODUCTO : [], $ARRAYVERPRODUCTO);
+        }
+    }
+}
 
 
 ?>
@@ -200,6 +223,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                     TRATAMIENTO2 = document.getElementById("TRATAMIENTO2").selectedIndex;
                     ESPECIES = document.getElementById("ESPECIES").selectedIndex;
                     PRODUCTO = document.getElementById("PRODUCTO").selectedIndex;
+                    AGRUPACIONGERENCIALMP = document.getElementById("AGRUPACIONGERENCIALMP").selectedIndex;
 
 
                     document.getElementById('val_codigo').innerHTML = "";
@@ -211,6 +235,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                     document.getElementById('val_tratamiento2').innerHTML = "";
                     document.getElementById('val_especies').innerHTML = "";
                     document.getElementById('val_producto').innerHTML = "";
+                    document.getElementById('val_agrupaciongerencialmp').innerHTML = "";
 
                     if (CODIGOESTANDAR == null || CODIGOESTANDAR == 0) {
                         document.form_reg_dato.CODIGOESTANDAR.focus();
@@ -227,6 +252,14 @@ if (isset($id_dato) && isset($accion_dato)) {
                         return false;
                     }
                     document.form_reg_dato.NOMBREESTANDAR.style.borderColor = "#4AF575";
+
+                    if (AGRUPACIONGERENCIALMP == null || AGRUPACIONGERENCIALMP < 1) {
+                        document.form_reg_dato.AGRUPACIONGERENCIALMP.focus();
+                        document.form_reg_dato.AGRUPACIONGERENCIALMP.style.borderColor = "#FF0000";
+                        document.getElementById('val_agrupaciongerencialmp').innerHTML = "NO A SELECCIONADO OPCION";
+                        return false;
+                    }
+                    document.form_reg_dato.AGRUPACIONGERENCIALMP.style.borderColor = "#4AF575";
 
                     if (ENVASEESTANDAR == null || ENVASEESTANDAR == "") {
                         document.form_reg_dato.ENVASEESTANDAR.focus();
@@ -436,6 +469,17 @@ if (isset($id_dato) && isset($accion_dato)) {
                                                         <label id="val_producto" class="validacion"> </label>
                                                     </div>
                                                 </div>
+                                                 <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
+                                                    <div class="form-group">
+                                                        <label>Agrupacion gerencial MP</label>
+                                                        <select class="form-control select2" id="AGRUPACIONGERENCIALMP" name="AGRUPACIONGERENCIALMP" style="width: 100%;" <?php echo $DISABLED; ?>>
+                                                            <option></option>
+                                                            <option value="Materia prima" <?php if ($AGRUPACIONGERENCIALMP == "Materia prima") { echo "selected"; } ?>>Materia prima</option>
+                                                            <option value="Bulk" <?php if ($AGRUPACIONGERENCIALMP == "Bulk") { echo "selected"; } ?>>Bulk</option>
+                                                        </select>
+                                                        <label id="val_agrupaciongerencialmp" class="validacion"> </label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <!-- /.box-body -->
@@ -488,6 +532,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                                                         <th>Tratamiento 1 </th>
                                                         <th>Tratamiento 2 </th>
                                                         <th>Producto </th>
+                                                        <th>Agrupacion gerencial MP</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -517,11 +562,11 @@ if (isset($id_dato) && isset($accion_dato)) {
                                                                 $NOMBRETRATAMIENTO2="No Aplica";
                                                             }else if($r["TRATAMIENTO2"]==1){
                                                                 $NOMBRETRATAMIENTO2="Si Aplica";
-                                                            }else{                                                                
+                                                            }else{
                                                                 $NOMBRETRATAMIENTO2="Sin Datos";
                                                             }
 
-                                                            ?>
+?>
                                                         <tr class="center">
                                                             <td><?php echo $CONTADOR; ?> </td>                                                                                                                                                                 
                                                             <td class="text-center">
@@ -565,15 +610,16 @@ if (isset($id_dato) && isset($accion_dato)) {
                                                             </td>
                                                             <td><?php echo $r['CODIGO_ESTANDAR']; ?></td>      
                                                             <td><?php echo $r['NOMBRE_ESTANDAR']; ?></td>     
-                                                            <td><?php echo $r['CANTIDAD_ENVASE_ESTANDAR']; ?></td>    
-                                                            <td><?php echo $r['PESO_ENVASE_ESTANDAR']; ?></td>    
-                                                            <td><?php echo $r['PESO_PALLET_ESTANDAR']; ?></td>  
-                                                            <td><?php echo $NOMBREESPECIES; ?></td>  
-                                                            <td><?php echo $NOMBRETRATAMIENTO1; ?></td>  
-                                                            <td><?php echo $NOMBRETRATAMIENTO2; ?></td> 
-                                                            <td><?php echo $NOMBREPRODUCTO; ?></td>                                                                  
-                                                        </tr>
-                                                    <?php endforeach; ?>
+                                                    <td><?php echo $r['CANTIDAD_ENVASE_ESTANDAR']; ?></td>
+                                                    <td><?php echo $r['PESO_ENVASE_ESTANDAR']; ?></td>
+                                                    <td><?php echo $r['PESO_PALLET_ESTANDAR']; ?></td>
+                                                    <td><?php echo $NOMBREESPECIES; ?></td>
+                                                    <td><?php echo $NOMBRETRATAMIENTO1; ?></td>
+                                                    <td><?php echo $NOMBRETRATAMIENTO2; ?></td>
+                                                    <td><?php echo $NOMBREPRODUCTO; ?></td>
+                                                    <td><?php echo isset($r['AGRUPACION_GERENCIAL_MP']) ? $r['AGRUPACION_GERENCIAL_MP'] : 'Sin Datos'; ?></td>
+                                                </tr>
+                                                <?php endforeach; ?>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -614,6 +660,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                 $ERECEPCION->__SET('ID_ESPECIES', $_REQUEST['ESPECIES']);
                 $ERECEPCION->__SET('ID_EMPRESA', $_REQUEST['EMPRESA']);
                 $ERECEPCION->__SET('ID_PRODUCTO', $_REQUEST['PRODUCTO']);
+                $ERECEPCION->__SET('AGRUPACION_GERENCIAL_MP', $_REQUEST['AGRUPACIONGERENCIALMP']);
                 $ERECEPCION->__SET('ID_USUARIOI', $IDUSUARIOS);
                 $ERECEPCION->__SET('ID_USUARIOM', $IDUSUARIOS);
                 //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
@@ -651,6 +698,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                 $ERECEPCION->__SET('TRATAMIENTO2',$_REQUEST['TRATAMIENTO2']);
                 $ERECEPCION->__SET('ID_ESPECIES', $_REQUEST['ESPECIES']);
                 $ERECEPCION->__SET('ID_PRODUCTO', $_REQUEST['PRODUCTO']);
+                $ERECEPCION->__SET('AGRUPACION_GERENCIAL_MP', $_REQUEST['AGRUPACIONGERENCIALMP']);
                 $ERECEPCION->__SET('ID_USUARIOM', $IDUSUARIOS);
                 $ERECEPCION->__SET('ID_ESTANDAR', $_REQUEST['ID']);
                 //LLAMADA AL METODO DE EDICION DEL CONTROLADOR

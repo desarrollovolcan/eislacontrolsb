@@ -18,6 +18,7 @@
         private   $TFRUTA_ESTANDAR;
         private   $TRATAMIENTO1;
         private   $TRATAMIENTO2;
+        private   $AGRUPACION_GERENCIAL_MP;
         private   $ESTADO_REGISTRO;
         private   $ID_ESPECIES;
         private	  $ID_EMPRESA; 
