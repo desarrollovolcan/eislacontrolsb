@@ -349,11 +349,39 @@ class CONSULTA_ADO
     {
         try {
 
-            $datos = $this->conexion->prepare("SELECT SUM(DR.KILOS_NETO_DRECEPCION)AS TOTAL FROM fruta_recepcionmp R
-            JOIN fruta_drecepcionmp DR ON DR.ID_RECEPCION = R.ID_RECEPCION
-            WHERE R.ID_PLANTA = '".$PLANTA."' AND R.ID_EMPRESA = '".$EMPRESA."' AND R.ESTADO = 0 AND R.ID_TEMPORADA = '".$TEMPORADA."'
-            AND DATE_FORMAT(R.FECHA_RECEPCION, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
-            AND DATE_FORMAT(R.FECHA_RECEPCION, '%H:%i:%s') <= '05:00:00'");
+            $datos = $this->conexion->prepare("SELECT SUM(EXI.KILOS_NETO_EXIMATERIAPRIMA)AS TOTAL FROM fruta_eximateriaprima EXI
+            WHERE EXI.ID_PLANTA = '".$PLANTA."' AND EXI.ID_EMPRESA = '".$EMPRESA."' AND EXI.ESTADO = 2 AND EXI.ESTADO_REGISTRO = 1 AND EXI.ID_TEMPORADA = '".$TEMPORADA."'
+            AND DATE_FORMAT(EXI.FECHA_RECEPCION, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+            AND DATE_FORMAT(EXI.FECHA_RECEPCION, '%H:%i:%s') <= '05:00:00'");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function UltimosProcesosBajaExportacionCerrados($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT
+                                                    P.NUMERO_PROCESO,
+                                                    P.FECHA_PROCESO,
+                                                    P.KILOS_NETO_ENTRADA,
+                                                    P.KILOS_EXPORTACION_PROCESO,
+                                                    P.PDEXPORTACION_PROCESO,
+                                                    P.PDEXPORTACIONCD_PROCESO
+                                                FROM fruta_proceso P
+                                                WHERE P.ID_PLANTA = '".$PLANTA."'
+                                                AND P.ID_EMPRESA = '".$EMPRESA."'
+                                                AND P.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND P.ESTADO = 0
+                                                AND P.ESTADO_REGISTRO = 1
+                                                ORDER BY P.PDEXPORTACION_PROCESO ASC, P.FECHA_PROCESO DESC
+                                                LIMIT 5");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
