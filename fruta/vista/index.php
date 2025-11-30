@@ -17,7 +17,6 @@ $query_datosPlanta = $CONSULTA_ADO->verPlanta($PLANTAS);
 //acumulados materia prima
 $query_acumuladoMP = $CONSULTA_ADO->TotalKgMpRecepcionadoAcumulado($TEMPORADAS, $EMPRESAS, $PLANTAS);
 $query_acumuladoHastaCincoAm = $CONSULTA_ADO->TotalKgMpRecepcionadoHastaCincoAm($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_existenciaActual = $CONSULTA_ADO->TotalExistenciaMateriaPrimaActual($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
 //proceso
 $query_totalesProceso = $CONSULTA_ADO->TotalKgProcesoEntradaSalida($TEMPORADAS, $EMPRESAS, $PLANTAS);
@@ -28,7 +27,6 @@ $query_exportacionProductor = $CONSULTA_ADO->TopExportacionPorProductor($TEMPORA
 $query_exportacionVariedad = $CONSULTA_ADO->TopExportacionPorVariedad($TEMPORADAS, $EMPRESAS, $PLANTAS);
 $query_exportacionPais = $CONSULTA_ADO->TopExportacionPorPais($TEMPORADAS, $EMPRESAS, $PLANTAS);
 $query_exportacionRecibidor = $CONSULTA_ADO->TopExportacionPorRecibidor($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_cajasPorPais = $CONSULTA_ADO->CajasAprobadasPorPais($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
 //existencia materia prima
 $query_existenciaVariedad = $CONSULTA_ADO->ExistenciaMateriaPrimaPorVariedad($TEMPORADAS, $EMPRESAS, $PLANTAS);
@@ -36,7 +34,6 @@ $query_registrosAbiertos = $CONSULTA_ADO->contarRegistrosAbiertosFruta($EMPRESAS
 
 $kilosMateriaPrimaAcumulado = $query_acumuladoMP ? $query_acumuladoMP[0]["TOTAL"] : 0;
 $kilosMateriaPrimaHastaCinco = $query_acumuladoHastaCincoAm ? $query_acumuladoHastaCincoAm[0]["TOTAL"] : 0;
-$kilosMateriaPrimaActual = $query_existenciaActual ? $query_existenciaActual[0]["TOTAL"] : 0;
 $kilosEntradaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["ENTRADA"])) ? $query_totalesProceso[0]["ENTRADA"] : 0;
 $kilosSalidaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["SALIDA"])) ? $query_totalesProceso[0]["SALIDA"] : 0;
 $recepcionesAbiertas = $query_registrosAbiertos ? $query_registrosAbiertos[0]["RECEPCION"] : 0;
@@ -46,13 +43,11 @@ $maxExportVariedad = 0;
 $maxExportPais = 0;
 $maxExportRecibidor = 0;
 $maxExistencia = 0;
-$maxCajasPais = 0;
 $totalExportProd = 0;
 $totalExportVariedad = 0;
 $totalExportPais = 0;
 $totalExportRecibidor = 0;
 $totalExistencia = 0;
-$totalCajasAprobadas = 0;
 $totalEntradaProcesosCerrados = 0;
 $totalExportProcesosCerrados = 0;
 
@@ -94,15 +89,6 @@ if ($query_exportacionRecibidor) {
             $maxExportRecibidor = $fila["TOTAL"];
         }
         $totalExportRecibidor += $fila["TOTAL"];
-    }
-}
-
-if ($query_cajasPorPais) {
-    foreach ($query_cajasPorPais as $fila) {
-        if ($fila["TOTAL"] > $maxCajasPais) {
-            $maxCajasPais = $fila["TOTAL"];
-        }
-        $totalCajasAprobadas += $fila["TOTAL"];
     }
 }
 
@@ -253,7 +239,7 @@ if($ARRAYREGISTROSABIERTOS){
                         </div>
 
                         <div class="row dashboard-row">
-                            <div class="col-xl-2 col-lg-6 col-12">
+                            <div class="col-xl-3 col-md-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-sky">
                                     <div class="flexbox align-items-center">
                                         <div>
@@ -265,7 +251,7 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-2 col-lg-6 col-12">
+                            <div class="col-xl-3 col-md-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-dusk">
                                     <div class="flexbox align-items-center">
                                         <div>
@@ -277,19 +263,7 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-2 col-lg-6 col-12">
-                                <div class="box box-body dashboard-card bg-gradient-teal">
-                                    <div class="flexbox align-items-center">
-                                        <div>
-                                            <p class="mb-0 text-white-50">Existencia neta en tiempo real</p>
-                                            <h3 class="mt-0 mb-0 text-white"><?php echo number_format(round($kilosMateriaPrimaActual, 0), 0, ",", "."); ?> kg</h3>
-                                        </div>
-                                        <span class="icon-Network fs-40 text-white"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-3 col-lg-6 col-12">
+                            <div class="col-xl-3 col-md-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-emerald">
                                     <div class="flexbox align-items-center">
                                         <div>
@@ -301,7 +275,7 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-3 col-lg-6 col-12">
+                            <div class="col-xl-3 col-md-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-amber">
                                     <div class="flexbox align-items-center">
                                         <div>
@@ -318,10 +292,7 @@ if($ARRAYREGISTROSABIERTOS){
                             <div class="col-xl-4 col-12">
                                 <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Indicadores operacionales</h4>
-                                            <span class="badge badge-outline badge-info">Procesos / recepción</span>
-                                        </div>
+                                        <h4 class="box-title">Indicadores operacionales</h4>
                                     </div>
                                     <div class="box-body">
                                         <div class="d-flex align-items-center mb-3">
@@ -338,16 +309,10 @@ if($ARRAYREGISTROSABIERTOS){
                                                 <div class="h5 mb-0"><?php echo intval($procesosAbiertos); ?></div>
                                             </div>
                                         </div>
-                                        <div class="bg-light p-2 rounded mb-2">
+                                        <div class="bg-light p-2 rounded">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <span class="text-muted small">Existencia neta corte 05:00</span>
                                                 <span class="badge badge-primary"><?php echo number_format(round($kilosMateriaPrimaHastaCinco, 0), 0, ",", "."); ?> kg</span>
-                                            </div>
-                                        </div>
-                                        <div class="bg-light p-2 rounded">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="text-muted small">Existencia neta al momento</span>
-                                                <span class="badge badge-info"><?php echo number_format(round($kilosMateriaPrimaActual, 0), 0, ",", "."); ?> kg</span>
                                             </div>
                                         </div>
                                     </div>
@@ -357,10 +322,7 @@ if($ARRAYREGISTROSABIERTOS){
                             <div class="col-xl-4 col-12">
                                 <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Existencia de materia prima por variedad</h4>
-                                            <span class="badge badge-outline badge-success">Materia prima</span>
-                                        </div>
+                                        <h4 class="box-title">Existencia de materia prima por variedad</h4>
                                     </div>
                                     <div class="box-body">
                                         <?php if ($query_existenciaVariedad) { ?>
@@ -406,15 +368,12 @@ if($ARRAYREGISTROSABIERTOS){
                             <div class="col-xl-4 col-12">
                                 <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Top 5 exportación por productor</h4>
-                                            <span class="badge badge-outline badge-primary">Exportación</span>
-                                        </div>
+                                        <h4 class="box-title">Top 5 exportación por productor</h4>
                                     </div>
                                     <div class="box-body">
                                         <?php if ($query_exportacionProductor) { ?>
                                             <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
-                                                <span>Total top 5 productores</span>
+                                                <span>Total productores</span>
                                                 <span class="badge badge-secondary"><?php echo number_format(round($totalExportProd, 0), 0, ",", "."); ?> kg</span>
                                             </div>
                                             <div class="table-responsive">
@@ -444,7 +403,6 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php } ?>
                                                     </tbody>
                                                 </table>
-                                                <p class="text-muted small mt-1 mb-0">Totales consideran únicamente los registros mostrados (top 5).</p>
                                             </div>
                                         <?php } else { ?>
                                             <p class="text-center mb-0">Sin exportaciones registradas.</p>
@@ -455,18 +413,15 @@ if($ARRAYREGISTROSABIERTOS){
                         </div>
 
                         <div class="row dashboard-row collage-row align-items-stretch">
-                            <div class="col-xl-3 col-md-6 col-12">
+                            <div class="col-xl-4 col-md-6 col-12">
                                 <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Top 5 exportación por variedad</h4>
-                                            <span class="badge badge-outline badge-primary">Exportación</span>
-                                        </div>
+                                        <h4 class="box-title">Top 5 exportación por variedad</h4>
                                     </div>
                                     <div class="box-body">
                                         <?php if ($query_exportacionVariedad) { ?>
                                             <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
-                                                <span>Total top 5 variedades</span>
+                                                <span>Total variedades</span>
                                                 <span class="badge badge-secondary"><?php echo number_format(round($totalExportVariedad, 0), 0, ",", "."); ?> kg</span>
                                             </div>
                                             <div class="table-responsive">
@@ -496,7 +451,6 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php } ?>
                                                     </tbody>
                                                 </table>
-                                                <p class="text-muted small mt-1 mb-0">Totales consideran únicamente los registros mostrados (top 5).</p>
                                             </div>
                                         <?php } else { ?>
                                             <p class="text-center mb-0">Sin exportaciones registradas.</p>
@@ -505,18 +459,15 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-3 col-md-6 col-12">
+                            <div class="col-xl-4 col-md-6 col-12">
                                 <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Kg netos exportados por país</h4>
-                                            <span class="badge badge-outline badge-primary">Exportación</span>
-                                        </div>
+                                        <h4 class="box-title">Kg netos exportados por país</h4>
                                     </div>
                                     <div class="box-body">
                                         <?php if ($query_exportacionPais) { ?>
                                             <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
-                                                <span>Total top 5 países</span>
+                                                <span>Total países</span>
                                                 <span class="badge badge-secondary"><?php echo number_format(round($totalExportPais, 0), 0, ",", "."); ?> kg</span>
                                             </div>
                                             <div class="table-responsive">
@@ -546,7 +497,6 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php } ?>
                                                     </tbody>
                                                 </table>
-                                                <p class="text-muted small mt-1 mb-0">Totales consideran únicamente los registros mostrados (top 5).</p>
                                             </div>
                                         <?php } else { ?>
                                             <p class="text-center mb-0">Sin destinos registrados.</p>
@@ -555,18 +505,15 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-3 col-md-6 col-12">
+                            <div class="col-xl-4 col-md-6 col-12">
                                 <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Kg netos exportados por recibidor</h4>
-                                            <span class="badge badge-outline badge-primary">Exportación</span>
-                                        </div>
+                                        <h4 class="box-title">Kg netos exportados por recibidor</h4>
                                     </div>
                                     <div class="box-body">
                                         <?php if ($query_exportacionRecibidor) { ?>
                                             <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
-                                                <span>Total top 5 recibidores</span>
+                                                <span>Total recibidores</span>
                                                 <span class="badge badge-secondary"><?php echo number_format(round($totalExportRecibidor, 0), 0, ",", "."); ?> kg</span>
                                             </div>
                                             <div class="table-responsive">
@@ -596,60 +543,9 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php } ?>
                                                     </tbody>
                                                 </table>
-                                                <p class="text-muted small mt-1 mb-0">Totales consideran únicamente los registros mostrados (top 5).</p>
                                             </div>
                                         <?php } else { ?>
                                             <p class="text-center mb-0">Sin recibidores registrados.</p>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-3 col-md-6 col-12">
-                                <div class="box compact-card collage-card">
-                                    <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Cajas aprobadas por país</h4>
-                                            <span class="badge badge-outline badge-info">Inspección</span>
-                                        </div>
-                                    </div>
-                                    <div class="box-body">
-                                        <?php if ($query_cajasPorPais) { ?>
-                                            <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
-                                                <span>Total top 5 países</span>
-                                                <span class="badge badge-secondary"><?php echo number_format(round($totalCajasAprobadas, 0), 0, ",", "."); ?> cajas</span>
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-striped mb-0 compact-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>País</th>
-                                                            <th class="text-right">Cajas</th>
-                                                            <th class="text-right">Avance</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php foreach ($query_cajasPorPais as $fila) {
-                                                            $nombreCajaPais = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin país";
-                                                            $totalCajas = round($fila["TOTAL"], 0);
-                                                            $porcentajeCajaPais = $maxCajasPais > 0 ? ($totalCajas / $maxCajasPais) * 100 : 0;
-                                                        ?>
-                                                            <tr>
-                                                                <td><?php echo $nombreCajaPais; ?></td>
-                                                                <td class="text-right"><?php echo number_format($totalCajas, 0, ",", "."); ?></td>
-                                                                <td class="text-right">
-                                                                    <div class="progress mini-progress super-thin">
-                                                                        <div class="progress-bar progress-coral" role="progressbar" style="width: <?php echo $porcentajeCajaPais; ?>%" aria-valuenow="<?php echo $porcentajeCajaPais; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        <?php } ?>
-                                                    </tbody>
-                                                </table>
-                                                <p class="text-muted small mt-1 mb-0">Totales consideran únicamente los registros mostrados (top 5).</p>
-                                            </div>
-                                        <?php } else { ?>
-                                            <p class="text-center mb-0">Sin cajas aprobadas registradas para país 1.</p>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -660,10 +556,7 @@ if($ARRAYREGISTROSABIERTOS){
                             <div class="col-12">
                                 <div class="box compact-card">
                                     <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Procesos cerrados con menor % de exportación</h4>
-                                            <span class="badge badge-outline badge-warning">Proceso</span>
-                                        </div>
+                                        <h4 class="box-title">Procesos cerrados con menor % de exportación</h4>
                                     </div>
                                     <div class="box-body">
                                         <?php if ($query_procesosBajaExportacion) { ?>
@@ -701,14 +594,13 @@ if($ARRAYREGISTROSABIERTOS){
                                                     </tbody>
                                                     <tfoot>
                                                         <tr>
-                                                            <th>Total procesos listados</th>
+                                                            <th>Total</th>
                                                             <th class="text-right"><?php echo number_format(round($totalEntradaProcesosCerrados, 0), 0, ",", "."); ?> kg</th>
                                                             <th class="text-right"><?php echo number_format(round($totalExportProcesosCerrados, 0), 0, ",", "."); ?> kg</th>
                                                             <th></th>
                                                         </tr>
                                                     </tfoot>
                                                 </table>
-                                                <p class="text-muted small mt-1 mb-0">Datos provenientes de procesos cerrados (kilos suman lo mostrado en la tabla).</p>
                                             </div>
                                         <?php } else { ?>
                                             <p class="text-center mb-0">Sin procesos cerrados con baja exportación.</p>
