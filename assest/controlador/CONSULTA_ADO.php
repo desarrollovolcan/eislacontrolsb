@@ -441,12 +441,10 @@ class CONSULTA_ADO
             $datos = $this->conexion->prepare("SELECT IFNULL(PA.NOMBRE_PAIS,'Sin país') AS NOMBRE,
                                                     IFNULL(SUM(INP.CANTIDAD_ENVASE_INPSAG),0) AS TOTAL
                                                 FROM fruta_inpsag INP
-                                                JOIN principal_planta PL ON INP.ID_PLANTA = PL.ID_PLANTA
                                                 LEFT JOIN ubicacion_pais PA ON INP.ID_PAIS1 = PA.ID_PAIS
                                                 WHERE INP.ESTADO_REGISTRO = 1
                                                 AND INP.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND INP.ID_PLANTA = '".$PLANTA."'
-                                                AND PL.ID_EMPRESA = '".$EMPRESA."'
                                                 GROUP BY INP.ID_PAIS1
                                                 ORDER BY TOTAL DESC
                                                 LIMIT 5");
