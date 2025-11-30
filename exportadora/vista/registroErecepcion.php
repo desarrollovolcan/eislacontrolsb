@@ -102,7 +102,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TRATAMIENTO2 = "" . $r['TRATAMIENTO2'];
             $ESPECIES = "" . $r['ID_ESPECIES'];
             $PRODUCTO = "" . $r['ID_PRODUCTO'];
-            $AGRUPACIONGERENCIALMP = isset($r['AGRUPACION_GERENCIAL_MP']) ? "" . $r['AGRUPACION_GERENCIAL_MP'] : "";
+            $AGRUPACIONGERENCIALMP = isset($r['ID_AGERENCIAL']) ? "" . $r['ID_AGERENCIAL'] : "";
 
         endforeach;
 
@@ -125,7 +125,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TRATAMIENTO2 = "" . $r['TRATAMIENTO2'];
             $ESPECIES = "" . $r['ID_ESPECIES'];
             $PRODUCTO = "" . $r['ID_PRODUCTO'];
-            $AGRUPACIONGERENCIALMP = isset($r['AGRUPACION_GERENCIAL_MP']) ? "" . $r['AGRUPACION_GERENCIAL_MP'] : "";
+            $AGRUPACIONGERENCIALMP = isset($r['ID_AGERENCIAL']) ? "" . $r['ID_AGERENCIAL'] : "";
 
         endforeach;
 
@@ -146,7 +146,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TRATAMIENTO2 = "" . $r['TRATAMIENTO2'];
             $ESPECIES = "" . $r['ID_ESPECIES'];
             $PRODUCTO = "" . $r['ID_PRODUCTO'];
-            $AGRUPACIONGERENCIALMP = isset($r['AGRUPACION_GERENCIAL_MP']) ? "" . $r['AGRUPACION_GERENCIAL_MP'] : "";
+            $AGRUPACIONGERENCIALMP = isset($r['ID_AGERENCIAL']) ? "" . $r['ID_AGERENCIAL'] : "";
         endforeach;
     }
 
@@ -168,7 +168,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TRATAMIENTO2 = "" . $r['TRATAMIENTO2'];
             $ESPECIES = "" . $r['ID_ESPECIES'];
             $PRODUCTO = "" . $r['ID_PRODUCTO'];
-            $AGRUPACIONGERENCIALMP = isset($r['AGRUPACION_GERENCIAL_MP']) ? "" . $r['AGRUPACION_GERENCIAL_MP'] : "";
+            $AGRUPACIONGERENCIALMP = isset($r['ID_AGERENCIAL']) ? "" . $r['ID_AGERENCIAL'] : "";
 
         endforeach;
     }
@@ -472,7 +472,11 @@ if ($PRODUCTO) {
                                                  <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
                                                     <div class="form-group">
                                                         <label>Agrupacion gerencial MP</label>
-                                                        <select class="form-control select2" id="AGRUPACIONGERENCIALMP" name="AGRUPACIONGERENCIALMP" style="width: 100%;" <?php echo $DISABLED; ?>>
+                                                        <select class="form-control select2"
+                                                            id="AGRUPACIONGERENCIALMP"
+                                                            name="AGRUPACIONGERENCIALMP"
+                                                            style="width: 100%;"
+                                                            <?php echo $DISABLED; ?>>
                                                             <option></option>
                                                             <option value="Materia prima" <?php if ($AGRUPACIONGERENCIALMP == "Materia prima") { echo "selected"; } ?>>Materia prima</option>
                                                             <option value="Bulk" <?php if ($AGRUPACIONGERENCIALMP == "Bulk") { echo "selected"; } ?>>Bulk</option>
@@ -617,7 +621,7 @@ if ($PRODUCTO) {
                                                     <td><?php echo $NOMBRETRATAMIENTO1; ?></td>
                                                     <td><?php echo $NOMBRETRATAMIENTO2; ?></td>
                                                     <td><?php echo $NOMBREPRODUCTO; ?></td>
-                                                    <td><?php echo isset($r['AGRUPACION_GERENCIAL_MP']) ? $r['AGRUPACION_GERENCIAL_MP'] : 'Sin Datos'; ?></td>
+                                                    <td><?php echo isset($r['ID_AGERENCIAL']) ? $r['ID_AGERENCIAL'] : 'Sin Datos'; ?></td>
                                                 </tr>
                                                 <?php endforeach; ?>
                                                 </tbody>
@@ -660,7 +664,7 @@ if ($PRODUCTO) {
                 $ERECEPCION->__SET('ID_ESPECIES', $_REQUEST['ESPECIES']);
                 $ERECEPCION->__SET('ID_EMPRESA', $_REQUEST['EMPRESA']);
                 $ERECEPCION->__SET('ID_PRODUCTO', $_REQUEST['PRODUCTO']);
-                $ERECEPCION->__SET('AGRUPACION_GERENCIAL_MP', $_REQUEST['AGRUPACIONGERENCIALMP']);
+                $ERECEPCION->__SET('ID_AGERENCIAL', $_REQUEST['AGRUPACIONGERENCIALMP']);
                 $ERECEPCION->__SET('ID_USUARIOI', $IDUSUARIOS);
                 $ERECEPCION->__SET('ID_USUARIOM', $IDUSUARIOS);
                 //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
@@ -698,7 +702,7 @@ if ($PRODUCTO) {
                 $ERECEPCION->__SET('TRATAMIENTO2',$_REQUEST['TRATAMIENTO2']);
                 $ERECEPCION->__SET('ID_ESPECIES', $_REQUEST['ESPECIES']);
                 $ERECEPCION->__SET('ID_PRODUCTO', $_REQUEST['PRODUCTO']);
-                $ERECEPCION->__SET('AGRUPACION_GERENCIAL_MP', $_REQUEST['AGRUPACIONGERENCIALMP']);
+                $ERECEPCION->__SET('ID_AGERENCIAL', $_REQUEST['AGRUPACIONGERENCIALMP']);
                 $ERECEPCION->__SET('ID_USUARIOM', $IDUSUARIOS);
                 $ERECEPCION->__SET('ID_ESTANDAR', $_REQUEST['ID']);
                 //LLAMADA AL METODO DE EDICION DEL CONTROLADOR
