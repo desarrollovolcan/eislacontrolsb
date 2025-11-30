@@ -472,7 +472,11 @@ if ($PRODUCTO) {
                                                  <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
                                                     <div class="form-group">
                                                         <label>Agrupacion gerencial MP</label>
-                                                        <select class="form-control select2" id="AGRUPACIONGERENCIALMP" name="AGRUPACIONGERENCIALMP" style="width: 100%;" <?php echo $DISABLED; ?>>
+                                                        <select class="form-control select2"
+                                                            id="AGRUPACIONGERENCIALMP"
+                                                            name="AGRUPACIONGERENCIALMP"
+                                                            style="width: 100%;"
+                                                            <?php echo $DISABLED; ?>>
                                                             <option></option>
                                                             <option value="Materia prima" <?php if ($AGRUPACIONGERENCIALMP == "Materia prima") { echo "selected"; } ?>>Materia prima</option>
                                                             <option value="Bulk" <?php if ($AGRUPACIONGERENCIALMP == "Bulk") { echo "selected"; } ?>>Bulk</option>
