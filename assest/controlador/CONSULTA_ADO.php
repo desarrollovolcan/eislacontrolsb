@@ -362,6 +362,22 @@ class CONSULTA_ADO
         }
     }
 
+    public function TotalExistenciaMateriaPrimaActual($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT SUM(EXI.KILOS_NETO_EXIMATERIAPRIMA) AS TOTAL FROM fruta_eximateriaprima EXI
+            WHERE EXI.ID_PLANTA = '".$PLANTA."' AND EXI.ID_EMPRESA = '".$EMPRESA."' AND EXI.ESTADO = 2 AND EXI.ESTADO_REGISTRO = 1 AND EXI.ID_TEMPORADA = '".$TEMPORADA."'");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
     public function TopExportacionPorPais($TEMPORADA, $EMPRESA, $PLANTA)
     {
         try {
@@ -406,6 +422,31 @@ class CONSULTA_ADO
                                                 AND EXI.ID_EMPRESA = '".$EMPRESA."'
                                                 AND EXI.ID_PLANTA = '".$PLANTA."'
                                                 GROUP BY DEX.ID_RFINAL
+                                                ORDER BY TOTAL DESC
+                                                LIMIT 5");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function CajasAprobadasPorPais($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(PA.NOMBRE_PAIS,'Sin país') AS NOMBRE,
+                                                    IFNULL(SUM(INP.CANTIDAD_ENVASE_INPSAG),0) AS TOTAL
+                                                FROM fruta_inpsag INP
+                                                LEFT JOIN ubicacion_pais PA ON INP.ID_PAIS1 = PA.ID_PAIS
+                                                WHERE INP.ESTADO_REGISTRO = 1
+                                                AND INP.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND INP.ID_EMPRESA = '".$EMPRESA."'
+                                                AND INP.ID_PLANTA = '".$PLANTA."'
+                                                GROUP BY INP.ID_PAIS1
                                                 ORDER BY TOTAL DESC
                                                 LIMIT 5");
             $datos->execute();
