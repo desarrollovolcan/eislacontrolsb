@@ -165,7 +165,7 @@ class ERECEPCION_ADO {
                                                     ID_ESPECIES,
                                                     ID_EMPRESA,
                                                     ID_PRODUCTO,
-                                                    AGRUPACION_GERENCIAL_MP,
+                                                    ID_AGERENCIAL,
 
                                                     ID_USUARIOI,
                                                     ID_USUARIOM,
@@ -189,7 +189,7 @@ class ERECEPCION_ADO {
                     $ERECEPCION->__GET('ID_ESPECIES') ,
                     $ERECEPCION->__GET('ID_EMPRESA') ,
                     $ERECEPCION->__GET('ID_PRODUCTO') ,
-                    $ERECEPCION->__GET('AGRUPACION_GERENCIAL_MP') ,
+                    $ERECEPCION->__GET('ID_AGERENCIAL') ,
                     $ERECEPCION->__GET('ID_USUARIOI') ,
                     $ERECEPCION->__GET('ID_USUARIOM')
                 )
@@ -228,7 +228,7 @@ class ERECEPCION_ADO {
                     TRATAMIENTO2= ?,
                     ID_ESPECIES= ?  ,
                     ID_PRODUCTO= ?  ,
-                    AGRUPACION_GERENCIAL_MP= ?,
+                    ID_AGERENCIAL= ?,
                     ID_USUARIOM= ?
                 WHERE ID_ESTANDAR= ?;";
             $this->conexion->prepare($query)
@@ -243,7 +243,7 @@ class ERECEPCION_ADO {
                     $ERECEPCION->__GET('TRATAMIENTO2')  ,
                     $ERECEPCION->__GET('ID_ESPECIES')   ,
                     $ERECEPCION->__GET('ID_PRODUCTO') ,
-                    $ERECEPCION->__GET('AGRUPACION_GERENCIAL_MP') ,
+                    $ERECEPCION->__GET('ID_AGERENCIAL') ,
                     $ERECEPCION->__GET('ID_USUARIOM'),
                     $ERECEPCION->__GET('ID_ESTANDAR'),
                 )
