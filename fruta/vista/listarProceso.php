@@ -169,6 +169,7 @@ include_once "../../assest/config/datosUrLP.php";
                                                     <th class="text-center">Operaciónes</th>
                                                     <th>Fecha Proceso</th>
                                                     <th>Tipo Proceso</th>
+                                                    <th>% Exportación</th>
                                                     <th>Turno </th>
                                                     <th>CSG Productor</th>
                                                     <th>Nombre Productor</th>
@@ -184,10 +185,9 @@ include_once "../../assest/config/datosUrLP.php";
                                                     <th>Kg. Dif. en Proceso</th>
                                                     <th>Total Industrial</th>
                                                     <th>Kg. Diferencia</th>
-                                                    <th>% Exportación</th>
                                                     <th>% Deshitación</th>
                                                     <th>% Industrial</th>
-                                                    <th>% Total</th>     
+                                                    <th>% Total</th>
                                                     <th>PT Embolsado</th>                                                     
                                                     <th>Fecha Ingreso</th>
                                                     <th>Fecha Modificacion</th>
@@ -323,6 +323,13 @@ include_once "../../assest/config/datosUrLP.php";
                                                         </td>
                                                         <td><?php echo $r['FECHA']; ?></td>
                                                         <td><?php echo $TPROCESO; ?></td>
+                                                        <td>
+                                                            <?php if ($esProcesoBajoExportacion) { ?>
+                                                                <span class="low-export-indicator" title="Bajo 85% de exportación"><?php echo $r['PDEXPORTACION_PROCESO']; ?>%</span>
+                                                            <?php } else { ?>
+                                                                <?php echo $r['PDEXPORTACION_PROCESO']; ?>%
+                                                            <?php } ?>
+                                                        </td>
                                                         <td><?php echo $TURNO; ?> </td>
                                                         <td><?php echo $CSGPRODUCTOR; ?></td>
                                                         <td><?php echo $NOMBREPRODUCTOR; ?></td>
@@ -335,16 +342,9 @@ include_once "../../assest/config/datosUrLP.php";
                                                         <td><?php echo $r['IQF_INFO']; ?></td>
                                                         <td><?php echo $r['MERMA_INFO']; ?></td>
                                                         <td><?php echo $r['DESECHO_INFO']; ?></td>
-                                                        <td><?php echo $r['SUMA_DIFERENCIA_PROCESO']; ?></td> 
-                                                        <td><?php echo $r['SUMA_INDUSTRIAL_INFO']; ?></td> 
-                                                        <td><?php echo number_format( $r['ENTRADA']-$r['EXPORTACION']-$r['SUMA_INDUSTRIAL_INFO']-$r['SUMA_DIFERENCIA_PROCESO'],2,".",""); ?></td>                                                        
-                                                        <td>
-                                                            <?php if ($esProcesoBajoExportacion) { ?>
-                                                                <span class="low-export-indicator" title="Bajo 85% de exportación"><?php echo $r['PDEXPORTACION_PROCESO']; ?>%</span>
-                                                            <?php } else { ?>
-                                                                <?php echo $r['PDEXPORTACION_PROCESO']; ?>%
-                                                            <?php } ?>
-                                                        </td>
+                                                        <td><?php echo $r['SUMA_DIFERENCIA_PROCESO']; ?></td>
+                                                        <td><?php echo $r['SUMA_INDUSTRIAL_INFO']; ?></td>
+                                                        <td><?php echo number_format( $r['ENTRADA']-$r['EXPORTACION']-$r['SUMA_INDUSTRIAL_INFO']-$r['SUMA_DIFERENCIA_PROCESO'],2,".",""); ?></td>
                                                         <td><?php echo $r['PDEXPORTACIONCD_PROCESO']-$r['PDEXPORTACION_PROCESO']; ?></td>
                                                         <td><?php echo $r['PDINDUSTRIAL_PROCESO']; ?></td>
                                                         <td><?php echo number_format($r['PORCENTAJE_PROCESO'], 2, ".", "");  ?></td>
