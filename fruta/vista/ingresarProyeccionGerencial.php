@@ -30,6 +30,9 @@ foreach ($_SESSION['INFORME_GERENCIAL_PROYECCIONES'] as &$proyeccionNormalizada)
     if (!isset($proyeccionNormalizada['tipo_materia_prima'])) {
         $proyeccionNormalizada['tipo_materia_prima'] = !empty($proyeccionNormalizada['es_bulk']) ? 'Bulk' : 'Granel';
     }
+    if (!isset($proyeccionNormalizada['ano'])) {
+        $proyeccionNormalizada['ano'] = isset($proyeccionNormalizada['creado']) ? intval(date('Y', strtotime($proyeccionNormalizada['creado']))) : intval(date('Y'));
+    }
 }
 unset($proyeccionNormalizada);
 
@@ -39,7 +42,8 @@ $datosEdicion = [
     'empresa' => $empresaSeleccionForm,
     'semana' => '',
     'kg_proyectado' => '',
-    'tipo_mp' => ''
+    'tipo_mp' => '',
+    'ano' => intval(date('Y'))
 ];
 
 if (isset($_POST['REFRESCAR_EMPRESA'])) {
@@ -48,6 +52,7 @@ if (isset($_POST['REFRESCAR_EMPRESA'])) {
     $datosEdicion['kg_proyectado'] = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : '';
     $tipoMPSeleccionado = isset($_POST['TIPO_MP']) ? $_POST['TIPO_MP'] : '';
     $datosEdicion['tipo_mp'] = in_array($tipoMPSeleccionado, ['Granel', 'Bulk']) ? $tipoMPSeleccionado : '';
+    $datosEdicion['ano'] = isset($_POST['ANO']) ? intval($_POST['ANO']) : intval(date('Y'));
 }
 
 if (isset($_POST['DESHABILITAR'])) {
@@ -87,6 +92,7 @@ if (isset($_POST['EDITAR'])) {
             $datosEdicion['semana'] = $registro['semana'];
             $datosEdicion['kg_proyectado'] = $registro['kg_proyectado'];
             $datosEdicion['tipo_mp'] = isset($registro['tipo_materia_prima']) ? $registro['tipo_materia_prima'] : ($registro['es_bulk'] ? 'Bulk' : 'Granel');
+            $datosEdicion['ano'] = isset($registro['ano']) ? intval($registro['ano']) : intval(date('Y'));
         } else {
             $indiceEditar = null;
         }
@@ -100,8 +106,9 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
     $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
     $tipoMateriaPrima = isset($_POST['TIPO_MP']) ? $_POST['TIPO_MP'] : '';
     $tipoEmbalaje = $tipoMateriaPrima === 'Bulk' ? 'Bulk' : 'Granel';
+    $ano = isset($_POST['ANO']) ? intval($_POST['ANO']) : intval(date('Y'));
 
-    if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]) && $semana > 0 && $kgProyectado > 0 && $empresaSeleccionada && in_array($tipoMateriaPrima, ['Granel', 'Bulk'])) {
+    if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]) && $semana > 0 && $kgProyectado > 0 && $empresaSeleccionada && in_array($tipoMateriaPrima, ['Granel', 'Bulk']) && $ano) {
         $esBulk = $tipoMateriaPrima === 'Bulk' || stripos($tipoEmbalaje, 'bulk') !== false;
 
         $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice] = [
@@ -113,6 +120,7 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
             'descripcion_estandar' => '',
             'tipo_materia_prima' => $tipoMateriaPrima,
             'es_bulk' => $esBulk,
+            'ano' => $ano,
             'creado' => $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]['creado'],
             'habilitado' => $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]['habilitado']
         ];
@@ -126,8 +134,9 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
     $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
     $tipoMateriaPrima = isset($_POST['TIPO_MP']) ? $_POST['TIPO_MP'] : '';
     $tipoEmbalaje = $tipoMateriaPrima === 'Bulk' ? 'Bulk' : 'Granel';
+    $ano = isset($_POST['ANO']) ? intval($_POST['ANO']) : intval(date('Y'));
 
-    if ($semana > 0 && $kgProyectado > 0 && $empresaSeleccionada && in_array($tipoMateriaPrima, ['Granel', 'Bulk'])) {
+    if ($semana > 0 && $kgProyectado > 0 && $empresaSeleccionada && in_array($tipoMateriaPrima, ['Granel', 'Bulk']) && $ano) {
         $esBulk = $tipoMateriaPrima === 'Bulk' || stripos($tipoEmbalaje, 'bulk') !== false;
 
         $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][] = [
@@ -139,6 +148,7 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
             'descripcion_estandar' => '',
             'tipo_materia_prima' => $tipoMateriaPrima,
             'es_bulk' => $esBulk,
+            'ano' => $ano,
             'creado' => date('Y-m-d H:i'),
             'habilitado' => true
         ];
@@ -236,6 +246,15 @@ if ($empresaFiltroTabla === 'ALL') {
                                             <input type="number" name="SEMANA" class="form-control" min="1" max="53" required value="<?php echo htmlspecialchars($datosEdicion['semana']); ?>">
                                         </div>
                                         <div class="col-md-2 col-12">
+                                            <label>Año</label>
+                                            <select name="ANO" class="form-control" required>
+                                                <option value="">Seleccione</option>
+                                                <?php foreach ([2025, 2026, 2027, 2028] as $anio) { ?>
+                                                    <option value="<?php echo $anio; ?>" <?php echo intval($datosEdicion['ano']) === $anio ? 'selected' : ''; ?>><?php echo $anio; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 col-12">
                                             <label>Kg netos proyectados</label>
                                             <input type="number" step="0.01" name="KG_PROYECTADO" class="form-control" required value="<?php echo htmlspecialchars($datosEdicion['kg_proyectado']); ?>">
                                         </div>
@@ -280,6 +299,7 @@ if ($empresaFiltroTabla === 'ALL') {
                                                 <th>Empresa</th>
                                                 <th class="text-center">Tipo materia prima</th>
                                                 <th>Semana llegada</th>
+                                                <th>Año</th>
                                                 <th class="text-right">Kg Neto proyectados</th>
                                                 <th class="text-center">Estado</th>
                                                 <th class="text-center">Operaciones</th>
@@ -299,6 +319,7 @@ if ($empresaFiltroTabla === 'ALL') {
                                                         <?php } ?>
                                                     </td>
                                                     <td><?php echo $proy['semana']; ?></td>
+                                                    <td><?php echo isset($proy['ano']) ? htmlspecialchars($proy['ano']) : '-'; ?></td>
                                                     <td class="text-right"><?php echo number_format($proy['kg_proyectado'], 0, ',', '.'); ?></td>
                                                     <td class="text-center">
                                                         <?php if (!empty($proy['habilitado'])) { ?>
@@ -330,7 +351,7 @@ if ($empresaFiltroTabla === 'ALL') {
                                                     </td>
                                                 </tr>
                                             <?php } } else { ?>
-                                                <tr><td colspan="6" class="text-center text-muted">Todavía no hay datos guardados para esta temporada.</td></tr>
+                                                <tr><td colspan="7" class="text-center text-muted">Todavía no hay datos guardados para esta temporada.</td></tr>
                                             <?php } ?>
                                         </tbody>
                                     </table>
