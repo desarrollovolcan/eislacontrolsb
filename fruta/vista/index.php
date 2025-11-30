@@ -168,7 +168,18 @@ if($ARRAYREGISTROSABIERTOS){
                 padding: 10px 12px;
             }
             .dashboard-row {
-                margin-bottom: 12px;
+                margin-bottom: 10px;
+            }
+            .collage-row {
+                margin-left: -8px;
+                margin-right: -8px;
+            }
+            .collage-row > [class*='col-'] {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+            .collage-card {
+                height: 100%;
             }
             .bg-gradient-sky { background: linear-gradient(135deg, #1d8cf8 0%, #5ac8fa 100%); }
             .bg-gradient-dusk { background: linear-gradient(135deg, #7b42f6 0%, #b06ab3 100%); }
@@ -277,9 +288,9 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
                         </div>
 
-                        <div class="row dashboard-row">
+                        <div class="row dashboard-row collage-row align-items-stretch">
                             <div class="col-xl-4 col-12">
-                                <div class="box compact-card">
+                                <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Indicadores operacionales</h4>
                                     </div>
@@ -309,7 +320,7 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
 
                             <div class="col-xl-4 col-12">
-                                <div class="box compact-card">
+                                <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Existencia de materia prima por variedad</h4>
                                     </div>
@@ -355,7 +366,7 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
 
                             <div class="col-xl-4 col-12">
-                                <div class="box compact-card">
+                                <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Top 5 exportación por productor</h4>
                                     </div>
@@ -401,9 +412,9 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
                         </div>
 
-                        <div class="row dashboard-row">
+                        <div class="row dashboard-row collage-row align-items-stretch">
                             <div class="col-xl-4 col-md-6 col-12">
-                                <div class="box compact-card">
+                                <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Top 5 exportación por variedad</h4>
                                     </div>
@@ -449,7 +460,7 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
 
                             <div class="col-xl-4 col-md-6 col-12">
-                                <div class="box compact-card">
+                                <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Kg netos exportados por país</h4>
                                     </div>
@@ -495,7 +506,7 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
 
                             <div class="col-xl-4 col-md-6 col-12">
-                                <div class="box compact-card">
+                                <div class="box compact-card collage-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Kg netos exportados por recibidor</h4>
                                     </div>
