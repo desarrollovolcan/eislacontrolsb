@@ -163,6 +163,7 @@ if($ARRAYREGISTROSABIERTOS){
             .progress-ocean { background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%); }
             .progress-coral { background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%); }
             .mini-progress { height: 6px; }
+            .mini-progress.super-thin { height: 4px; }
             .compact-list .item {
                 padding: 6px 0;
                 border-bottom: 1px dashed #e6e6e6;
@@ -170,6 +171,13 @@ if($ARRAYREGISTROSABIERTOS){
             .compact-list .item:last-child {
                 border-bottom: none;
             }
+            .compact-table th, .compact-table td {
+                padding: 6px 4px;
+                font-size: 12px;
+                vertical-align: middle;
+            }
+            .compact-table th { font-weight: 600; }
+            .badge-slim { padding: 2px 6px; font-size: 11px; }
             section.content {
                 padding-top: 10px;
             }
@@ -288,30 +296,40 @@ if($ARRAYREGISTROSABIERTOS){
                                     </div>
                                     <div class="box-body">
                                         <?php if ($query_procesosBajaExportacion) { ?>
-                                            <ul class="list-unstyled compact-list mb-0">
-                                                <?php foreach ($query_procesosBajaExportacion as $proceso) {
-                                                    $porcentajeExpo = number_format($proceso["PDEXPORTACION_PROCESO"], 2, ".", "");
-                                                    $porcentajeTotal = number_format($proceso["PDEXPORTACIONCD_PROCESO"], 2, ".", "");
-                                                ?>
-                                                    <li class="item">
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <div>
-                                                                <div class="font-weight-600">#<?php echo $proceso["NUMERO_PROCESO"]; ?></div>
-                                                                <div class="text-muted small"><?php echo $proceso["FECHA_PROCESO"]; ?></div>
-                                                            </div>
-                                                            <span class="badge badge-warning-light">Expo <?php echo $porcentajeExpo; ?>%</span>
-                                                        </div>
-                                                        <div class="d-flex justify-content-between text-muted small mt-1">
-                                                            <span>Ent: <?php echo number_format($proceso["KILOS_NETO_ENTRADA"], 0, ",", "."); ?> kg</span>
-                                                            <span>Expo: <?php echo number_format($proceso["KILOS_EXPORTACION_PROCESO"], 0, ",", "."); ?> kg</span>
-                                                            <span>T: <?php echo $porcentajeTotal; ?>%</span>
-                                                        </div>
-                                                        <div class="progress mini-progress mt-1">
-                                                            <div class="progress-bar progress-amber" role="progressbar" style="width: <?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>%" aria-valuenow="<?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                        </div>
-                                                    </li>
-                                                <?php } ?>
-                                            </ul>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped mb-0 compact-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th># / Fecha</th>
+                                                            <th class="text-right">Ent. (kg)</th>
+                                                            <th class="text-right">Expo (kg)</th>
+                                                            <th class="text-right">Expo %</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($query_procesosBajaExportacion as $proceso) {
+                                                            $porcentajeExpo = number_format($proceso["PDEXPORTACION_PROCESO"], 2, ".", "");
+                                                            $porcentajeTotal = number_format($proceso["PDEXPORTACIONCD_PROCESO"], 2, ".", "");
+                                                        ?>
+                                                            <tr>
+                                                                <td>
+                                                                    <div class="font-weight-600">#<?php echo $proceso["NUMERO_PROCESO"]; ?></div>
+                                                                    <div class="text-muted small"><?php echo $proceso["FECHA_PROCESO"]; ?></div>
+                                                                    <div class="progress mini-progress super-thin mt-1">
+                                                                        <div class="progress-bar progress-amber" role="progressbar" style="width: <?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>%" aria-valuenow="<?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="text-right align-middle"><?php echo number_format($proceso["KILOS_NETO_ENTRADA"], 0, ",", "."); ?></td>
+                                                                <td class="text-right align-middle"><?php echo number_format($proceso["KILOS_EXPORTACION_PROCESO"], 0, ",", "."); ?></td>
+                                                                <td class="text-right align-middle">
+                                                                    <span class="badge badge-warning-light badge-slim">Expo <?php echo $porcentajeExpo; ?>%</span>
+                                                                    <div class="text-muted small">Total <?php echo $porcentajeTotal; ?>%</div>
+                                                                </td>
+                                                            </tr>
+                                                        <?php } ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         <?php } else { ?>
                                             <p class="text-center mb-0">Sin procesos cerrados con baja exportación.</p>
                                         <?php } ?>
