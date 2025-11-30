@@ -5,19 +5,26 @@ include_once "../../assest/controlador/ERECEPCION_ADO.php";
 $ERECEPCION_ADO = new ERECEPCION_ADO();
 
 $ARRAYEMPRESA = $EMPRESA_ADO->listarEmpresaCBX();
-
-$empresaFiltro = $EMPRESAS;
-if (isset($_POST['EMPRESA']) && $_POST['EMPRESA'] !== '') {
-    $empresaFiltro = intval($_POST['EMPRESA']);
-} elseif (isset($_POST['EMPRESA_FILTRO']) && $_POST['EMPRESA_FILTRO'] !== '') {
-    $empresaFiltro = intval($_POST['EMPRESA_FILTRO']);
+$nombreEmpresas = [];
+if ($ARRAYEMPRESA) {
+    foreach ($ARRAYEMPRESA as $empresa) {
+        $nombreEmpresas[$empresa['ID_EMPRESA']] = $empresa['NOMBRE_EMPRESA'];
+    }
 }
+
+$empresaSeleccionForm = $EMPRESAS;
+if (isset($_POST['EMPRESA']) && $_POST['EMPRESA'] !== '') {
+    $empresaSeleccionForm = intval($_POST['EMPRESA']);
+}
+
+$empresaFiltroTablaRaw = isset($_POST['EMPRESA_FILTRO']) ? $_POST['EMPRESA_FILTRO'] : $EMPRESAS;
+$empresaFiltroTabla = $empresaFiltroTablaRaw === 'ALL' ? 'ALL' : ($empresaFiltroTablaRaw !== '' ? intval($empresaFiltroTablaRaw) : $EMPRESAS);
 
 $temporadaFiltro = $TEMPORADAS;
 
 $ARRAYESTANDAR = [];
-if ($empresaFiltro) {
-    $ARRAYESTANDAR = $ERECEPCION_ADO->listarEstandarPorEmpresaCBX($empresaFiltro);
+if ($empresaSeleccionForm) {
+    $ARRAYESTANDAR = $ERECEPCION_ADO->listarEstandarPorEmpresaCBX($empresaSeleccionForm);
 }
 
 if (!isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'])) {
@@ -29,8 +36,21 @@ foreach ($_SESSION['INFORME_GERENCIAL_PROYECCIONES'] as &$proyeccionNormalizada)
     if (!isset($proyeccionNormalizada['habilitado'])) {
         $proyeccionNormalizada['habilitado'] = true;
     }
+    if (!isset($proyeccionNormalizada['tipo_materia_prima'])) {
+        $proyeccionNormalizada['tipo_materia_prima'] = !empty($proyeccionNormalizada['es_bulk']) ? 'Bulk' : 'Granel';
+    }
 }
 unset($proyeccionNormalizada);
+
+$mensajeExito = "";
+$indiceEditar = null;
+$datosEdicion = [
+    'empresa' => $empresaSeleccionForm,
+    'semana' => '',
+    'kg_proyectado' => '',
+    'estandar' => '',
+    'tipo_mp' => ''
+];
 
 $nombreEstandares = [];
 if ($ARRAYESTANDAR) {
@@ -40,21 +60,14 @@ if ($ARRAYESTANDAR) {
 }
 
 if (isset($_POST['REFRESCAR_EMPRESA'])) {
-    $datosEdicion['empresa'] = $empresaFiltro;
+    $datosEdicion['empresa'] = $empresaSeleccionForm;
     $datosEdicion['semana'] = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : '';
     $datosEdicion['kg_proyectado'] = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : '';
     $estandarSeleccionado = isset($_POST['ESTANDAR']) ? $_POST['ESTANDAR'] : '';
     $datosEdicion['estandar'] = $estandarSeleccionado && isset($nombreEstandares[$estandarSeleccionado]) ? $estandarSeleccionado : '';
+    $tipoMPSeleccionado = isset($_POST['TIPO_MP']) ? $_POST['TIPO_MP'] : '';
+    $datosEdicion['tipo_mp'] = in_array($tipoMPSeleccionado, ['Granel', 'Bulk']) ? $tipoMPSeleccionado : '';
 }
-
-$mensajeExito = "";
-$indiceEditar = null;
-$datosEdicion = [
-    'empresa' => $empresaFiltro,
-    'semana' => '',
-    'kg_proyectado' => '',
-    'estandar' => ''
-];
 
 if (isset($_POST['DESHABILITAR'])) {
     $indice = intval($_POST['DESHABILITAR']);
@@ -74,7 +87,7 @@ if (isset($_POST['ELIMINAR'])) {
     $indice = intval($_POST['ELIMINAR']);
     if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice])) {
         $registro = $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice];
-        if ($registro['empresa'] == $empresaFiltro && $registro['temporada'] == $temporadaFiltro) {
+        if ($registro['temporada'] == $temporadaFiltro && ($empresaFiltroTabla === 'ALL' || $registro['empresa'] == $empresaFiltroTabla)) {
             unset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]);
             $_SESSION['INFORME_GERENCIAL_PROYECCIONES'] = array_values($_SESSION['INFORME_GERENCIAL_PROYECCIONES']);
             $mensajeExito = "Proyección eliminada.";
@@ -86,11 +99,21 @@ if (isset($_POST['EDITAR'])) {
     $indiceEditar = intval($_POST['EDITAR']);
     if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indiceEditar])) {
         $registro = $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indiceEditar];
-        if ($registro['empresa'] == $empresaFiltro && $registro['temporada'] == $temporadaFiltro) {
-            $datosEdicion['empresa'] = $empresaFiltro;
+        if ($registro['temporada'] == $temporadaFiltro && ($empresaFiltroTabla === 'ALL' || $registro['empresa'] == $empresaFiltroTabla)) {
+            $empresaSeleccionForm = $registro['empresa'];
+            $ARRAYESTANDAR = $ERECEPCION_ADO->listarEstandarPorEmpresaCBX($empresaSeleccionForm);
+            $nombreEstandares = [];
+            if ($ARRAYESTANDAR) {
+                foreach ($ARRAYESTANDAR as $estandar) {
+                    $nombreEstandares[$estandar['ID_ESTANDAR']] = $estandar['NOMBRE_ESTANDAR'];
+                }
+            }
+
+            $datosEdicion['empresa'] = $empresaSeleccionForm;
             $datosEdicion['semana'] = $registro['semana'];
             $datosEdicion['kg_proyectado'] = $registro['kg_proyectado'];
             $datosEdicion['estandar'] = array_search($registro['descripcion_estandar'], $nombreEstandares) ?: '';
+            $datosEdicion['tipo_mp'] = isset($registro['tipo_materia_prima']) ? $registro['tipo_materia_prima'] : ($registro['es_bulk'] ? 'Bulk' : 'Granel');
         } else {
             $indiceEditar = null;
         }
@@ -99,15 +122,16 @@ if (isset($_POST['EDITAR'])) {
 
 if (isset($_POST['GUARDAR_CAMBIOS'])) {
     $indice = intval($_POST['INDEX']);
-    $empresaSeleccionada = isset($_POST['EMPRESA']) ? intval($_POST['EMPRESA']) : $empresaFiltro;
+    $empresaSeleccionada = isset($_POST['EMPRESA']) ? intval($_POST['EMPRESA']) : $empresaSeleccionForm;
     $semana = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : 0;
     $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
     $estandarSeleccionado = isset($_POST['ESTANDAR']) ? $_POST['ESTANDAR'] : '';
+    $tipoMateriaPrima = isset($_POST['TIPO_MP']) ? $_POST['TIPO_MP'] : '';
     $descripcionEstandar = $estandarSeleccionado && isset($nombreEstandares[$estandarSeleccionado]) ? $nombreEstandares[$estandarSeleccionado] : '';
     $tipoEmbalaje = $descripcionEstandar;
 
-    if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]) && $semana > 0 && $kgProyectado > 0 && $empresaSeleccionada) {
-        $esBulk = stripos($tipoEmbalaje, 'bulk') !== false || stripos($descripcionEstandar, 'bulk') !== false;
+    if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]) && $semana > 0 && $kgProyectado > 0 && $empresaSeleccionada && in_array($tipoMateriaPrima, ['Granel', 'Bulk'])) {
+        $esBulk = $tipoMateriaPrima === 'Bulk' || stripos($tipoEmbalaje, 'bulk') !== false || stripos($descripcionEstandar, 'bulk') !== false;
 
         $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice] = [
             'empresa' => $empresaSeleccionada,
@@ -116,6 +140,7 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
             'kg_proyectado' => $kgProyectado,
             'tipo_embalaje' => $tipoEmbalaje,
             'descripcion_estandar' => $descripcionEstandar,
+            'tipo_materia_prima' => $tipoMateriaPrima,
             'es_bulk' => $esBulk,
             'creado' => $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]['creado'],
             'habilitado' => $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]['habilitado']
@@ -125,15 +150,16 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
         $indiceEditar = null;
     }
 } elseif (isset($_POST['AGREGAR_PROYECCION'])) {
-    $empresaSeleccionada = isset($_POST['EMPRESA']) ? intval($_POST['EMPRESA']) : $empresaFiltro;
+    $empresaSeleccionada = isset($_POST['EMPRESA']) ? intval($_POST['EMPRESA']) : $empresaSeleccionForm;
     $semana = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : 0;
     $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
     $estandarSeleccionado = isset($_POST['ESTANDAR']) ? $_POST['ESTANDAR'] : '';
+    $tipoMateriaPrima = isset($_POST['TIPO_MP']) ? $_POST['TIPO_MP'] : '';
     $descripcionEstandar = $estandarSeleccionado && isset($nombreEstandares[$estandarSeleccionado]) ? $nombreEstandares[$estandarSeleccionado] : '';
     $tipoEmbalaje = $descripcionEstandar;
 
-    if ($semana > 0 && $kgProyectado > 0 && $empresaSeleccionada) {
-        $esBulk = stripos($tipoEmbalaje, 'bulk') !== false || stripos($descripcionEstandar, 'bulk') !== false;
+    if ($semana > 0 && $kgProyectado > 0 && $empresaSeleccionada && in_array($tipoMateriaPrima, ['Granel', 'Bulk'])) {
+        $esBulk = $tipoMateriaPrima === 'Bulk' || stripos($tipoEmbalaje, 'bulk') !== false || stripos($descripcionEstandar, 'bulk') !== false;
 
         $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][] = [
             'empresa' => $empresaSeleccionada,
@@ -142,6 +168,7 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
             'kg_proyectado' => $kgProyectado,
             'tipo_embalaje' => $tipoEmbalaje,
             'descripcion_estandar' => $descripcionEstandar,
+            'tipo_materia_prima' => $tipoMateriaPrima,
             'es_bulk' => $esBulk,
             'creado' => date('Y-m-d H:i'),
             'habilitado' => true
@@ -153,13 +180,17 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
 
 $proyeccionesFiltradas = array_values(array_filter(
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'],
-    function ($proyeccion) use ($empresaFiltro, $temporadaFiltro) {
-        return $proyeccion['empresa'] == $empresaFiltro && $proyeccion['temporada'] == $temporadaFiltro;
+    function ($proyeccion) use ($empresaFiltroTabla, $temporadaFiltro) {
+        return $proyeccion['temporada'] == $temporadaFiltro && ($empresaFiltroTabla === 'ALL' || $proyeccion['empresa'] == $empresaFiltroTabla);
     }
 ));
 
-$empresaSeleccionada = $EMPRESA_ADO->verEmpresa($empresaFiltro);
-$nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'] : '';
+if ($empresaFiltroTabla === 'ALL') {
+    $nombreEmpresa = 'Todas';
+} else {
+    $empresaSeleccionada = $EMPRESA_ADO->verEmpresa($empresaFiltroTabla);
+    $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'] : '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -215,22 +246,30 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                                     <form method="post" class="row" id="form-proyeccion">
                                         <input type="hidden" name="INDEX" value="<?php echo $indiceEditar !== null ? $indiceEditar : ''; ?>">
                                         <input type="hidden" name="REFRESCAR_EMPRESA" id="refrescar-empresa" value="">
-                                        <div class="col-md-4 col-12">
+                                        <div class="col-md-3 col-12">
                                             <label>Empresa</label>
                                             <select name="EMPRESA" class="form-control" required id="select-empresa">
                                                 <option value="">Seleccione empresa</option>
                                                 <?php foreach ($ARRAYEMPRESA as $empresa) { ?>
-                                                    <option value="<?php echo $empresa['ID_EMPRESA']; ?>" <?php echo $empresaFiltro == $empresa['ID_EMPRESA'] ? 'selected' : ''; ?>><?php echo $empresa['NOMBRE_EMPRESA']; ?></option>
+                                                    <option value="<?php echo $empresa['ID_EMPRESA']; ?>" <?php echo $empresaSeleccionForm == $empresa['ID_EMPRESA'] ? 'selected' : ''; ?>><?php echo $empresa['NOMBRE_EMPRESA']; ?></option>
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                        <div class="col-md-4 col-12">
+                                        <div class="col-md-3 col-12">
                                             <label>Estandar de llegada</label>
                                             <select name="ESTANDAR" class="form-control" required>
                                                 <option value="">Seleccione un estandar</option>
                                                 <?php foreach ($ARRAYESTANDAR as $estandar) { ?>
                                                     <option value="<?php echo $estandar['ID_ESTANDAR']; ?>" <?php echo $datosEdicion['estandar'] == $estandar['ID_ESTANDAR'] ? 'selected' : ''; ?>><?php echo $estandar['NOMBRE_ESTANDAR']; ?></option>
                                                 <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 col-12">
+                                            <label>Tipo materia prima</label>
+                                            <select name="TIPO_MP" class="form-control" required>
+                                                <option value="">Seleccione tipo</option>
+                                                <option value="Granel" <?php echo $datosEdicion['tipo_mp'] === 'Granel' ? 'selected' : ''; ?>>Granel</option>
+                                                <option value="Bulk" <?php echo $datosEdicion['tipo_mp'] === 'Bulk' ? 'selected' : ''; ?>>Bulk</option>
                                             </select>
                                         </div>
                                         <div class="col-md-2 col-12">
@@ -265,8 +304,9 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                                             <label class="mr-10">Empresa</label>
                                             <select name="EMPRESA_FILTRO" class="form-control mr-5">
                                                 <option value="">Seleccione empresa</option>
+                                                <option value="ALL" <?php echo $empresaFiltroTabla === 'ALL' ? 'selected' : ''; ?>>Mostrar todas</option>
                                                 <?php foreach ($ARRAYEMPRESA as $empresa) { ?>
-                                                    <option value="<?php echo $empresa['ID_EMPRESA']; ?>" <?php echo $empresaFiltro == $empresa['ID_EMPRESA'] ? 'selected' : ''; ?>><?php echo $empresa['NOMBRE_EMPRESA']; ?></option>
+                                                    <option value="<?php echo $empresa['ID_EMPRESA']; ?>" <?php echo $empresaFiltroTabla == $empresa['ID_EMPRESA'] ? 'selected' : ''; ?>><?php echo $empresa['NOMBRE_EMPRESA']; ?></option>
                                                 <?php } ?>
                                             </select>
                                             <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
@@ -278,10 +318,11 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                                     <table class="table table-bordered projection-table">
                                         <thead>
                                             <tr>
-                                                <th>Semana</th>
+                                                <th>Empresa</th>
                                                 <th>Estandar</th>
-                                                <th class="text-center">Tipo</th>
-                                                <th class="text-right">Kg proyectados</th>
+                                                <th class="text-center">Tipo materia prima</th>
+                                                <th>Semana llegada</th>
+                                                <th class="text-right">Kg Neto proyectados</th>
                                                 <th class="text-center">Estado</th>
                                                 <th class="text-center">Operaciones</th>
                                             </tr>
@@ -289,15 +330,18 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                                         <tbody>
                                             <?php if ($proyeccionesFiltradas) { foreach ($proyeccionesFiltradas as $index => $proy) { ?>
                                                 <tr>
-                                                    <td><?php echo $proy['semana']; ?></td>
+                                                    <td><?php echo isset($nombreEmpresas[$proy['empresa']]) ? htmlspecialchars($nombreEmpresas[$proy['empresa']]) : $proy['empresa']; ?></td>
                                                     <td><?php echo htmlspecialchars($proy['descripcion_estandar']); ?></td>
                                                     <td class="text-center">
-                                                        <?php if ($proy['es_bulk']) { ?>
-                                                            <span class="tag tag-bulk">bulk</span>
+                                                        <?php
+                                                            $tipoMateriaPrima = isset($proy['tipo_materia_prima']) ? $proy['tipo_materia_prima'] : ($proy['es_bulk'] ? 'Bulk' : 'Granel');
+                                                            if ($tipoMateriaPrima === 'Bulk') { ?>
+                                                            <span class="tag tag-bulk">Bulk</span>
                                                         <?php } else { ?>
-                                                            <span class="tag tag-envasado">envasado</span>
+                                                            <span class="tag tag-envasado">Granel</span>
                                                         <?php } ?>
                                                     </td>
+                                                    <td><?php echo $proy['semana']; ?></td>
                                                     <td class="text-right"><?php echo number_format($proy['kg_proyectado'], 0, ',', '.'); ?></td>
                                                     <td class="text-center">
                                                         <?php if (!empty($proy['habilitado'])) { ?>
@@ -308,28 +352,28 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                                                     </td>
                                                     <td class="text-center">
                                                         <form method="post" class="d-inline">
-                                                            <input type="hidden" name="EMPRESA_FILTRO" value="<?php echo $empresaFiltro; ?>">
+                                                            <input type="hidden" name="EMPRESA_FILTRO" value="<?php echo $empresaFiltroTabla === 'ALL' ? 'ALL' : $empresaFiltroTabla; ?>">
                                                             <button type="submit" name="EDITAR" value="<?php echo $index; ?>" class="btn btn-sm btn-outline-primary">Editar</button>
                                                         </form>
                                                         <?php if (!empty($proy['habilitado'])) { ?>
                                                             <form method="post" class="d-inline" onsubmit="return confirm('¿Deshabilitar registro?');">
-                                                                <input type="hidden" name="EMPRESA_FILTRO" value="<?php echo $empresaFiltro; ?>">
+                                                                <input type="hidden" name="EMPRESA_FILTRO" value="<?php echo $empresaFiltroTabla === 'ALL' ? 'ALL' : $empresaFiltroTabla; ?>">
                                                                 <button type="submit" name="DESHABILITAR" value="<?php echo $index; ?>" class="btn btn-sm btn-outline-danger">Deshabilitar</button>
                                                             </form>
                                                         <?php } else { ?>
                                                             <form method="post" class="d-inline">
-                                                                <input type="hidden" name="EMPRESA_FILTRO" value="<?php echo $empresaFiltro; ?>">
+                                                                <input type="hidden" name="EMPRESA_FILTRO" value="<?php echo $empresaFiltroTabla === 'ALL' ? 'ALL' : $empresaFiltroTabla; ?>">
                                                                 <button type="submit" name="HABILITAR" value="<?php echo $index; ?>" class="btn btn-sm btn-outline-success">Habilitar</button>
                                                             </form>
                                                         <?php } ?>
                                                         <form method="post" class="d-inline" onsubmit="return confirm('¿Eliminar registro definitivamente?');">
-                                                            <input type="hidden" name="EMPRESA_FILTRO" value="<?php echo $empresaFiltro; ?>">
+                                                            <input type="hidden" name="EMPRESA_FILTRO" value="<?php echo $empresaFiltroTabla === 'ALL' ? 'ALL' : $empresaFiltroTabla; ?>">
                                                             <button type="submit" name="ELIMINAR" value="<?php echo $index; ?>" class="btn btn-sm btn-outline-secondary">Eliminar</button>
                                                         </form>
                                                     </td>
                                                 </tr>
                                             <?php } } else { ?>
-                                                <tr><td colspan="6" class="text-center text-muted">Todavía no hay datos guardados para esta temporada.</td></tr>
+                                                <tr><td colspan="7" class="text-center text-muted">Todavía no hay datos guardados para esta temporada.</td></tr>
                                             <?php } ?>
                                         </tbody>
                                     </table>
