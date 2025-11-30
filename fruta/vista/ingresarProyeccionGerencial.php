@@ -39,6 +39,14 @@ if ($ARRAYESTANDAR) {
     }
 }
 
+if (isset($_POST['REFRESCAR_EMPRESA'])) {
+    $datosEdicion['empresa'] = $empresaFiltro;
+    $datosEdicion['semana'] = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : '';
+    $datosEdicion['kg_proyectado'] = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : '';
+    $estandarSeleccionado = isset($_POST['ESTANDAR']) ? $_POST['ESTANDAR'] : '';
+    $datosEdicion['estandar'] = $estandarSeleccionado && isset($nombreEstandares[$estandarSeleccionado]) ? $estandarSeleccionado : '';
+}
+
 $mensajeExito = "";
 $indiceEditar = null;
 $datosEdicion = [
@@ -204,11 +212,12 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                                     <?php if ($mensajeExito) { ?>
                                         <div class="alert alert-soft"><?php echo $mensajeExito; ?></div>
                                     <?php } ?>
-                                    <form method="post" class="row">
+                                    <form method="post" class="row" id="form-proyeccion">
                                         <input type="hidden" name="INDEX" value="<?php echo $indiceEditar !== null ? $indiceEditar : ''; ?>">
+                                        <input type="hidden" name="REFRESCAR_EMPRESA" id="refrescar-empresa" value="">
                                         <div class="col-md-4 col-12">
                                             <label>Empresa</label>
-                                            <select name="EMPRESA" class="form-control" required>
+                                            <select name="EMPRESA" class="form-control" required id="select-empresa">
                                                 <option value="">Seleccione empresa</option>
                                                 <?php foreach ($ARRAYEMPRESA as $empresa) { ?>
                                                     <option value="<?php echo $empresa['ID_EMPRESA']; ?>" <?php echo $empresaFiltro == $empresa['ID_EMPRESA'] ? 'selected' : ''; ?>><?php echo $empresa['NOMBRE_EMPRESA']; ?></option>
@@ -334,5 +343,20 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
     </div>
 
     <?php include_once "../../assest/config/urlBase.php"; ?>
+    <script>
+        (function() {
+            const empresaSelect = document.getElementById('select-empresa');
+            const refreshInput = document.getElementById('refrescar-empresa');
+            const form = document.getElementById('form-proyeccion');
+
+            if (empresaSelect && refreshInput && form) {
+                empresaSelect.addEventListener('change', function () {
+                    refreshInput.value = '1';
+                    form.noValidate = true;
+                    form.submit();
+                });
+            }
+        })();
+    </script>
 </body>
 </html>
