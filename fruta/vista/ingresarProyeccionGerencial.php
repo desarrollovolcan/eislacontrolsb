@@ -1,13 +1,10 @@
 <?php
 include_once "../../assest/config/validarUsuarioFruta.php";
-include_once "../../assest/controlador/EXIMATERIAPRIMA_ADO.php";
 include_once "../../assest/controlador/ERECEPCION_ADO.php";
 
-$EXIMATERIAPRIMA_ADO = new EXIMATERIAPRIMA_ADO();
 $ERECEPCION_ADO = new ERECEPCION_ADO();
 
 $ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
-
 $empresaFiltro = $EMPRESAS;
 $temporadaFiltro = isset($_REQUEST['TEMPORADA_FILTRO']) ? $_REQUEST['TEMPORADA_FILTRO'] : $TEMPORADAS;
 
@@ -16,34 +13,41 @@ if ($empresaFiltro) {
     $ARRAYESTANDAR = $ERECEPCION_ADO->listarEstandarPorEmpresaCBX($empresaFiltro);
 }
 
-$empresaSeleccionada = $EMPRESA_ADO->verEmpresa($empresaFiltro);
-$nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'] : '';
-
 if (!isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'])) {
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'] = [];
 }
 
 $nombreEstandares = [];
-foreach ($ARRAYESTANDAR as $estandar) {
-    $nombreEstandares[$estandar['ID_ESTANDAR']] = $estandar['NOMBRE_ESTANDAR'];
+if ($ARRAYESTANDAR) {
+    foreach ($ARRAYESTANDAR as $estandar) {
+        $nombreEstandares[$estandar['ID_ESTANDAR']] = $estandar['NOMBRE_ESTANDAR'];
+    }
 }
 
-$existencias = $EXIMATERIAPRIMA_ADO->listarEximateriaprimaEmpresaTemporada($empresaFiltro, $temporadaFiltro);
-$realesPorSemana = [];
+$mensajeExito = "";
+if (isset($_POST['AGREGAR_PROYECCION'])) {
+    $temporadaFiltro = isset($_POST['TEMPORADA_FILTRO']) ? $_POST['TEMPORADA_FILTRO'] : $temporadaFiltro;
+    $semana = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : 0;
+    $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
+    $estandarSeleccionado = isset($_POST['ESTANDAR']) ? $_POST['ESTANDAR'] : '';
+    $descripcionEstandar = $estandarSeleccionado && isset($nombreEstandares[$estandarSeleccionado]) ? $nombreEstandares[$estandarSeleccionado] : '';
+    $tipoEmbalaje = $descripcionEstandar;
 
-foreach ($existencias as $existencia) {
-    if (!isset($existencia['ESTADO_REGISTRO']) || $existencia['ESTADO_REGISTRO'] != 1) {
-        continue;
-    }
+    if ($semana > 0 && $kgProyectado > 0) {
+        $esBulk = stripos($tipoEmbalaje, 'bulk') !== false || stripos($descripcionEstandar, 'bulk') !== false;
 
-    $kgReal = isset($existencia['KILOS_NETO_EXIMATERIAPRIMA']) ? floatval($existencia['KILOS_NETO_EXIMATERIAPRIMA']) : 0;
-    $fechaReferencia = !empty($existencia['FECHA_RECEPCION']) ? $existencia['FECHA_RECEPCION'] : $existencia['FECHA_COSECHA_EXIMATERIAPRIMA'];
-    $semanaReal = $fechaReferencia ? intval(date('W', strtotime($fechaReferencia))) : null;
-    if ($semanaReal) {
-        if (!isset($realesPorSemana[$semanaReal])) {
-            $realesPorSemana[$semanaReal] = 0;
-        }
-        $realesPorSemana[$semanaReal] += $kgReal;
+        $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][] = [
+            'empresa' => $empresaFiltro,
+            'temporada' => $temporadaFiltro,
+            'semana' => $semana,
+            'kg_proyectado' => $kgProyectado,
+            'tipo_embalaje' => $tipoEmbalaje,
+            'descripcion_estandar' => $descripcionEstandar,
+            'es_bulk' => $esBulk,
+            'creado' => date('Y-m-d H:i')
+        ];
+
+        $mensajeExito = "Proyección agregada para la semana " . $semana . ".";
     }
 }
 
@@ -55,12 +59,9 @@ $proyeccionesFiltradas = array_values(array_filter(
 ));
 
 $weeklyProjection = [];
-$weeklyReal = $realesPorSemana;
 $totalProyectado = 0;
-$totalReal = array_sum($realesPorSemana);
 $totalBulk = 0;
 $totalEnvasado = 0;
-$detalleProyecciones = [];
 
 foreach ($proyeccionesFiltradas as $proyeccion) {
     $kgProyectado = $proyeccion['kg_proyectado'];
@@ -70,41 +71,28 @@ foreach ($proyeccionesFiltradas as $proyeccion) {
     if (!isset($weeklyProjection[$semana])) {
         $weeklyProjection[$semana] = 0;
     }
-    if (!isset($weeklyReal[$semana])) {
-        $weeklyReal[$semana] = 0;
-    }
 
     $weeklyProjection[$semana] += $kgProyectado;
+    $totalProyectado += $kgProyectado;
+
     if ($esBulk) {
         $totalBulk += $kgProyectado;
     } else {
         $totalEnvasado += $kgProyectado;
     }
-
-    $detalleProyecciones[] = [
-        'semana' => $semana,
-        'kg_proyectado' => $kgProyectado,
-        'tipo_embalaje' => $proyeccion['tipo_embalaje'],
-        'es_bulk' => $esBulk,
-        'creado' => $proyeccion['creado'],
-        'descripcion_estandar' => $proyeccion['descripcion_estandar']
-    ];
-
-    $totalProyectado += $kgProyectado;
 }
 
 ksort($weeklyProjection);
-ksort($weeklyReal);
-$labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal);
-
+$empresaSeleccionada = $EMPRESA_ADO->verEmpresa($empresaFiltro);
+$nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'] : '';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <title>Informe gerencial</title>
+    <title>Ingresar proyección</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Informe gerencial de proyecciones" />
+    <meta name="description" content="Registro de proyecciones semanales por empresa" />
     <meta name="author" content="">
     <?php include_once "../../assest/config/urlHead.php"; ?>
     <style>
@@ -132,8 +120,8 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                     <div class="content-header">
                         <div class="d-flex align-items-center">
                             <div class="mr-auto">
-                                <h3 class="page-title">Informe gerencial</h3>
-                                <p class="mb-0">Proyección de kilos netos por empresa y semana.</p>
+                                <h3 class="page-title">Ingresar proyección</h3>
+                                <p class="mb-0">Proyección de kilos netos por empresa y temporada.</p>
                             </div>
                         </div>
                     </div>
@@ -142,7 +130,7 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                         <div class="col-12">
                             <div class="box">
                                 <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Filtro de temporada</h4>
+                                    <h4 class="box-title mb-0">Seleccionar temporada</h4>
                                     <p class="mb-0 text-muted">Empresa: <?php echo htmlspecialchars($nombreEmpresa); ?></p>
                                 </div>
                                 <div class="box-body">
@@ -159,7 +147,7 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                                         </div>
                                         <div class="col-lg-8 col-md-6 col-12 d-flex align-items-end">
                                             <div class="alert alert-soft w-100 mb-0">
-                                                Use <strong>Ingresar proyección</strong> para cargar semanas; este panel solo muestra el dashboard por temporada.
+                                                Ingrese las proyecciones para la temporada seleccionada. Se guardarán solo para la empresa activa.
                                             </div>
                                         </div>
                                     </form>
@@ -170,10 +158,37 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
 
                     <div class="row">
                         <div class="col-xl-8 col-12">
-                            <div class="box metric-card bg-lightest">
+                            <div class="box metric-card">
+                                <div class="box-header with-border">
+                                    <h4 class="box-title mb-0">Registrar proyección semanal</h4>
+                                </div>
                                 <div class="box-body">
-                                    <h4 class="box-title mb-5">Panel solo lectura</h4>
-                                    <p class="mb-0 text-muted">El dashboard refleja las proyecciones ingresadas por temporada. Para actualizar los datos use el menú <strong>Ingresar proyección</strong>.</p>
+                                    <?php if ($mensajeExito) { ?>
+                                        <div class="alert alert-soft"><?php echo $mensajeExito; ?></div>
+                                    <?php } ?>
+                                    <form method="post" class="row">
+                                        <input type="hidden" name="TEMPORADA_FILTRO" value="<?php echo $temporadaFiltro; ?>">
+                                        <div class="col-md-3 col-12">
+                                            <label>Semana</label>
+                                            <input type="number" name="SEMANA" class="form-control" min="1" max="53" required>
+                                        </div>
+                                        <div class="col-md-5 col-12">
+                                            <label>Kg netos proyectados</label>
+                                            <input type="number" step="0.01" name="KG_PROYECTADO" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-4 col-12 mt-10">
+                                            <label>Estandar / Tipo embalaje</label>
+                                            <select name="ESTANDAR" class="form-control" required>
+                                                <option value="">Seleccione un estandar</option>
+                                                <?php foreach ($ARRAYESTANDAR as $estandar) { ?>
+                                                    <option value="<?php echo $estandar['ID_ESTANDAR']; ?>"><?php echo $estandar['NOMBRE_ESTANDAR']; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 mt-15">
+                                            <button type="submit" name="AGREGAR_PROYECCION" class="btn btn-primary">Agregar proyección</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -181,16 +196,12 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                             <div class="box metric-card bg-lightest">
                                 <div class="box-body">
                                     <div class="d-flex justify-content-between align-items-center mb-10">
-                                        <span class="section-title">Totales del filtro</span>
+                                        <span class="section-title">Totales de la temporada</span>
                                         <span class="badge badge-primary"><?php echo count($proyeccionesFiltradas); ?> registros</span>
                                     </div>
                                     <div class="mb-10">
                                         <div class="text-muted">Kg proyectados</div>
                                         <h4 class="mb-0"><?php echo number_format($totalProyectado, 0, ',', '.'); ?> kg</h4>
-                                    </div>
-                                    <div class="mb-10">
-                                        <div class="text-muted">Kg reales informados</div>
-                                        <h4 class="mb-0"><?php echo number_format($totalReal, 0, ',', '.'); ?> kg</h4>
                                     </div>
                                     <div class="d-flex mb-10">
                                         <div class="flex-grow-1">
@@ -212,64 +223,11 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                     </div>
 
                     <div class="row">
-                        <div class="col-xl-7 col-12">
-                            <div class="box metric-card">
-                                <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Real vs Proyectado por semana</h4>
-                                    <p class="mb-0 text-muted">Los kilos reales se calculan desde existencia de materia prima habilitada.</p>
-                                </div>
-                                <div class="box-body">
-                                    <canvas id="chartSemanal" height="140"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-5 col-12">
-                            <div class="box metric-card">
-                                <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Recepciones acumuladas vs proyección</h4>
-                                </div>
-                                <div class="box-body table-responsive">
-                                    <table class="table projection-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Semana</th>
-                                                <th class="text-right">Real</th>
-                                                <th class="text-right">Proyectado</th>
-                                                <th class="text-center">Cumplimiento</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if ($labelsSemanas) { foreach ($labelsSemanas as $semana) {
-                                                $proy = isset($weeklyProjection[$semana]) ? $weeklyProjection[$semana] : 0;
-                                                $real = isset($weeklyReal[$semana]) ? $weeklyReal[$semana] : 0;
-                                                $cumplimiento = $proy > 0 ? ($real / $proy) * 100 : 0;
-                                            ?>
-                                                <tr>
-                                                    <td><?php echo $semana; ?></td>
-                                                    <td class="text-right"><?php echo number_format($real, 0, ',', '.'); ?></td>
-                                                    <td class="text-right"><?php echo number_format($proy, 0, ',', '.'); ?></td>
-                                                    <td class="text-center">
-                                                        <span class="badge-soft" style="color: <?php echo $cumplimiento >= 100 ? '#2f855a' : '#c53030'; ?>;">
-                                                            <?php echo round($cumplimiento, 1); ?>%
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            <?php } } else { ?>
-                                                <tr><td colspan="4" class="text-center text-muted">Sin proyecciones para el filtro seleccionado.</td></tr>
-                                            <?php } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-12">
                             <div class="box metric-card">
                                 <div class="box-header with-border">
                                     <h4 class="box-title mb-0">Detalle de proyecciones</h4>
-                                    <p class="mb-0 text-muted">Desglose por semana y tipo de embalaje.</p>
+                                    <p class="mb-0 text-muted">Desglose semanal para la temporada seleccionada.</p>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <table class="table table-bordered projection-table">
@@ -283,7 +241,7 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php if ($detalleProyecciones) { foreach ($detalleProyecciones as $proy) { ?>
+                                            <?php if ($proyeccionesFiltradas) { foreach ($proyeccionesFiltradas as $proy) { ?>
                                                 <tr>
                                                     <td><?php echo $proy['semana']; ?></td>
                                                     <td><?php echo htmlspecialchars($proy['descripcion_estandar']); ?></td>
@@ -298,7 +256,7 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                                                     <td class="text-center text-muted"><?php echo $proy['creado']; ?></td>
                                                 </tr>
                                             <?php } } else { ?>
-                                                <tr><td colspan="5" class="text-center text-muted">Todavía no hay datos guardados para esta empresa y temporada.</td></tr>
+                                                <tr><td colspan="5" class="text-center text-muted">Todavía no hay datos guardados para esta temporada.</td></tr>
                                             <?php } ?>
                                         </tbody>
                                     </table>
@@ -312,47 +270,5 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
     </div>
 
     <?php include_once "../../assest/config/urlBase.php"; ?>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const semanas = <?php echo json_encode(array_values($labelsSemanas)); ?>;
-        const dataProyectado = <?php echo json_encode(array_values($weeklyProjection)); ?>;
-        const dataReal = <?php echo json_encode(array_values($weeklyReal)); ?>;
-        const ctx = document.getElementById('chartSemanal').getContext('2d');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: semanas,
-                datasets: [
-                    {
-                        label: 'Proyectado',
-                        data: dataProyectado,
-                        borderColor: '#1d8cf8',
-                        backgroundColor: 'rgba(29,140,248,0.1)',
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: 'Real',
-                        data: dataReal,
-                        borderColor: '#2ecc71',
-                        backgroundColor: 'rgba(46,204,113,0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, ticks: { callback: value => value.toLocaleString('es-CL') + ' kg' } },
-                    x: { title: { display: true, text: 'Semana' } }
-                },
-                plugins: {
-                    tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString('es-CL') + ' kg' } }
-                }
-            }
-        });
-    </script>
 </body>
 </html>

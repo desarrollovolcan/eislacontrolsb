@@ -318,6 +318,12 @@ $ARRAYPLANTACAMBIAR = $PLANTA_ADO->listarPlantaPropiaCBX();
       </li>
       <?php if($PFRUTA=="1"){ ?>
         <li>
+          <a href="ingresarProyeccionGerencial.php">
+            <img src="../../api/cryptioadmin10/html/images/svg-icon/sidebar-menu/forms.svg" class="svg-icon" alt="">
+            <span>Ingresar proyección</span>
+          </a>
+        </li>
+        <li>
           <a href="informeGerencial.php">
             <img src="../../api/cryptioadmin10/html/images/svg-icon/sidebar-menu/reports.svg" class="svg-icon" alt="">
             <span>Informe gerencial</span>
