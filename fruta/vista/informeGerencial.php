@@ -4,11 +4,13 @@ include_once "../../assest/controlador/EXIMATERIAPRIMA_ADO.php";
 include_once "../../assest/controlador/PLANTA_ADO.php";
 include_once "../../assest/controlador/ESPECIES_ADO.php";
 include_once "../../assest/controlador/VESPECIES_ADO.php";
+include_once "../../assest/controlador/ERECEPCION_ADO.php";
 
 $EXIMATERIAPRIMA_ADO = new EXIMATERIAPRIMA_ADO();
 $PLANTA_ADO = new PLANTA_ADO();
 $ESPECIES_ADO = new ESPECIES_ADO();
 $VESPECIES_ADO = new VESPECIES_ADO();
+$ERECEPCION_ADO = new ERECEPCION_ADO();
 
 $ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
 $ARRAYESPECIE = array_values(array_filter($ESPECIES_ADO->listarEspeciesCBX(), function ($especie) {
@@ -24,6 +26,16 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
 
 if (!isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'])) {
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'] = [];
+}
+
+$agrupacionPorEstandar = [];
+$ARRAYESTANDARES = $ERECEPCION_ADO->listarEstandarCBX();
+foreach ($ARRAYESTANDARES as $estandar) {
+    if (!isset($estandar['ID_ESTANDAR'])) {
+        continue;
+    }
+
+    $agrupacionPorEstandar[$estandar['ID_ESTANDAR']] = isset($estandar['ID_AGERENCIAL']) ? intval($estandar['ID_AGERENCIAL']) : null;
 }
 
 $mapVespeciesEspecie = [];
@@ -47,7 +59,7 @@ $proyeccionesFiltradas = array_values(array_filter(
 
 $totalProyectado = 0;
 $totalReal = 0;
-$empresasReporte = [];
+$empresasConDatos = [];
 $proyeccionTotalEmpresa = [];
 $kilosRealesPorEmpresaPlanta = [];
 $kilosRealesTotales = [];
@@ -73,7 +85,7 @@ foreach ($proyeccionesFiltradas as $proyeccion) {
 
     $proyeccionTotalEmpresa[$empresaId] += $kgProyectado;
     $totalProyectado += $kgProyectado;
-    $empresasReporte[$empresaId] = true;
+    $empresasConDatos[$empresaId] = true;
 }
 
 foreach ($empresasActivas as $empresaActiva) {
@@ -92,7 +104,8 @@ foreach ($empresasActivas as $empresaActiva) {
 
         $kgReal = isset($existencia['KILOS_NETO_EXIMATERIAPRIMA']) ? floatval($existencia['KILOS_NETO_EXIMATERIAPRIMA']) : 0;
         $plantaId = isset($existencia['ID_PLANTA']) ? $existencia['ID_PLANTA'] : null;
-        $agrupacion = isset($existencia['ID_AGERENCIAL']) ? intval($existencia['ID_AGERENCIAL']) : null;
+        $estandarId = isset($existencia['ID_ESTANDAR']) ? $existencia['ID_ESTANDAR'] : null;
+        $agrupacion = ($estandarId && isset($agrupacionPorEstandar[$estandarId])) ? $agrupacionPorEstandar[$estandarId] : null;
 
         if (!$plantaId || !$agrupacion || $kgReal <= 0) {
             continue;
@@ -122,16 +135,17 @@ foreach ($empresasActivas as $empresaActiva) {
 
         $kilosRealesTotales[$empresaId]['total'] += $kgReal;
         $totalReal += $kgReal;
-        $empresasReporte[$empresaId] = true;
 
         if (!isset($plantasNombres[$plantaId])) {
             $plantaInfo = $PLANTA_ADO->verPlanta($plantaId);
             $plantasNombres[$plantaId] = $plantaInfo ? $plantaInfo[0]['NOMBRE_PLANTA'] : ('Planta ' . $plantaId);
         }
+
+        $empresasConDatos[$empresaId] = true;
     }
 }
 
-$empresasReporteIds = array_keys($empresasReporte);
+$empresasReporteIds = array_keys($empresasConDatos);
 $plantasReporte = array_keys($plantasNombres);
 
 ?>
