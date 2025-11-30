@@ -11,10 +11,12 @@ $ESPECIES_ADO = new ESPECIES_ADO();
 $VESPECIES_ADO = new VESPECIES_ADO();
 
 $ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
-$ARRAYESPECIE = $ESPECIES_ADO->listarEspeciesCBX();
+$ARRAYESPECIE = array_values(array_filter($ESPECIES_ADO->listarEspeciesCBX(), function ($especie) {
+    return isset($especie['ESTADO_REGISTRO']) ? intval($especie['ESTADO_REGISTRO']) === 1 : true;
+}));
 
 $temporadaFiltro = isset($_REQUEST['TEMPORADA_FILTRO']) ? $_REQUEST['TEMPORADA_FILTRO'] : $TEMPORADAS;
-$especieFiltro = isset($_REQUEST['ESPECIE_FILTRO']) ? $_REQUEST['ESPECIE_FILTRO'] : '';
+$especieFiltro = isset($_REQUEST['ESPECIE_FILTRO']) ? $_REQUEST['ESPECIE_FILTRO'] : '1';
 $semanaActual = intval(date('W'));
 
 $empresaSeleccionada = $EMPRESA_ADO->verEmpresa($EMPRESAS);
@@ -36,8 +38,8 @@ $proyeccionesFiltradas = array_values(array_filter(
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'],
     function ($proyeccion) use ($temporadaFiltro, $especieFiltro, $semanaActual) {
         $habilitado = !isset($proyeccion['habilitado']) || $proyeccion['habilitado'];
-        $especieProyeccion = isset($proyeccion['especie']) ? $proyeccion['especie'] : '';
-        $coincideEspecie = !$especieFiltro ? true : ($especieProyeccion && $especieProyeccion == $especieFiltro);
+        $especieProyeccion = isset($proyeccion['especie']) ? $proyeccion['especie'] : null;
+        $coincideEspecie = !$especieFiltro ? true : ($especieProyeccion ? $especieProyeccion == $especieFiltro : true);
         $dentroSemana = !isset($proyeccion['semana']) || intval($proyeccion['semana']) <= $semanaActual;
         return $habilitado && $proyeccion['temporada'] == $temporadaFiltro && $coincideEspecie && $dentroSemana;
     }
@@ -177,18 +179,17 @@ $plantasReporte = array_keys($plantasNombres);
 
                     <div class="row">
                         <div class="col-12">
-                            <div class="box">
-                                <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Filtros</h4>
-                                    <p class="mb-0 text-muted">Empresa base: <?php echo htmlspecialchars($nombreEmpresa); ?></p>
-                                </div>
-                                <div class="box-body">
-                                    <form method="post" class="d-flex flex-wrap align-items-end gap-2 filter-compact">
+                            <div class="box metric-card">
+                                <div class="box-header with-border d-flex flex-wrap align-items-center justify-content-between">
+                                    <div>
+                                        <h4 class="box-title mb-0">Recepciones acumuladas y cumplimiento de lo proyectado</h4>
+                                        <p class="mb-0 text-muted">Distribución por empresa y planta comparando kilos reales vs. proyectados.</p>
+                                    </div>
+                                    <form method="post" class="d-flex align-items-end gap-2 filter-compact">
                                         <input type="hidden" name="TEMPORADA_FILTRO" value="<?php echo htmlspecialchars($temporadaFiltro); ?>">
-                                        <div class="col-auto">
+                                        <div class="col-auto p-0">
                                             <label class="mb-1">Especie</label>
                                             <select name="ESPECIE_FILTRO" class="form-control form-control-sm" onchange="this.form.submit()">
-                                                <option value="" <?php echo $especieFiltro ? '' : 'selected'; ?>>Todas</option>
                                                 <?php foreach ($ARRAYESPECIE as $ESPECIE) { ?>
                                                     <option value="<?php echo $ESPECIE['ID_ESPECIES']; ?>" <?php echo $ESPECIE['ID_ESPECIES'] == $especieFiltro ? 'selected' : ''; ?>>
                                                         <?php echo $ESPECIE['NOMBRE_ESPECIES']; ?>
@@ -196,21 +197,10 @@ $plantasReporte = array_keys($plantasNombres);
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                        <div class="col-auto d-flex align-items-end">
+                                        <div class="col-auto p-0 d-flex align-items-end">
                                             <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
                                         </div>
                                     </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="box metric-card">
-                                <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Recepciones acumuladas y cumplimiento de lo proyectado</h4>
-                                    <p class="mb-0 text-muted">Distribución por empresa y planta comparando kilos reales vs. proyectados.</p>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <?php if ($empresasReporteIds && $plantasReporte) { ?>
