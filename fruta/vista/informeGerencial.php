@@ -1,31 +1,19 @@
 <?php
 include_once "../../assest/config/validarUsuarioFruta.php";
 include_once "../../assest/controlador/EXIMATERIAPRIMA_ADO.php";
-include_once "../../assest/controlador/ERECEPCION_ADO.php";
 
 $EXIMATERIAPRIMA_ADO = new EXIMATERIAPRIMA_ADO();
-$ERECEPCION_ADO = new ERECEPCION_ADO();
 
 $ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
 
 $empresaFiltro = $EMPRESAS;
 $temporadaFiltro = isset($_REQUEST['TEMPORADA_FILTRO']) ? $_REQUEST['TEMPORADA_FILTRO'] : $TEMPORADAS;
 
-$ARRAYESTANDAR = [];
-if ($empresaFiltro) {
-    $ARRAYESTANDAR = $ERECEPCION_ADO->listarEstandarPorEmpresaCBX($empresaFiltro);
-}
-
 $empresaSeleccionada = $EMPRESA_ADO->verEmpresa($empresaFiltro);
 $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'] : '';
 
 if (!isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'])) {
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'] = [];
-}
-
-$nombreEstandares = [];
-foreach ($ARRAYESTANDAR as $estandar) {
-    $nombreEstandares[$estandar['ID_ESTANDAR']] = $estandar['NOMBRE_ESTANDAR'];
 }
 
 $existencias = $EXIMATERIAPRIMA_ADO->listarEximateriaprimaEmpresaTemporada($empresaFiltro, $temporadaFiltro);
@@ -87,8 +75,7 @@ foreach ($proyeccionesFiltradas as $proyeccion) {
         'kg_proyectado' => $kgProyectado,
         'tipo_embalaje' => $proyeccion['tipo_embalaje'],
         'es_bulk' => $esBulk,
-        'creado' => $proyeccion['creado'],
-        'descripcion_estandar' => $proyeccion['descripcion_estandar']
+        'creado' => $proyeccion['creado']
     ];
 
     $totalProyectado += $kgProyectado;
@@ -277,7 +264,6 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                                         <thead>
                                             <tr>
                                                 <th>Semana</th>
-                                                <th>Estandar</th>
                                                 <th class="text-center">Tipo</th>
                                                 <th class="text-right">Kg proyectados</th>
                                                 <th class="text-center">Registrado</th>
@@ -287,7 +273,6 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                                             <?php if ($detalleProyecciones) { foreach ($detalleProyecciones as $proy) { ?>
                                                 <tr>
                                                     <td><?php echo $proy['semana']; ?></td>
-                                                    <td><?php echo htmlspecialchars($proy['descripcion_estandar']); ?></td>
                                                     <td class="text-center">
                                                         <?php if ($proy['es_bulk']) { ?>
                                                             <span class="tag tag-bulk">bulk</span>
@@ -299,7 +284,7 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                                                     <td class="text-center text-muted"><?php echo $proy['creado']; ?></td>
                                                 </tr>
                                             <?php } } else { ?>
-                                                <tr><td colspan="5" class="text-center text-muted">Todavía no hay datos guardados para esta empresa y temporada.</td></tr>
+                                                <tr><td colspan="4" class="text-center text-muted">Todavía no hay datos guardados para esta empresa y temporada.</td></tr>
                                             <?php } ?>
                                         </tbody>
                                     </table>
