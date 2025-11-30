@@ -75,6 +75,26 @@ include_once "../../assest/config/datosUrLP.php";
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
+        <style>
+            .proceso-bajo-exportacion {
+                background-color: transparent !important;
+            }
+
+            .proceso-bajo-exportacion td {
+                border-left: 3px solid #f4c37d;
+            }
+
+            .proceso-bajo-exportacion .etiqueta-bajo-exportacion {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 3px 10px;
+                border-radius: 12px;
+                background-color: #fffaf2;
+                color: #a0680d;
+                font-weight: 600;
+            }
+        </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
                 //REDIRECCIONAR A LA PAGINA SELECIONADA
@@ -236,8 +256,10 @@ include_once "../../assest/config/datosUrLP.php";
                                                         $NOMBRETEMPORADA = "Sin Datos";
                                                     }
 
+                                                    $esProcesoBajoExportacion = $r['PDEXPORTACION_PROCESO'] < 85;
+                                                    $claseProceso = $esProcesoBajoExportacion ? 'proceso-bajo-exportacion' : '';
                                                     ?>
-                                                    <tr class="text-center">
+                                                    <tr class="text-center <?php echo $claseProceso; ?>">
                                                         <td> <?php echo $r['NUMERO_PROCESO']; ?> </td>
                                                         <td>
                                                             <?php if ($r['ESTADO'] == "0") { ?>
@@ -307,7 +329,15 @@ include_once "../../assest/config/datosUrLP.php";
                                                         <td><?php echo $r['SUMA_DIFERENCIA_PROCESO']; ?></td> 
                                                         <td><?php echo $r['SUMA_INDUSTRIAL_INFO']; ?></td> 
                                                         <td><?php echo number_format( $r['ENTRADA']-$r['EXPORTACION']-$r['SUMA_INDUSTRIAL_INFO']-$r['SUMA_DIFERENCIA_PROCESO'],2,".",""); ?></td>                                                        
-                                                        <td><?php echo $r['PDEXPORTACION_PROCESO']; ?></td>
+                                                        <td>
+                                                            <?php if ($esProcesoBajoExportacion) { ?>
+                                                                <span class="etiqueta-bajo-exportacion">
+                                                                    <?php echo $r['PDEXPORTACION_PROCESO']; ?>
+                                                                </span>
+                                                            <?php } else { ?>
+                                                                <?php echo $r['PDEXPORTACION_PROCESO']; ?>
+                                                            <?php } ?>
+                                                        </td>
                                                         <td><?php echo $r['PDEXPORTACIONCD_PROCESO']-$r['PDEXPORTACION_PROCESO']; ?></td>
                                                         <td><?php echo $r['PDINDUSTRIAL_PROCESO']; ?></td>
                                                         <td><?php echo number_format($r['PORCENTAJE_PROCESO'], 2, ".", "");  ?></td>
@@ -380,18 +410,8 @@ include_once "../../assest/config/datosUrLP.php";
     </div>
     <?php include_once "../../assest/config/urlBase.php"; ?>
         <script>
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                showConfirmButton: true
-            })
-
-            Toast.fire({
-                icon: "info",
-                title: "Informacion importante",
-                html: "<label>Los <b>procesos</b> Abiertos tienen que ser <b>Cerrados</b> para no afectar las operaciones posteriores.</label>"
-            })
+            // Aviso visual en tabla para procesos bajo 85% de exportación
+            // (sin popups adicionales)
         </script>
 </body>
 
