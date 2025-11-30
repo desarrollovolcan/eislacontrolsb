@@ -351,8 +351,63 @@ class CONSULTA_ADO
 
             $datos = $this->conexion->prepare("SELECT SUM(EXI.KILOS_NETO_EXIMATERIAPRIMA)AS TOTAL FROM fruta_eximateriaprima EXI
             WHERE EXI.ID_PLANTA = '".$PLANTA."' AND EXI.ID_EMPRESA = '".$EMPRESA."' AND EXI.ESTADO = 2 AND EXI.ESTADO_REGISTRO = 1 AND EXI.ID_TEMPORADA = '".$TEMPORADA."'
-            AND DATE_FORMAT(EXI.FECHA_RECEPCION, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
-            AND DATE_FORMAT(EXI.FECHA_RECEPCION, '%H:%i:%s') <= '05:00:00'");
+            AND EXI.FECHA_RECEPCION <= CONCAT(CURDATE(),' 05:00:00')");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function TopExportacionPorPais($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(PA.NOMBRE_PAIS,'Sin país') AS NOMBRE,
+                                                    IFNULL(SUM(EXI.KILOS_NETO_EXIEXPORTACION),0) AS TOTAL
+                                                FROM fruta_exiexportacion EXI
+                                                JOIN fruta_despachoex DEX ON DEX.ID_DESPACHOEX = EXI.ID_DESPACHOEX
+                                                LEFT JOIN ubicacion_pais PA ON DEX.ID_PAIS = PA.ID_PAIS
+                                                WHERE EXI.ESTADO_REGISTRO = 1
+                                                AND DEX.ESTADO_REGISTRO = 1
+                                                AND DEX.ESTADO = 0
+                                                AND EXI.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND EXI.ID_EMPRESA = '".$EMPRESA."'
+                                                AND EXI.ID_PLANTA = '".$PLANTA."'
+                                                GROUP BY DEX.ID_PAIS
+                                                ORDER BY TOTAL DESC
+                                                LIMIT 5");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function TopExportacionPorRecibidor($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(RF.NOMBRE_RFINAL,'Sin recibidor') AS NOMBRE,
+                                                    IFNULL(SUM(EXI.KILOS_NETO_EXIEXPORTACION),0) AS TOTAL
+                                                FROM fruta_exiexportacion EXI
+                                                JOIN fruta_despachoex DEX ON DEX.ID_DESPACHOEX = EXI.ID_DESPACHOEX
+                                                LEFT JOIN fruta_rfinal RF ON DEX.ID_RFINAL = RF.ID_RFINAL
+                                                WHERE EXI.ESTADO_REGISTRO = 1
+                                                AND DEX.ESTADO_REGISTRO = 1
+                                                AND DEX.ESTADO = 0
+                                                AND EXI.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND EXI.ID_EMPRESA = '".$EMPRESA."'
+                                                AND EXI.ID_PLANTA = '".$PLANTA."'
+                                                GROUP BY DEX.ID_RFINAL
+                                                ORDER BY TOTAL DESC
+                                                LIMIT 5");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
