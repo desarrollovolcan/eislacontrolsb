@@ -418,7 +418,7 @@ if($ARRAYREGISTROSABIERTOS){
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Top 5 exportación por productor</h4>
-                                            <span class="badge badge-outline badge-primary">Exportación</span>
+                                            <span class="badge badge-outline badge-warning">Proceso</span>
                                         </div>
                                     </div>
                                     <div class="box-body">
@@ -454,7 +454,7 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php } ?>
                                                     </tbody>
                                                 </table>
-                                                <p class="text-muted small mt-1 mb-0">Totales consideran únicamente los registros mostrados (top 5).</p>
+                                                <p class="text-muted small mt-1 mb-0">Totales consideran únicamente los registros mostrados (top 5). Origen: procesos.</p>
                                             </div>
                                         <?php } else { ?>
                                             <p class="text-center mb-0">Sin exportaciones registradas.</p>
@@ -470,7 +470,7 @@ if($ARRAYREGISTROSABIERTOS){
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Top 5 exportación por variedad</h4>
-                                            <span class="badge badge-outline badge-primary">Exportación</span>
+                                            <span class="badge badge-outline badge-warning">Proceso</span>
                                         </div>
                                     </div>
                                     <div class="box-body">
@@ -506,7 +506,7 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php } ?>
                                                     </tbody>
                                                 </table>
-                                                <p class="text-muted small mt-1 mb-0">Totales consideran únicamente los registros mostrados (top 5).</p>
+                                                <p class="text-muted small mt-1 mb-0">Totales consideran únicamente los registros mostrados (top 5). Origen: procesos.</p>
                                             </div>
                                         <?php } else { ?>
                                             <p class="text-center mb-0">Sin exportaciones registradas.</p>
