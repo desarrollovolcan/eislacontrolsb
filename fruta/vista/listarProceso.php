@@ -88,6 +88,7 @@ include_once "../../assest/config/datosUrLP.php";
         <?php include_once "../../assest/config/urlHead.php"; ?>
         <style>
             .proceso-bajo-exportacion {
+                background-color: #fff0df !important;
                 background-color: transparent !important;
             }
 
