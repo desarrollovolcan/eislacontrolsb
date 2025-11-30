@@ -1549,20 +1549,29 @@ if (isset($_POST)) {
                     $EXIINDUSTRIAL_ADO->vigente($EXIINDUSTRIAL);
                 endforeach;
 
+                $exportacionProceso = floatval($_REQUEST['PEXPORTACIONEXPOEX']);
+                $iconoCierre = "info";
+                $mensajeCierre = "Este proceso se encuentra cerrada y no puede ser modificada.";
+                if ($exportacionProceso < 85) {
+                    $iconoCierre = "warning";
+                    $mensajeCierre = "El proceso tiene menos de 85% de exportación y será destacado en naranjo en el agrupado de procesos.";
+                }
+
                 //SEGUNE EL TIPO DE OPERACIONS QUE SE INDENTIFIQUE EN LA URL
                     if ($accion_dato == "crear") {
                         $id_dato = $_REQUEST['IDP'];
                         $accion_dato = "ver";
                         echo '<script>
                             Swal.fire({
-                                icon:"info",
+                                icon:"'.$iconoCierre.'",
                                 title:"Registro Cerrado",
-                                text:"Este proceso se encuentra cerrada y no puede ser modificada.",
+                                text:"'.$mensajeCierre.'",
                                 showConfirmButton: true,
                                 confirmButtonText:"Cerrar",
                                 closeOnConfirm:false
                             }).then((result)=>{
-                                location.href = "registroProceso.php?op&id='.$id_dato.'&a='.$accion_dato.'";                            
+                                location.href = "registroProceso.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+
                             })
                         </script>';
                     }
@@ -1571,19 +1580,20 @@ if (isset($_POST)) {
                         $accion_dato = "ver";
                         echo '<script>
                             Swal.fire({
-                                icon:"info",
+                                icon:"'.$iconoCierre.'",
                                 title:"Registro Cerrado",
-                                text:"Este proceso se encuentra cerrada y no puede ser modificada.",
+                                text:"'.$mensajeCierre.'",
                                 showConfirmButton: true,
                                 confirmButtonText:"Cerrar",
                                 closeOnConfirm:false
                             }).then((result)=>{
-                                location.href = "registroProceso.php?op&id='.$id_dato.'&a='.$accion_dato.'";                            
+                                location.href = "registroProceso.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+
                             })
                         </script>';
-                    } 
+                    }
             }
-        }        
+        }
         if (isset($_REQUEST['QUITAR'])) {
             $IDQUITAR = $_REQUEST['IDQUITAR'];
             $EXIMATERIAPRIMA->__SET('ID_EXIMATERIAPRIMA', $_REQUEST['IDQUITAR']);
