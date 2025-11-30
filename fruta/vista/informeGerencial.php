@@ -65,6 +65,8 @@ $empresasConDatos = [];
 $proyeccionTotalEmpresa = [];
 $kilosRealesPorEmpresaPlanta = [];
 $kilosRealesTotales = [];
+$kilosTotalesPorEmpresaPlanta = [];
+$kilosBulkPorEmpresaPlanta = [];
 $empresasNombres = [];
 $plantasNombres = [];
 
@@ -122,9 +124,44 @@ foreach ($empresasActivas as $empresaActiva) {
         $estandarId = isset($existencia['ID_ESTANDAR']) ? $existencia['ID_ESTANDAR'] : null;
         $agrupacion = ($estandarId && isset($agrupacionPorEstandar[$estandarId])) ? $agrupacionPorEstandar[$estandarId] : null;
 
-        if (!$plantaId || !$agrupacion || $kgReal <= 0) {
+        if (!$plantaId || $kgReal <= 0) {
             continue;
         }
+
+        if (!isset($kilosTotalesPorEmpresaPlanta[$empresaId])) {
+            $kilosTotalesPorEmpresaPlanta[$empresaId] = [];
+        }
+
+        if (!isset($kilosTotalesPorEmpresaPlanta[$empresaId][$plantaId])) {
+            $kilosTotalesPorEmpresaPlanta[$empresaId][$plantaId] = 0;
+        }
+
+        $kilosTotalesPorEmpresaPlanta[$empresaId][$plantaId] += $kgReal;
+
+        if ($agrupacion === 2) {
+            if (!isset($kilosBulkPorEmpresaPlanta[$empresaId])) {
+                $kilosBulkPorEmpresaPlanta[$empresaId] = [];
+            }
+
+            if (!isset($kilosBulkPorEmpresaPlanta[$empresaId][$plantaId])) {
+                $kilosBulkPorEmpresaPlanta[$empresaId][$plantaId] = 0;
+            }
+
+            $kilosBulkPorEmpresaPlanta[$empresaId][$plantaId] += $kgReal;
+        }
+
+        if (!isset($plantasNombres[$plantaId])) {
+            $plantaInfo = $PLANTA_ADO->verPlanta($plantaId);
+            $plantasNombres[$plantaId] = $plantaInfo ? $plantaInfo[0]['NOMBRE_PLANTA'] : ('Planta ' . $plantaId);
+        }
+
+    }
+}
+
+foreach ($kilosTotalesPorEmpresaPlanta as $empresaId => $plantasTotales) {
+    foreach ($plantasTotales as $plantaId => $totalKg) {
+        $bulkKg = isset($kilosBulkPorEmpresaPlanta[$empresaId][$plantaId]) ? $kilosBulkPorEmpresaPlanta[$empresaId][$plantaId] : 0;
+        $granelKg = max($totalKg - $bulkKg, 0);
 
         if (!isset($kilosRealesPorEmpresaPlanta[$empresaId])) {
             $kilosRealesPorEmpresaPlanta[$empresaId] = [];
@@ -134,27 +171,15 @@ foreach ($empresasActivas as $empresaActiva) {
             $kilosRealesTotales[$empresaId] = ['granel' => 0, 'bulk' => 0, 'total' => 0];
         }
 
-        if (!isset($kilosRealesPorEmpresaPlanta[$empresaId][$plantaId])) {
-            $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId] = ['granel' => 0, 'bulk' => 0];
-        }
+        $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId] = [
+            'granel' => $granelKg,
+            'bulk' => $bulkKg,
+        ];
 
-        if ($agrupacion === 2) {
-            $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['bulk'] += $kgReal;
-            $kilosRealesTotales[$empresaId]['bulk'] += $kgReal;
-        } elseif ($agrupacion === 1) {
-            $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['granel'] += $kgReal;
-            $kilosRealesTotales[$empresaId]['granel'] += $kgReal;
-        } else {
-            continue;
-        }
-
-        $kilosRealesTotales[$empresaId]['total'] += $kgReal;
-        $totalReal += $kgReal;
-
-        if (!isset($plantasNombres[$plantaId])) {
-            $plantaInfo = $PLANTA_ADO->verPlanta($plantaId);
-            $plantasNombres[$plantaId] = $plantaInfo ? $plantaInfo[0]['NOMBRE_PLANTA'] : ('Planta ' . $plantaId);
-        }
+        $kilosRealesTotales[$empresaId]['granel'] += $granelKg;
+        $kilosRealesTotales[$empresaId]['bulk'] += $bulkKg;
+        $kilosRealesTotales[$empresaId]['total'] += $totalKg;
+        $totalReal += $totalKg;
 
         $empresasConDatos[$empresaId] = true;
     }
