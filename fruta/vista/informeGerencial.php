@@ -85,7 +85,11 @@ usort($proyeccionesFiltradas, function ($a, $b) {
 $totalProyectado = 0;
 $totalReal = 0;
 $empresasConDatos = [];
+$empresasConDatosSemana = [];
 $proyeccionTotalEmpresa = [];
+$proyeccionSemanaActualEmpresa = [];
+$plantasPorEmpresaSemana = [];
+$kilosDiariosPorEmpresaPlanta = [];
 $kilosRealesPorEmpresaPlanta = [];
 $kilosRealesTotales = [];
 $kilosTotalesPorEmpresaPlanta = [];
@@ -108,6 +112,9 @@ foreach ($proyeccionesFiltradas as $proyeccion) {
     $kgProyectado = isset($proyeccion['kg_proyectado']) ? floatval($proyeccion['kg_proyectado']) : 0;
     $empresaId = isset($proyeccion['empresa']) ? intval($proyeccion['empresa']) : null;
     $esBulk = isset($proyeccion['es_bulk']) ? (bool) $proyeccion['es_bulk'] : false;
+    $esSemanaActual = isset($proyeccion['semana']) ? intval($proyeccion['semana']) === $semanaActual : false;
+    $anoProyeccion = isset($proyeccion['ano']) ? intval($proyeccion['ano']) : intval(date('Y'));
+    $esAnoActual = $anoProyeccion === intval(date('Y'));
 
     if (!$empresaId || !isset($empresasNombres[$empresaId]) || $kgProyectado <= 0) {
         continue;
@@ -120,8 +127,27 @@ foreach ($proyeccionesFiltradas as $proyeccion) {
     $tipoClave = $esBulk ? 'bulk' : 'granel';
     $proyeccionTotalEmpresa[$empresaId][$tipoClave] += $kgProyectado;
     $proyeccionTotalEmpresa[$empresaId]['total'] += $kgProyectado;
+
+    if ($esSemanaActual && $esAnoActual) {
+        if (!isset($proyeccionSemanaActualEmpresa[$empresaId])) {
+            $proyeccionSemanaActualEmpresa[$empresaId] = 0;
+        }
+        $proyeccionSemanaActualEmpresa[$empresaId] += $kgProyectado;
+    }
     $totalProyectado += $kgProyectado;
     $empresasConDatos[$empresaId] = true;
+}
+
+$inicioSemana = new DateTime();
+$inicioSemana->setISODate(intval(date('o')), $semanaActual);
+$diasSemanaActual = [];
+for ($i = 0; $i < 7; $i++) {
+    $dia = clone $inicioSemana;
+    $dia->modify("+{$i} day");
+    $diasSemanaActual[] = [
+        'fecha' => $dia->format('Y-m-d'),
+        'nombre' => ucfirst(strftime('%A', $dia->getTimestamp())),
+    ];
 }
 
 foreach ($empresasActivas as $empresaActiva) {
@@ -152,6 +178,7 @@ foreach ($empresasActivas as $empresaActiva) {
         $plantaId = isset($existencia['ID_PLANTA']) ? $existencia['ID_PLANTA'] : null;
         $estandarId = isset($existencia['ID_ESTANDAR']) ? $existencia['ID_ESTANDAR'] : null;
         $agrupacion = ($estandarId && isset($agrupacionPorEstandar[$estandarId])) ? $agrupacionPorEstandar[$estandarId] : null;
+        $fechaRecepcion = isset($existencia['FECHA_RECEPCION']) ? $existencia['FECHA_RECEPCION'] : null;
 
         if (!$plantaId || $kgReal <= 0) {
             continue;
@@ -182,6 +209,42 @@ foreach ($empresasActivas as $empresaActiva) {
         if (!isset($plantasNombres[$plantaId])) {
             $plantaInfo = $PLANTA_ADO->verPlanta($plantaId);
             $plantasNombres[$plantaId] = $plantaInfo ? $plantaInfo[0]['NOMBRE_PLANTA'] : ('Planta ' . $plantaId);
+        }
+
+        if ($fechaRecepcion) {
+            $fechaObj = new DateTime($fechaRecepcion);
+            $semanaExistencia = intval($fechaObj->format('W'));
+            $anoExistencia = intval($fechaObj->format('o'));
+            if ($semanaExistencia === $semanaActual && $anoExistencia === intval(date('o'))) {
+                $fechaClave = $fechaObj->format('Y-m-d');
+                if (!isset($kilosDiariosPorEmpresaPlanta[$empresaId])) {
+                    $kilosDiariosPorEmpresaPlanta[$empresaId] = [];
+                }
+                if (!isset($kilosDiariosPorEmpresaPlanta[$empresaId][$fechaClave])) {
+                    $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaClave] = [
+                        'plantas' => [],
+                        'total' => 0,
+                        'bulk' => 0,
+                    ];
+                }
+                if (!isset($kilosDiariosPorEmpresaPlanta[$empresaId][$fechaClave]['plantas'][$plantaId])) {
+                    $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaClave]['plantas'][$plantaId] = ['total' => 0, 'bulk' => 0];
+                }
+
+                $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaClave]['plantas'][$plantaId]['total'] += $kgReal;
+                $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaClave]['total'] += $kgReal;
+
+                if ($agrupacion === 2) {
+                    $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaClave]['plantas'][$plantaId]['bulk'] += $kgReal;
+                    $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaClave]['bulk'] += $kgReal;
+                }
+
+                if (!isset($plantasPorEmpresaSemana[$empresaId])) {
+                    $plantasPorEmpresaSemana[$empresaId] = [];
+                }
+                $plantasPorEmpresaSemana[$empresaId][$plantaId] = true;
+                $empresasConDatosSemana[$empresaId] = true;
+            }
         }
 
     }
@@ -218,6 +281,10 @@ $empresasReporteIds = array_values(array_filter(array_keys($empresasConDatos), f
     return isset($empresasNombres[$empresaId]);
 }));
 $plantasReporte = array_keys($plantasNombres);
+
+$empresasSemanaIds = array_values(array_filter(array_keys($empresasConDatosSemana + $proyeccionSemanaActualEmpresa), function ($empresaId) use ($empresasNombres) {
+    return isset($empresasNombres[$empresaId]);
+}));
 
 ?>
 <!DOCTYPE html>
@@ -385,6 +452,74 @@ $plantasReporte = array_keys($plantasNombres);
                                         </table>
                                     <?php } else { ?>
                                         <div class="alert alert-soft mb-0">No hay datos de recepciones o proyecciones para construir el resumen por empresa.</div>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+                <section class="content pt-0">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="box metric-card">
+                                <div class="box-header with-border d-flex flex-wrap align-items-center justify-content-between">
+                                    <div>
+                                        <h4 class="box-title mb-0">Recepción diaria por planta</h4>
+                                        <p class="mb-0 text-muted">Semana <?php echo $semanaActual; ?> - proyección semanal dividida en 7 días.</p>
+                                    </div>
+                                </div>
+                                <div class="box-body table-responsive">
+                                    <?php if ($empresasSemanaIds) { ?>
+                                        <?php foreach ($empresasSemanaIds as $empresaId) {
+                                            $plantasSemana = isset($plantasPorEmpresaSemana[$empresaId]) ? array_keys($plantasPorEmpresaSemana[$empresaId]) : [];
+                                            sort($plantasSemana);
+                                            $proyeccionDiaria = isset($proyeccionSemanaActualEmpresa[$empresaId]) ? $proyeccionSemanaActualEmpresa[$empresaId] / 7 : 0;
+                                            $tieneDatos = $proyeccionDiaria > 0 || !empty($plantasSemana);
+                                            if (!$tieneDatos) { continue; }
+                                        ?>
+                                            <h5 class="mt-0 mb-2 font-weight-600"><?php echo htmlspecialchars($empresasNombres[$empresaId]); ?></h5>
+                                            <table class="table table-bordered table-sm table-hover projection-table text-center mb-4">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="align-middle text-left" style="min-width:140px;">Fecha</th>
+                                                        <?php foreach ($plantasSemana as $plantaId) { ?>
+                                                            <th><?php echo htmlspecialchars($plantasNombres[$plantaId]); ?></th>
+                                                        <?php } ?>
+                                                        <th>Total real</th>
+                                                        <th>Proyectado total</th>
+                                                        <th>Cumplimiento</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($diasSemanaActual as $diaSemana) {
+                                                        $fechaDia = $diaSemana['fecha'];
+                                                        $nombreDia = $diaSemana['nombre'];
+                                                        $realDiaTotal = 0;
+                                                        $celdasPlanta = '';
+                                                        foreach ($plantasSemana as $plantaId) {
+                                                            $realPlantaDia = isset($kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['plantas'][$plantaId]['total']) ? $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['plantas'][$plantaId]['total'] : 0;
+                                                            $celdasPlanta .= '<td class="text-right">' . ($realPlantaDia ? number_format($realPlantaDia, 0, ',', '.') : '-') . '</td>';
+                                                            $realDiaTotal += $realPlantaDia;
+                                                        }
+                                                        $cumplimientoDia = $proyeccionDiaria > 0 ? ($realDiaTotal / $proyeccionDiaria) * 100 : 0;
+                                                        $colorCumplimiento = $proyeccionDiaria > 0 ? ($realDiaTotal < $proyeccionDiaria ? '#c53030' : '#2f855a') : '#4a5568';
+                                                    ?>
+                                                        <tr>
+                                                            <td class="text-left"><?php echo $nombreDia . ' ' . date('d-m', strtotime($fechaDia)); ?></td>
+                                                            <?php echo $celdasPlanta; ?>
+                                                            <td class="text-right"><?php echo $realDiaTotal ? number_format($realDiaTotal, 0, ',', '.') : 'Sin recep'; ?></td>
+                                                            <td class="text-right text-muted"><?php echo $proyeccionDiaria ? number_format($proyeccionDiaria, 0, ',', '.') : '-'; ?></td>
+                                                            <td style="color: <?php echo $colorCumplimiento; ?>;">
+                                                                <?php echo $proyeccionDiaria ? round($cumplimientoDia, 1) . '%' : '0%'; ?>
+                                                            </td>
+                                                        </tr>
+                                                    <?php } ?>
+                                                </tbody>
+                                            </table>
+                                        <?php } ?>
+                                    <?php } else { ?>
+                                        <div class="alert alert-soft mb-0">No hay datos para la semana actual con los filtros seleccionados.</div>
                                     <?php } ?>
                                 </div>
                             </div>
