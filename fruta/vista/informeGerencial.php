@@ -10,6 +10,13 @@ include_once "../../assest/controlador/TPROCESO_ADO.php";
 
 setlocale(LC_TIME, 'es_ES.UTF-8', 'es_CL.UTF-8', 'es_ES', 'es_CL');
 
+function normalizarKilos($valor)
+{
+    $limpio = str_replace([' ', '.'], '', (string)$valor);
+    $limpio = str_replace(',', '.', $limpio);
+    return floatval($limpio);
+}
+
 $EXIMATERIAPRIMA_ADO = new EXIMATERIAPRIMA_ADO();
 $PLANTA_ADO = new PLANTA_ADO();
 $ESPECIES_ADO = new ESPECIES_ADO();
@@ -63,17 +70,18 @@ foreach ($ARRAYVESPECIES as $variedad) {
     }
 }
 
+$anoActual = intval(date('o'));
 $proyeccionesFiltradas = array_values(array_filter(
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'],
-    function ($proyeccion) use ($temporadaFiltro, $especieFiltro, $semanaActual, $empresaFiltro) {
+    function ($proyeccion) use ($temporadaFiltro, $especieFiltro, $semanaActual, $empresaFiltro, $anoActual) {
         $habilitado = !isset($proyeccion['habilitado']) || $proyeccion['habilitado'];
         $especieProyeccion = isset($proyeccion['especie']) ? $proyeccion['especie'] : null;
         $coincideEspecie = ($especieFiltro === '' || !$especieFiltro) ? true : ($especieProyeccion ? intval($especieProyeccion) === intval($especieFiltro) : false);
         $semanaProyeccion = isset($proyeccion['semana']) ? intval($proyeccion['semana']) : null;
-        $anoProyeccion = isset($proyeccion['ano']) ? intval($proyeccion['ano']) : null;
+        $anoProyeccion = isset($proyeccion['ano']) ? intval($proyeccion['ano']) : $anoActual;
         $dentroSemana = $semanaProyeccion !== null && $semanaProyeccion > 0 && $semanaProyeccion <= $semanaActual;
         $coincideEmpresa = $empresaFiltro === 'ALL' ? true : (isset($proyeccion['empresa']) && intval($proyeccion['empresa']) === intval($empresaFiltro));
-        return $habilitado && $coincideEmpresa && $proyeccion['temporada'] == $temporadaFiltro && $coincideEspecie && $dentroSemana && $anoProyeccion;
+        return $habilitado && $coincideEmpresa && $proyeccion['temporada'] == $temporadaFiltro && $coincideEspecie && $dentroSemana && $anoProyeccion > 0;
     }
 ));
 
@@ -119,12 +127,12 @@ $empresasActivas = array_values(array_filter($empresasActivasFull, function ($em
 }));
 
 foreach ($proyeccionesFiltradas as $proyeccion) {
-    $kgProyectado = isset($proyeccion['kg_proyectado']) ? floatval($proyeccion['kg_proyectado']) : 0;
+    $kgProyectado = isset($proyeccion['kg_proyectado']) ? normalizarKilos($proyeccion['kg_proyectado']) : 0;
     $empresaId = isset($proyeccion['empresa']) ? intval($proyeccion['empresa']) : null;
     $esBulk = isset($proyeccion['es_bulk']) ? (bool) $proyeccion['es_bulk'] : false;
     $esSemanaActual = isset($proyeccion['semana']) ? intval($proyeccion['semana']) === $semanaActual : false;
-    $anoProyeccion = isset($proyeccion['ano']) ? intval($proyeccion['ano']) : intval(date('Y'));
-    $esAnoActual = $anoProyeccion === intval(date('Y'));
+    $anoProyeccion = isset($proyeccion['ano']) ? intval($proyeccion['ano']) : $anoActual;
+    $esAnoActual = $anoProyeccion === $anoActual;
 
     if (!$empresaId || !isset($empresasNombres[$empresaId]) || $kgProyectado <= 0) {
         continue;
@@ -310,6 +318,10 @@ foreach ($plantasActivas as $planta) {
     $procesosPlanta = $PROCESO_ADO->listarProcesoEmpresaPlantaTemporadaCBX($empresaPlanta, $plantaId, $temporadaFiltro);
     foreach ($procesosPlanta as $proceso) {
         if (!isset($proceso['ESTADO_REGISTRO']) || intval($proceso['ESTADO_REGISTRO']) !== 1) {
+            continue;
+        }
+
+        if (isset($proceso['ESTADO']) && in_array(intval($proceso['ESTADO']), [0, 5, 6])) {
             continue;
         }
 

@@ -3,6 +3,13 @@ include_once "../../assest/config/validarUsuarioFruta.php";
 include_once "../../assest/controlador/ESPECIES_ADO.php";
 
 $ESPECIES_ADO = new ESPECIES_ADO();
+
+function normalizarKilos($valor)
+{
+    $limpio = str_replace([' ', '.'], '', (string)$valor);
+    $limpio = str_replace(',', '.', $limpio);
+    return floatval($limpio);
+}
 $ARRAYEMPRESA = $EMPRESA_ADO->listarEmpresaCBX();
 $ARRAYESPECIE = array_values(array_filter($ESPECIES_ADO->listarEspeciesCBX(), function ($especie) {
     return isset($especie['ESTADO_REGISTRO']) ? intval($especie['ESTADO_REGISTRO']) === 1 : true;
@@ -63,7 +70,7 @@ if (isset($_POST['REFRESCAR_EMPRESA'])) {
     $datosEdicion['empresa'] = $empresaSeleccionForm;
     $datosEdicion['especie'] = $especieSeleccionForm;
     $datosEdicion['semana'] = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : '';
-    $datosEdicion['kg_proyectado'] = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : '';
+    $datosEdicion['kg_proyectado'] = isset($_POST['KG_PROYECTADO']) ? normalizarKilos($_POST['KG_PROYECTADO']) : '';
     $tipoMPSeleccionado = isset($_POST['TIPO_MP']) ? $_POST['TIPO_MP'] : '';
     $datosEdicion['tipo_mp'] = in_array($tipoMPSeleccionado, ['Granel', 'Bulk']) ? $tipoMPSeleccionado : '';
     $datosEdicion['ano'] = isset($_POST['ANO']) ? intval($_POST['ANO']) : intval(date('Y'));
@@ -123,7 +130,7 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
     $empresaSeleccionada = isset($_POST['EMPRESA']) ? intval($_POST['EMPRESA']) : $empresaSeleccionForm;
     $especieSeleccionada = isset($_POST['ESPECIE']) ? $_POST['ESPECIE'] : '';
     $semana = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : 0;
-    $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
+    $kgProyectado = isset($_POST['KG_PROYECTADO']) ? normalizarKilos($_POST['KG_PROYECTADO']) : 0;
     $tipoMateriaPrima = isset($_POST['TIPO_MP']) ? $_POST['TIPO_MP'] : '';
     $tipoEmbalaje = $tipoMateriaPrima === 'Bulk' ? 'Bulk' : 'Granel';
     $ano = isset($_POST['ANO']) ? intval($_POST['ANO']) : intval(date('Y'));
@@ -153,7 +160,7 @@ if (isset($_POST['GUARDAR_CAMBIOS'])) {
     $empresaSeleccionada = isset($_POST['EMPRESA']) ? intval($_POST['EMPRESA']) : $empresaSeleccionForm;
     $especieSeleccionada = isset($_POST['ESPECIE']) ? $_POST['ESPECIE'] : '';
     $semana = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : 0;
-    $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
+    $kgProyectado = isset($_POST['KG_PROYECTADO']) ? normalizarKilos($_POST['KG_PROYECTADO']) : 0;
     $tipoMateriaPrima = isset($_POST['TIPO_MP']) ? $_POST['TIPO_MP'] : '';
     $tipoEmbalaje = $tipoMateriaPrima === 'Bulk' ? 'Bulk' : 'Granel';
     $ano = isset($_POST['ANO']) ? intval($_POST['ANO']) : intval(date('Y'));
