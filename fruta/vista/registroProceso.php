@@ -765,7 +765,8 @@ if (isset($_POST)) {
                                                 <button type="submit" class="btn btn-warning " data-toggle="tooltip" title="Guardar" name="GUARDAR" value="GUARDAR" <?php echo $DISABLED2; ?> <?php echo $DISABLEDFOLIO; ?> onclick="return validacion()">
                                                     <i class="ti-pencil-alt"></i> Guardar
                                                 </button>
-                                                <button type="submit" class="btn btn-danger " data-toggle="tooltip" title="Cerrar" name="CERRAR" value="CERRAR" <?php echo $DISABLED2; ?> <?php echo $DISABLEDFOLIO; ?> onclick="return validacion()">
+                                                <input type="hidden" id="CERRAR_ACTION" value="">
+                                                <button type="button" id="BTN_CERRAR_PROCESO" class="btn btn-danger " data-toggle="tooltip" title="Cerrar" <?php echo $DISABLED2; ?> <?php echo $DISABLEDFOLIO; ?>>
                                                     <i class="ti-save-alt"></i> Cerrar
                                                 </button>
                                             <?php } ?>
@@ -1318,6 +1319,53 @@ if (isset($_POST)) {
     </div>
     <!- LLAMADA URL DE ARCHIVOS DE DISEÑO Y JQUERY E OTROS -!>
         <?php include_once "../../assest/config/urlBase.php"; ?>
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', () => {
+                const botonCerrar = document.getElementById('BTN_CERRAR_PROCESO');
+                const campoCerrar = document.getElementById('CERRAR_ACTION');
+                const formulario = document.getElementById('form_reg_dato');
+                const porcentajeExportacion = document.getElementById('PEXPORTACIONEXPOEX');
+
+                if (botonCerrar && formulario && porcentajeExportacion) {
+                    botonCerrar.addEventListener('click', (event) => {
+                        event.preventDefault();
+
+                        const esValido = validacion();
+                        if (esValido === false) {
+                            return;
+                        }
+
+                        const valorExportacion = parseFloat(porcentajeExportacion.value) || 0;
+                        const enviarFormulario = () => {
+                            if (campoCerrar) {
+                                campoCerrar.name = 'CERRAR';
+                                campoCerrar.value = 'CERRAR';
+                            }
+                            formulario.submit();
+                        };
+
+                        if (valorExportacion < 85) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Exportación menor a 85%',
+                                text: 'El proceso será destacado en naranjo en el agrupado de proceso.',
+                                showCancelButton: true,
+                                confirmButtonText: 'Si cerrar proceso',
+                                cancelButtonText: 'Revisar proceso',
+                                confirmButtonColor: '#dc3545',
+                                cancelButtonColor: '#28a745'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    enviarFormulario();
+                                }
+                            });
+                        } else {
+                            enviarFormulario();
+                        }
+                    });
+                }
+            });
+        </script>
         <?php
         //OPERACION DE REGISTRO DE FILA
         if (isset($_REQUEST['CREAR'])) {

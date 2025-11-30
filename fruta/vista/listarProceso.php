@@ -88,7 +88,7 @@ include_once "../../assest/config/datosUrLP.php";
         <?php include_once "../../assest/config/urlHead.php"; ?>
         <style>
             .proceso-bajo-exportacion {
-                background-color: #ffe5b4;
+                background-color: #ffcc80 !important;
             }
         </style>
         <!- FUNCIONES BASES -!>
@@ -397,30 +397,8 @@ include_once "../../assest/config/datosUrLP.php";
     </div>
     <?php include_once "../../assest/config/urlBase.php"; ?>
         <script>
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                showConfirmButton: true
-            })
-
-            Toast.fire({
-                icon: "info",
-                title: "Informacion importante",
-                html: "<label>Los <b>procesos</b> Abiertos tienen que ser <b>Cerrados</b> para no afectar las operaciones posteriores.</label>"
-            })
-
-            const procesosBajoExportacion = <?php echo json_encode($ARRAYPROCESOSBAJOEXPORTACION); ?>;
-            if (procesosBajoExportacion.length > 0) {
-                const listaProcesos = procesosBajoExportacion
-                    .map((proceso) => `<li><b>Proceso Nº ${proceso.numero}</b>: ${proceso.porcentaje}% exportación</li>`) 
-                    .join("");
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Procesos bajo 85% de exportación',
-                    html: `<p>Revisar los siguientes procesos que no alcanzan el 85% de exportación:</p><ul class="text-left" style="padding-left: 18px;">${listaProcesos}</ul>`
-                });
-            }
+            // Aviso visual en tabla para procesos bajo 85% de exportación
+            // (sin popups adicionales)
         </script>
 </body>
 
