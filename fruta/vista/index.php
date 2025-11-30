@@ -174,6 +174,7 @@ if($ARRAYREGISTROSABIERTOS){
                 color: #fff;
                 border: 0;
                 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+                height: 100%;
             }
             .compact-card .box-body {
                 padding: 12px;
@@ -194,6 +195,15 @@ if($ARRAYREGISTROSABIERTOS){
             }
             .collage-card {
                 height: 100%;
+            }
+            @media (min-width: 1200px) {
+                .col-xl-5th {
+                    flex: 0 0 20%;
+                    max-width: 20%;
+                }
+            }
+            .row .col-xl-5th {
+                display: flex;
             }
             .bg-gradient-sky { background: linear-gradient(135deg, #1d8cf8 0%, #5ac8fa 100%); }
             .bg-gradient-dusk { background: linear-gradient(135deg, #7b42f6 0%, #b06ab3 100%); }
@@ -253,7 +263,7 @@ if($ARRAYREGISTROSABIERTOS){
                         </div>
 
                         <div class="row dashboard-row">
-                            <div class="col-xl-2 col-lg-6 col-12">
+                            <div class="col-xl-5th col-lg-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-sky">
                                     <div class="flexbox align-items-center">
                                         <div>
@@ -265,7 +275,7 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-2 col-lg-6 col-12">
+                            <div class="col-xl-5th col-lg-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-dusk">
                                     <div class="flexbox align-items-center">
                                         <div>
@@ -277,7 +287,7 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-2 col-lg-6 col-12">
+                            <div class="col-xl-5th col-lg-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-teal">
                                     <div class="flexbox align-items-center">
                                         <div>
@@ -289,7 +299,7 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-3 col-lg-6 col-12">
+                            <div class="col-xl-5th col-lg-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-emerald">
                                     <div class="flexbox align-items-center">
                                         <div>
@@ -301,7 +311,7 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-3 col-lg-6 col-12">
+                            <div class="col-xl-5th col-lg-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-amber">
                                     <div class="flexbox align-items-center">
                                         <div>
@@ -359,7 +369,7 @@ if($ARRAYREGISTROSABIERTOS){
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Existencia de materia prima por variedad</h4>
-                                            <span class="badge badge-outline badge-success">Proceso</span>
+                                            <span class="badge badge-outline badge-success">Materia prima</span>
                                         </div>
                                     </div>
                                     <div class="box-body">
@@ -408,7 +418,7 @@ if($ARRAYREGISTROSABIERTOS){
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Top 5 exportación por productor</h4>
-                                            <span class="badge badge-outline badge-success">Proceso</span>
+                                            <span class="badge badge-outline badge-primary">Exportación</span>
                                         </div>
                                     </div>
                                     <div class="box-body">
@@ -460,7 +470,7 @@ if($ARRAYREGISTROSABIERTOS){
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Top 5 exportación por variedad</h4>
-                                            <span class="badge badge-outline badge-success">Proceso</span>
+                                            <span class="badge badge-outline badge-primary">Exportación</span>
                                         </div>
                                     </div>
                                     <div class="box-body">
@@ -662,7 +672,7 @@ if($ARRAYREGISTROSABIERTOS){
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Procesos cerrados con menor % de exportación</h4>
-                                            <span class="badge badge-outline badge-success">Proceso</span>
+                                            <span class="badge badge-outline badge-warning">Proceso</span>
                                         </div>
                                     </div>
                                     <div class="box-body">
