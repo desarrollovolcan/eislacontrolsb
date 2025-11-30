@@ -223,7 +223,7 @@ if ($PRODUCTO) {
                     TRATAMIENTO2 = document.getElementById("TRATAMIENTO2").selectedIndex;
                     ESPECIES = document.getElementById("ESPECIES").selectedIndex;
                     PRODUCTO = document.getElementById("PRODUCTO").selectedIndex;
-                    AGRUPACIONGERENCIALMP = document.getElementById("AGRUPACIONGERENCIALMP").selectedIndex;
+                    AGRUPACIONGERENCIALMP = document.getElementById("AGRUPACIONGERENCIALMP").value;
 
 
                     document.getElementById('val_codigo').innerHTML = "";
@@ -253,7 +253,7 @@ if ($PRODUCTO) {
                     }
                     document.form_reg_dato.NOMBREESTANDAR.style.borderColor = "#4AF575";
 
-                    if (AGRUPACIONGERENCIALMP == null || AGRUPACIONGERENCIALMP < 1) {
+                    if (AGRUPACIONGERENCIALMP === null || AGRUPACIONGERENCIALMP === "") {
                         document.form_reg_dato.AGRUPACIONGERENCIALMP.focus();
                         document.form_reg_dato.AGRUPACIONGERENCIALMP.style.borderColor = "#FF0000";
                         document.getElementById('val_agrupaciongerencialmp').innerHTML = "NO A SELECCIONADO OPCION";
@@ -478,8 +478,8 @@ if ($PRODUCTO) {
                                                             style="width: 100%;"
                                                             <?php echo $DISABLED; ?>>
                                                             <option></option>
-                                                            <option value="Materia prima" <?php if ($AGRUPACIONGERENCIALMP == "Materia prima") { echo "selected"; } ?>>Materia prima</option>
-                                                            <option value="Bulk" <?php if ($AGRUPACIONGERENCIALMP == "Bulk") { echo "selected"; } ?>>Bulk</option>
+                                                            <option value="1" <?php if ($AGRUPACIONGERENCIALMP == "1") { echo "selected"; } ?>>Materia prima</option>
+                                                            <option value="2" <?php if ($AGRUPACIONGERENCIALMP == "2") { echo "selected"; } ?>>Bulk</option>
                                                         </select>
                                                         <label id="val_agrupaciongerencialmp" class="validacion"> </label>
                                                     </div>
@@ -652,7 +652,9 @@ if ($PRODUCTO) {
             if (isset($_REQUEST['GUARDAR'])) {
 
                 //UTILIZACION METODOS SET DEL MODELO
-                //SETEO DE ATRIBUTOS DE LA CLASE, OBTENIDO EN EL FORMULARIO     
+                //SETEO DE ATRIBUTOS DE LA CLASE, OBTENIDO EN EL FORMULARIO
+
+                $agrupacionGerencial = isset($_REQUEST['AGRUPACIONGERENCIALMP']) ? intval($_REQUEST['AGRUPACIONGERENCIALMP']) : null;
 
                 $ERECEPCION->__SET('CODIGO_ESTANDAR', $_REQUEST['CODIGOESTANDAR']);
                 $ERECEPCION->__SET('NOMBRE_ESTANDAR', $_REQUEST['NOMBREESTANDAR']);
@@ -664,7 +666,7 @@ if ($PRODUCTO) {
                 $ERECEPCION->__SET('ID_ESPECIES', $_REQUEST['ESPECIES']);
                 $ERECEPCION->__SET('ID_EMPRESA', $_REQUEST['EMPRESA']);
                 $ERECEPCION->__SET('ID_PRODUCTO', $_REQUEST['PRODUCTO']);
-                $ERECEPCION->__SET('ID_AGERENCIAL', $_REQUEST['AGRUPACIONGERENCIALMP']);
+                $ERECEPCION->__SET('ID_AGERENCIAL', $agrupacionGerencial);
                 $ERECEPCION->__SET('ID_USUARIOI', $IDUSUARIOS);
                 $ERECEPCION->__SET('ID_USUARIOM', $IDUSUARIOS);
                 //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
@@ -691,7 +693,9 @@ if ($PRODUCTO) {
             if (isset($_REQUEST['EDITAR'])) {
 
                 //UTILIZACION METODOS SET DEL MODELO
-                //SETEO DE ATRIBUTOS DE LA CLASE, OBTENIDO EN EL FORMULARIO   
+                //SETEO DE ATRIBUTOS DE LA CLASE, OBTENIDO EN EL FORMULARIO
+
+                $agrupacionGerencial = isset($_REQUEST['AGRUPACIONGERENCIALMP']) ? intval($_REQUEST['AGRUPACIONGERENCIALMP']) : null;
 
                 $ERECEPCION->__SET('CODIGO_ESTANDAR', $_REQUEST['CODIGOESTANDAR']);
                 $ERECEPCION->__SET('NOMBRE_ESTANDAR', $_REQUEST['NOMBREESTANDAR']);
@@ -702,7 +706,7 @@ if ($PRODUCTO) {
                 $ERECEPCION->__SET('TRATAMIENTO2',$_REQUEST['TRATAMIENTO2']);
                 $ERECEPCION->__SET('ID_ESPECIES', $_REQUEST['ESPECIES']);
                 $ERECEPCION->__SET('ID_PRODUCTO', $_REQUEST['PRODUCTO']);
-                $ERECEPCION->__SET('ID_AGERENCIAL', $_REQUEST['AGRUPACIONGERENCIALMP']);
+                $ERECEPCION->__SET('ID_AGERENCIAL', $agrupacionGerencial);
                 $ERECEPCION->__SET('ID_USUARIOM', $IDUSUARIOS);
                 $ERECEPCION->__SET('ID_ESTANDAR', $_REQUEST['ID']);
                 //LLAMADA AL METODO DE EDICION DEL CONTROLADOR
