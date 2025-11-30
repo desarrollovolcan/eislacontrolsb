@@ -478,7 +478,7 @@ if ($PRODUCTO) {
                                                             style="width: 100%;"
                                                             <?php echo $DISABLED; ?>>
                                                             <option></option>
-                                                            <option value="1" <?php if ($AGRUPACIONGERENCIALMP == "1") { echo "selected"; } ?>>Granel</option>
+                                                            <option value="1" <?php if ($AGRUPACIONGERENCIALMP == "1") { echo "selected"; } ?>>A Granel</option>
                                                             <option value="2" <?php if ($AGRUPACIONGERENCIALMP == "2") { echo "selected"; } ?>>Bulk</option>
                                                         </select>
                                                         <label id="val_agrupaciongerencialmp" class="validacion"> </label>
