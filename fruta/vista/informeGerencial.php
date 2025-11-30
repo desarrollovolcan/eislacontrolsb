@@ -1,89 +1,194 @@
 <?php
 include_once "../../assest/config/validarUsuarioFruta.php";
 include_once "../../assest/controlador/EXIMATERIAPRIMA_ADO.php";
+include_once "../../assest/controlador/PLANTA_ADO.php";
+include_once "../../assest/controlador/ESPECIES_ADO.php";
+include_once "../../assest/controlador/VESPECIES_ADO.php";
+include_once "../../assest/controlador/ERECEPCION_ADO.php";
 
 $EXIMATERIAPRIMA_ADO = new EXIMATERIAPRIMA_ADO();
+$PLANTA_ADO = new PLANTA_ADO();
+$ESPECIES_ADO = new ESPECIES_ADO();
+$VESPECIES_ADO = new VESPECIES_ADO();
+$ERECEPCION_ADO = new ERECEPCION_ADO();
 
 $ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
+$ARRAYESPECIE = array_values(array_filter($ESPECIES_ADO->listarEspeciesCBX(), function ($especie) {
+    return isset($especie['ESTADO_REGISTRO']) ? intval($especie['ESTADO_REGISTRO']) === 1 : true;
+}));
 
-$empresaFiltro = $EMPRESAS;
 $temporadaFiltro = isset($_REQUEST['TEMPORADA_FILTRO']) ? $_REQUEST['TEMPORADA_FILTRO'] : $TEMPORADAS;
+$especieFiltro = isset($_REQUEST['ESPECIE_FILTRO']) ? $_REQUEST['ESPECIE_FILTRO'] : '1';
+$empresaFiltro = isset($_REQUEST['EMPRESA_FILTRO']) ? $_REQUEST['EMPRESA_FILTRO'] : 'ALL';
+$semanaActual = intval(date('W'));
 
-$empresaSeleccionada = $EMPRESA_ADO->verEmpresa($empresaFiltro);
+$empresaSeleccionada = $EMPRESA_ADO->verEmpresa($EMPRESAS);
 $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'] : '';
 
 if (!isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'])) {
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'] = [];
 }
 
-$existencias = $EXIMATERIAPRIMA_ADO->listarEximateriaprimaEmpresaTemporada($empresaFiltro, $temporadaFiltro);
-$realesPorSemana = [];
-
-foreach ($existencias as $existencia) {
-    if (!isset($existencia['ESTADO_REGISTRO']) || $existencia['ESTADO_REGISTRO'] != 1) {
+$agrupacionPorEstandar = [];
+$ARRAYESTANDARES = $ERECEPCION_ADO->listarEstandarCBX();
+foreach ($ARRAYESTANDARES as $estandar) {
+    if (!isset($estandar['ID_ESTANDAR'])) {
         continue;
     }
 
-    $kgReal = isset($existencia['KILOS_NETO_EXIMATERIAPRIMA']) ? floatval($existencia['KILOS_NETO_EXIMATERIAPRIMA']) : 0;
-    $fechaReferencia = !empty($existencia['FECHA_RECEPCION']) ? $existencia['FECHA_RECEPCION'] : $existencia['FECHA_COSECHA_EXIMATERIAPRIMA'];
-    $semanaReal = $fechaReferencia ? intval(date('W', strtotime($fechaReferencia))) : null;
-    if ($semanaReal) {
-        if (!isset($realesPorSemana[$semanaReal])) {
-            $realesPorSemana[$semanaReal] = 0;
-        }
-        $realesPorSemana[$semanaReal] += $kgReal;
+    $agrupacionPorEstandar[$estandar['ID_ESTANDAR']] = isset($estandar['ID_AGERENCIAL']) ? intval($estandar['ID_AGERENCIAL']) : null;
+}
+
+$mapVespeciesEspecie = [];
+$ARRAYVESPECIES = $VESPECIES_ADO->listarVespeciesCBX();
+foreach ($ARRAYVESPECIES as $variedad) {
+    if (isset($variedad['ID_VESPECIES']) && isset($variedad['ID_ESPECIES'])) {
+        $mapVespeciesEspecie[$variedad['ID_VESPECIES']] = $variedad['ID_ESPECIES'];
     }
 }
 
 $proyeccionesFiltradas = array_values(array_filter(
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'],
-    function ($proyeccion) use ($empresaFiltro, $temporadaFiltro) {
+    function ($proyeccion) use ($temporadaFiltro, $especieFiltro, $semanaActual, $empresaFiltro) {
         $habilitado = !isset($proyeccion['habilitado']) || $proyeccion['habilitado'];
-        return $habilitado && $proyeccion['empresa'] == $empresaFiltro && $proyeccion['temporada'] == $temporadaFiltro;
+        $especieProyeccion = isset($proyeccion['especie']) ? $proyeccion['especie'] : null;
+        $coincideEspecie = $especieFiltro === '' ? true : ($especieProyeccion ? $especieProyeccion == $especieFiltro : true);
+        $dentroSemana = !isset($proyeccion['semana']) || intval($proyeccion['semana']) <= $semanaActual;
+        $coincideEmpresa = $empresaFiltro === 'ALL' ? true : (isset($proyeccion['empresa']) && intval($proyeccion['empresa']) === intval($empresaFiltro));
+        return $habilitado && $coincideEmpresa && $proyeccion['temporada'] == $temporadaFiltro && $coincideEspecie && $dentroSemana;
     }
 ));
 
-$weeklyProjection = [];
-$weeklyReal = $realesPorSemana;
 $totalProyectado = 0;
-$totalReal = array_sum($realesPorSemana);
-$totalBulk = 0;
-$totalEnvasado = 0;
-$detalleProyecciones = [];
+$totalReal = 0;
+$empresasConDatos = [];
+$proyeccionTotalEmpresa = [];
+$kilosRealesPorEmpresaPlanta = [];
+$kilosRealesTotales = [];
+$kilosTotalesPorEmpresaPlanta = [];
+$kilosBulkPorEmpresaPlanta = [];
+$empresasNombres = [];
+$plantasNombres = [];
 
-foreach ($proyeccionesFiltradas as $proyeccion) {
-    $kgProyectado = $proyeccion['kg_proyectado'];
-    $semana = $proyeccion['semana'];
-    $esBulk = $proyeccion['es_bulk'];
-
-    if (!isset($weeklyProjection[$semana])) {
-        $weeklyProjection[$semana] = 0;
-    }
-    if (!isset($weeklyReal[$semana])) {
-        $weeklyReal[$semana] = 0;
-    }
-
-    $weeklyProjection[$semana] += $kgProyectado;
-    if ($esBulk) {
-        $totalBulk += $kgProyectado;
-    } else {
-        $totalEnvasado += $kgProyectado;
-    }
-
-    $detalleProyecciones[] = [
-        'semana' => $semana,
-        'kg_proyectado' => $kgProyectado,
-        'tipo_embalaje' => $proyeccion['tipo_embalaje'],
-        'es_bulk' => $esBulk,
-        'creado' => $proyeccion['creado']
-    ];
-
-    $totalProyectado += $kgProyectado;
+$empresasActivas = array_values(array_filter($EMPRESA_ADO->listarEmpresaCBX(), function ($empresa) {
+    return isset($empresa['ESTADO_REGISTRO']) ? intval($empresa['ESTADO_REGISTRO']) === 1 : true;
+}));
+$empresasActivas = array_values(array_filter($empresasActivas, function ($empresa) use ($empresaFiltro) {
+    return $empresaFiltro === 'ALL' || intval($empresa['ID_EMPRESA']) === intval($empresaFiltro);
+}));
+foreach ($empresasActivas as $empresaActiva) {
+    $empresasNombres[$empresaActiva['ID_EMPRESA']] = $empresaActiva['NOMBRE_EMPRESA'];
 }
 
-ksort($weeklyProjection);
-ksort($weeklyReal);
-$labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal);
+foreach ($proyeccionesFiltradas as $proyeccion) {
+    $kgProyectado = isset($proyeccion['kg_proyectado']) ? floatval($proyeccion['kg_proyectado']) : 0;
+    $empresaId = isset($proyeccion['empresa']) ? intval($proyeccion['empresa']) : null;
+    $esBulk = isset($proyeccion['es_bulk']) ? (bool) $proyeccion['es_bulk'] : false;
+
+    if (!$empresaId || !isset($empresasNombres[$empresaId]) || $kgProyectado <= 0) {
+        continue;
+    }
+
+    if (!isset($proyeccionTotalEmpresa[$empresaId])) {
+        $proyeccionTotalEmpresa[$empresaId] = ['granel' => 0, 'bulk' => 0, 'total' => 0];
+    }
+
+    $tipoClave = $esBulk ? 'bulk' : 'granel';
+    $proyeccionTotalEmpresa[$empresaId][$tipoClave] += $kgProyectado;
+    $proyeccionTotalEmpresa[$empresaId]['total'] += $kgProyectado;
+    $totalProyectado += $kgProyectado;
+    $empresasConDatos[$empresaId] = true;
+}
+
+foreach ($empresasActivas as $empresaActiva) {
+    $empresaId = $empresaActiva['ID_EMPRESA'];
+    $existenciasEmpresa = $EXIMATERIAPRIMA_ADO->listarEximateriaprimaEmpresaTemporada($empresaId, $temporadaFiltro);
+    foreach ($existenciasEmpresa as $existencia) {
+        if (!isset($existencia['ESTADO_REGISTRO']) || intval($existencia['ESTADO_REGISTRO']) !== 1) {
+            continue;
+        }
+
+        $idVespecies = isset($existencia['ID_VESPECIES']) ? $existencia['ID_VESPECIES'] : null;
+        $especieAsociada = $idVespecies && isset($mapVespeciesEspecie[$idVespecies]) ? $mapVespeciesEspecie[$idVespecies] : null;
+        if (!$especieAsociada && isset($existencia['ID_ESPECIES'])) {
+            $especieAsociada = $existencia['ID_ESPECIES'];
+        }
+
+        $coincideEspecie = ($especieFiltro === '' || !$especieFiltro || !$especieAsociada) ? true : intval($especieAsociada) === intval($especieFiltro);
+        if (!$coincideEspecie) {
+            continue;
+        }
+
+        $kgReal = isset($existencia['KILOS_NETO_EXIMATERIAPRIMA']) ? floatval($existencia['KILOS_NETO_EXIMATERIAPRIMA']) : 0;
+        $plantaId = isset($existencia['ID_PLANTA']) ? $existencia['ID_PLANTA'] : null;
+        $estandarId = isset($existencia['ID_ESTANDAR']) ? $existencia['ID_ESTANDAR'] : null;
+        $agrupacion = ($estandarId && isset($agrupacionPorEstandar[$estandarId])) ? $agrupacionPorEstandar[$estandarId] : null;
+
+        if (!$plantaId || $kgReal <= 0) {
+            continue;
+        }
+
+        if (!isset($kilosTotalesPorEmpresaPlanta[$empresaId])) {
+            $kilosTotalesPorEmpresaPlanta[$empresaId] = [];
+        }
+
+        if (!isset($kilosTotalesPorEmpresaPlanta[$empresaId][$plantaId])) {
+            $kilosTotalesPorEmpresaPlanta[$empresaId][$plantaId] = 0;
+        }
+
+        $kilosTotalesPorEmpresaPlanta[$empresaId][$plantaId] += $kgReal;
+
+        if ($agrupacion === 2) {
+            if (!isset($kilosBulkPorEmpresaPlanta[$empresaId])) {
+                $kilosBulkPorEmpresaPlanta[$empresaId] = [];
+            }
+
+            if (!isset($kilosBulkPorEmpresaPlanta[$empresaId][$plantaId])) {
+                $kilosBulkPorEmpresaPlanta[$empresaId][$plantaId] = 0;
+            }
+
+            $kilosBulkPorEmpresaPlanta[$empresaId][$plantaId] += $kgReal;
+        }
+
+        if (!isset($plantasNombres[$plantaId])) {
+            $plantaInfo = $PLANTA_ADO->verPlanta($plantaId);
+            $plantasNombres[$plantaId] = $plantaInfo ? $plantaInfo[0]['NOMBRE_PLANTA'] : ('Planta ' . $plantaId);
+        }
+
+    }
+}
+
+foreach ($kilosTotalesPorEmpresaPlanta as $empresaId => $plantasTotales) {
+    foreach ($plantasTotales as $plantaId => $totalKg) {
+        $bulkKg = isset($kilosBulkPorEmpresaPlanta[$empresaId][$plantaId]) ? $kilosBulkPorEmpresaPlanta[$empresaId][$plantaId] : 0;
+        $granelKg = max($totalKg - $bulkKg, 0);
+
+        if (!isset($kilosRealesPorEmpresaPlanta[$empresaId])) {
+            $kilosRealesPorEmpresaPlanta[$empresaId] = [];
+        }
+
+        if (!isset($kilosRealesTotales[$empresaId])) {
+            $kilosRealesTotales[$empresaId] = ['granel' => 0, 'bulk' => 0, 'total' => 0];
+        }
+
+        $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId] = [
+            'granel' => $granelKg,
+            'bulk' => $bulkKg,
+        ];
+
+        $kilosRealesTotales[$empresaId]['granel'] += $granelKg;
+        $kilosRealesTotales[$empresaId]['bulk'] += $bulkKg;
+        $kilosRealesTotales[$empresaId]['total'] += $totalKg;
+        $totalReal += $totalKg;
+
+        $empresasConDatos[$empresaId] = true;
+    }
+}
+
+$empresasReporteIds = array_map(function ($empresa) {
+    return $empresa['ID_EMPRESA'];
+}, $empresasActivas);
+$plantasReporte = array_keys($plantasNombres);
 
 ?>
 <!DOCTYPE html>
@@ -109,6 +214,8 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
         .section-title { font-weight: 600; font-size: 16px; }
         .badge-soft { padding: 6px 10px; border-radius: 10px; font-size: 12px; background: #f5f7fb; }
         .alert-soft { background: #f3f7ff; border: 1px solid #d4e2ff; color: #2d4b7a; }
+        .filter-compact .form-control { font-size: 12px; padding: 6px 8px; }
+        .filter-compact button { padding: 6px 12px; }
     </style>
 </head>
 <body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
@@ -121,224 +228,124 @@ $labelsSemanas = array_keys($weeklyProjection ? $weeklyProjection : $weeklyReal)
                         <div class="d-flex align-items-center">
                             <div class="mr-auto">
                                 <h3 class="page-title">Informe gerencial</h3>
-                                <p class="mb-0">Proyección de kilos netos por empresa y semana.</p>
+                                <p class="mb-0">Distribución de kilos netos por empresa y planta.</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-12">
-                            <div class="box">
-                                <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Filtro de temporada</h4>
-                                    <p class="mb-0 text-muted">Empresa: <?php echo htmlspecialchars($nombreEmpresa); ?></p>
-                                </div>
-                                <div class="box-body">
-                                    <form method="post" class="row align-items-end">
-                                        <div class="col-lg-4 col-md-6 col-12">
-                                            <label>Temporada</label>
-                                            <select name="TEMPORADA_FILTRO" class="form-control" onchange="this.form.submit()">
-                                                <?php foreach ($ARRAYTEMPORADA as $TEMP) { ?>
-                                                    <option value="<?php echo $TEMP['ID_TEMPORADA']; ?>" <?php echo $TEMP['ID_TEMPORADA'] == $temporadaFiltro ? 'selected' : ''; ?>>
-                                                        <?php echo $TEMP['NOMBRE_TEMPORADA']; ?>
+                            <div class="box metric-card">
+                                <div class="box-header with-border d-flex flex-wrap align-items-center justify-content-between">
+                                    <div>
+                                        <h4 class="box-title mb-0">Recepciones acumuladas y cumplimiento de lo proyectado</h4>
+                                        <p class="mb-0 text-muted">Distribución por empresa y planta comparando kilos reales vs. proyectados.</p>
+                                    </div>
+                                    <form method="post" class="d-flex align-items-end gap-2 filter-compact">
+                                        <input type="hidden" name="TEMPORADA_FILTRO" value="<?php echo htmlspecialchars($temporadaFiltro); ?>">
+                                        <div class="col-auto p-0">
+                                            <label class="mb-1">Especie</label>
+                                            <select name="ESPECIE_FILTRO" class="form-control form-control-sm">
+                                                <option value="" <?php echo $especieFiltro === '' ? 'selected' : ''; ?>>Todas</option>
+                                                <?php foreach ($ARRAYESPECIE as $ESPECIE) { ?>
+                                                    <option value="<?php echo $ESPECIE['ID_ESPECIES']; ?>" <?php echo $ESPECIE['ID_ESPECIES'] == $especieFiltro ? 'selected' : ''; ?>>
+                                                        <?php echo $ESPECIE['NOMBRE_ESPECIES']; ?>
                                                     </option>
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                        <div class="col-lg-8 col-md-6 col-12 d-flex align-items-end">
-                                            <div class="alert alert-soft w-100 mb-0">
-                                                Use <strong>Ingresar proyección</strong> para cargar semanas; este panel solo muestra el dashboard por temporada.
-                                            </div>
+                                        <div class="col-auto p-0">
+                                            <label class="mb-1">Empresa</label>
+                                            <select name="EMPRESA_FILTRO" class="form-control form-control-sm">
+                                                <option value="ALL" <?php echo $empresaFiltro === 'ALL' ? 'selected' : ''; ?>>Todas</option>
+                                                <?php foreach ($empresasNombres as $empresaId => $empresaNombre) { ?>
+                                                    <option value="<?php echo $empresaId; ?>" <?php echo $empresaFiltro !== 'ALL' && intval($empresaFiltro) === intval($empresaId) ? 'selected' : ''; ?>>
+                                                        <?php echo $empresaNombre; ?>
+                                                    </option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto p-0 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
                                         </div>
                                     </form>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xl-8 col-12">
-                            <div class="box metric-card bg-lightest">
-                                <div class="box-body">
-                                    <h4 class="box-title mb-5">Panel solo lectura</h4>
-                                    <p class="mb-0 text-muted">El dashboard refleja las proyecciones ingresadas por temporada. Para actualizar los datos use el menú <strong>Ingresar proyección</strong>.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-4 col-12">
-                            <div class="box metric-card bg-lightest">
-                                <div class="box-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-10">
-                                        <span class="section-title">Totales del filtro</span>
-                                        <span class="badge badge-primary"><?php echo count($proyeccionesFiltradas); ?> registros</span>
-                                    </div>
-                                    <div class="mb-10">
-                                        <div class="text-muted">Kg proyectados</div>
-                                        <h4 class="mb-0"><?php echo number_format($totalProyectado, 0, ',', '.'); ?> kg</h4>
-                                    </div>
-                                    <div class="mb-10">
-                                        <div class="text-muted">Kg reales informados</div>
-                                        <h4 class="mb-0"><?php echo number_format($totalReal, 0, ',', '.'); ?> kg</h4>
-                                    </div>
-                                    <div class="d-flex mb-10">
-                                        <div class="flex-grow-1">
-                                            <div class="text-muted">Proyección en bulk</div>
-                                            <div class="font-weight-600"><?php echo number_format($totalBulk, 0, ',', '.'); ?> kg</div>
-                                            <span class="tag tag-bulk">Detectado por embalaje / estándar</span>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex">
-                                        <div class="flex-grow-1">
-                                            <div class="text-muted">Proyección envasada</div>
-                                            <div class="font-weight-600"><?php echo number_format($totalEnvasado, 0, ',', '.'); ?> kg</div>
-                                            <span class="tag tag-envasado">Sin marca de bulk</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xl-7 col-12">
-                            <div class="box metric-card">
-                                <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Real vs Proyectado por semana</h4>
-                                    <p class="mb-0 text-muted">Los kilos reales se calculan desde existencia de materia prima habilitada.</p>
-                                </div>
-                                <div class="box-body">
-                                    <canvas id="chartSemanal" height="140"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-5 col-12">
-                            <div class="box metric-card">
-                                <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Recepciones acumuladas vs proyección</h4>
-                                </div>
                                 <div class="box-body table-responsive">
-                                    <table class="table projection-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Semana</th>
-                                                <th class="text-right">Real</th>
-                                                <th class="text-right">Proyectado</th>
-                                                <th class="text-center">Cumplimiento</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if ($labelsSemanas) { foreach ($labelsSemanas as $semana) {
-                                                $proy = isset($weeklyProjection[$semana]) ? $weeklyProjection[$semana] : 0;
-                                                $real = isset($weeklyReal[$semana]) ? $weeklyReal[$semana] : 0;
-                                                $cumplimiento = $proy > 0 ? ($real / $proy) * 100 : 0;
-                                            ?>
+                                    <?php if ($empresasReporteIds && $plantasReporte) { ?>
+                                        <table class="table table-bordered projection-table text-center">
+                                            <thead>
                                                 <tr>
-                                                    <td><?php echo $semana; ?></td>
-                                                    <td class="text-right"><?php echo number_format($real, 0, ',', '.'); ?></td>
-                                                    <td class="text-right"><?php echo number_format($proy, 0, ',', '.'); ?></td>
-                                                    <td class="text-center">
-                                                        <span class="badge-soft" style="color: <?php echo $cumplimiento >= 100 ? '#2f855a' : '#c53030'; ?>;">
-                                                            <?php echo round($cumplimiento, 1); ?>%
-                                                        </span>
-                                                    </td>
+                                                    <th rowspan="2" class="align-middle text-left">Planta</th>
+                                                    <?php foreach ($empresasReporteIds as $empresaId) {
+                                                        $proyectadoEmpresa = isset($proyeccionTotalEmpresa[$empresaId]['total']) ? $proyeccionTotalEmpresa[$empresaId]['total'] : 0;
+                                                        $realEmpresa = isset($kilosRealesTotales[$empresaId]['total']) ? $kilosRealesTotales[$empresaId]['total'] : 0;
+                                                        $cumplimientoEmpresa = $proyectadoEmpresa > 0 ? ($realEmpresa / $proyectadoEmpresa) * 100 : 0;
+                                                    ?>
+                                                        <th colspan="4">
+                                                            <div class="d-flex flex-column align-items-center">
+                                                                <span><?php echo htmlspecialchars($empresasNombres[$empresaId]); ?></span>
+                                                                <span class="badge-soft" style="color: <?php echo $cumplimientoEmpresa >= 100 ? '#2f855a' : '#c53030'; ?>;">
+                                                                    <?php echo round($cumplimientoEmpresa, 1); ?>%
+                                                                </span>
+                                                            </div>
+                                                        </th>
+                                                    <?php } ?>
                                                 </tr>
-                                            <?php } } else { ?>
-                                                <tr><td colspan="4" class="text-center text-muted">Sin proyecciones para el filtro seleccionado.</td></tr>
-                                            <?php } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="box metric-card">
-                                <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Detalle de proyecciones</h4>
-                                    <p class="mb-0 text-muted">Desglose por semana y tipo de embalaje.</p>
-                                </div>
-                                <div class="box-body table-responsive">
-                                    <table class="table table-bordered projection-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Semana</th>
-                                                <th class="text-center">Tipo</th>
-                                                <th class="text-right">Kg proyectados</th>
-                                                <th class="text-center">Registrado</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if ($detalleProyecciones) { foreach ($detalleProyecciones as $proy) { ?>
                                                 <tr>
-                                                    <td><?php echo $proy['semana']; ?></td>
-                                                    <td class="text-center">
-                                                        <?php if ($proy['es_bulk']) { ?>
-                                                            <span class="tag tag-bulk">bulk</span>
-                                                        <?php } else { ?>
-                                                            <span class="tag tag-envasado">envasado</span>
+                                                    <?php foreach ($empresasReporteIds as $empresaId) { ?>
+                                                        <th>Real granel</th>
+                                                        <th>Real bulk</th>
+                                                        <th>Proy. granel</th>
+                                                        <th>Proy. bulk</th>
+                                                    <?php } ?>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($plantasReporte as $plantaId) { ?>
+                                                    <tr>
+                                                        <td class="text-left"><?php echo htmlspecialchars($plantasNombres[$plantaId]); ?></td>
+                                                        <?php foreach ($empresasReporteIds as $empresaId) {
+                                                            $realPlantaGranel = isset($kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['granel']) ? $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['granel'] : 0;
+                                                            $realPlantaBulk = isset($kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['bulk']) ? $kilosRealesPorEmpresaPlanta[$empresaId][$plantaId]['bulk'] : 0;
+                                                            $proyectadoEmpresaGranel = isset($proyeccionTotalEmpresa[$empresaId]['granel']) ? $proyeccionTotalEmpresa[$empresaId]['granel'] : 0;
+                                                            $proyectadoEmpresaBulk = isset($proyeccionTotalEmpresa[$empresaId]['bulk']) ? $proyeccionTotalEmpresa[$empresaId]['bulk'] : 0;
+                                                        ?>
+                                                            <td class="text-right"><?php echo $realPlantaGranel ? number_format($realPlantaGranel, 0, ',', '.') : '-'; ?></td>
+                                                            <td class="text-right"><?php echo $realPlantaBulk ? number_format($realPlantaBulk, 0, ',', '.') : '-'; ?></td>
+                                                            <td class="text-right text-muted"><?php echo $proyectadoEmpresaGranel ? number_format($proyectadoEmpresaGranel, 0, ',', '.') : '-'; ?></td>
+                                                            <td class="text-right text-muted"><?php echo $proyectadoEmpresaBulk ? number_format($proyectadoEmpresaBulk, 0, ',', '.') : '-'; ?></td>
                                                         <?php } ?>
-                                                    </td>
-                                                    <td class="text-right"><?php echo number_format($proy['kg_proyectado'], 0, ',', '.'); ?></td>
-                                                    <td class="text-center text-muted"><?php echo $proy['creado']; ?></td>
+                                                    </tr>
+                                                <?php } ?>
+                                                <tr class="font-weight-600">
+                                                    <td class="text-left">Subtotal</td>
+                                                    <?php foreach ($empresasReporteIds as $empresaId) {
+                                                        $proyectadoEmpresaGranel = isset($proyeccionTotalEmpresa[$empresaId]['granel']) ? $proyeccionTotalEmpresa[$empresaId]['granel'] : 0;
+                                                        $proyectadoEmpresaBulk = isset($proyeccionTotalEmpresa[$empresaId]['bulk']) ? $proyeccionTotalEmpresa[$empresaId]['bulk'] : 0;
+                                                        $realEmpresaGranel = isset($kilosRealesTotales[$empresaId]['granel']) ? $kilosRealesTotales[$empresaId]['granel'] : 0;
+                                                        $realEmpresaBulk = isset($kilosRealesTotales[$empresaId]['bulk']) ? $kilosRealesTotales[$empresaId]['bulk'] : 0;
+                                                    ?>
+                                                        <td class="text-right"><?php echo $realEmpresaGranel ? number_format($realEmpresaGranel, 0, ',', '.') : '-'; ?></td>
+                                                        <td class="text-right"><?php echo $realEmpresaBulk ? number_format($realEmpresaBulk, 0, ',', '.') : '-'; ?></td>
+                                                        <td class="text-right"><?php echo $proyectadoEmpresaGranel ? number_format($proyectadoEmpresaGranel, 0, ',', '.') : '-'; ?></td>
+                                                        <td class="text-right"><?php echo $proyectadoEmpresaBulk ? number_format($proyectadoEmpresaBulk, 0, ',', '.') : '-'; ?></td>
+                                                    <?php } ?>
                                                 </tr>
-                                            <?php } } else { ?>
-                                                <tr><td colspan="4" class="text-center text-muted">Todavía no hay datos guardados para esta empresa y temporada.</td></tr>
-                                            <?php } ?>
-                                        </tbody>
-                                    </table>
+                                            </tbody>
+                                        </table>
+                                    <?php } else { ?>
+                                        <div class="alert alert-soft mb-0">No hay datos de recepciones o proyecciones para construir el resumen por empresa.</div>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </section>
             </div>
         </div>
     </div>
 
     <?php include_once "../../assest/config/urlBase.php"; ?>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const semanas = <?php echo json_encode(array_values($labelsSemanas)); ?>;
-        const dataProyectado = <?php echo json_encode(array_values($weeklyProjection)); ?>;
-        const dataReal = <?php echo json_encode(array_values($weeklyReal)); ?>;
-        const ctx = document.getElementById('chartSemanal').getContext('2d');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: semanas,
-                datasets: [
-                    {
-                        label: 'Proyectado',
-                        data: dataProyectado,
-                        borderColor: '#1d8cf8',
-                        backgroundColor: 'rgba(29,140,248,0.1)',
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: 'Real',
-                        data: dataReal,
-                        borderColor: '#2ecc71',
-                        backgroundColor: 'rgba(46,204,113,0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, ticks: { callback: value => value.toLocaleString('es-CL') + ' kg' } },
-                    x: { title: { display: true, text: 'Semana' } }
-                },
-                plugins: {
-                    tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString('es-CL') + ' kg' } }
-                }
-            }
-        });
-    </script>
 </body>
 </html>
