@@ -75,6 +75,11 @@ include_once "../../assest/config/datosUrLP.php";
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
+        <style>
+            .proceso-bajo-exportacion {
+                background-color: rgba(255, 159, 64, 0.12) !important;
+            }
+        </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
                 //REDIRECCIONAR A LA PAGINA SELECIONADA
@@ -236,8 +241,10 @@ include_once "../../assest/config/datosUrLP.php";
                                                         $NOMBRETEMPORADA = "Sin Datos";
                                                     }
 
+                                                    $esProcesoBajoExportacion = $r['PDEXPORTACION_PROCESO'] < 85;
+                                                    $claseProceso = $esProcesoBajoExportacion ? 'proceso-bajo-exportacion' : '';
                                                     ?>
-                                                    <tr class="text-center">
+                                                    <tr class="text-center <?php echo $claseProceso; ?>">
                                                         <td> <?php echo $r['NUMERO_PROCESO']; ?> </td>
                                                         <td>
                                                             <?php if ($r['ESTADO'] == "0") { ?>
@@ -380,18 +387,8 @@ include_once "../../assest/config/datosUrLP.php";
     </div>
     <?php include_once "../../assest/config/urlBase.php"; ?>
         <script>
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                showConfirmButton: true
-            })
-
-            Toast.fire({
-                icon: "info",
-                title: "Informacion importante",
-                html: "<label>Los <b>procesos</b> Abiertos tienen que ser <b>Cerrados</b> para no afectar las operaciones posteriores.</label>"
-            })
+            // Aviso visual en tabla para procesos bajo 85% de exportación
+            // (sin popups adicionales)
         </script>
 </body>
 
