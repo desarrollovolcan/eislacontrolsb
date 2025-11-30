@@ -64,7 +64,7 @@ $proyeccionesFiltradas = array_values(array_filter(
     function ($proyeccion) use ($temporadaFiltro, $especieFiltro, $semanaActual, $empresaFiltro) {
         $habilitado = !isset($proyeccion['habilitado']) || $proyeccion['habilitado'];
         $especieProyeccion = isset($proyeccion['especie']) ? $proyeccion['especie'] : null;
-        $coincideEspecie = $especieFiltro === '' ? true : ($especieProyeccion ? $especieProyeccion == $especieFiltro : true);
+        $coincideEspecie = $especieFiltro === '' ? true : ($especieProyeccion ? $especieProyeccion == $especieFiltro : false);
         $semanaProyeccion = isset($proyeccion['semana']) ? intval($proyeccion['semana']) : null;
         $anoProyeccion = isset($proyeccion['ano']) ? intval($proyeccion['ano']) : null;
         $dentroSemana = $semanaProyeccion !== null && $semanaProyeccion > 0 && $semanaProyeccion <= $semanaActual;
@@ -473,44 +473,48 @@ $empresasSemanaIds = array_values(array_filter(array_keys($empresasConDatosSeman
                                 </div>
                                 <div class="box-body table-responsive">
                                     <?php if ($empresasSemanaIds) { ?>
-                                        <?php foreach ($empresasSemanaIds as $empresaId) {
-                                            $proyeccionDiaria = isset($proyeccionSemanaActualEmpresa[$empresaId]) ? $proyeccionSemanaActualEmpresa[$empresaId] / 7 : 0;
-                                            $tieneDatos = $proyeccionDiaria > 0 || isset($kilosDiariosPorEmpresaPlanta[$empresaId]);
-                                            if (!$tieneDatos) { continue; }
-                                        ?>
-                                            <h5 class="mt-0 mb-2 font-weight-600"><?php echo htmlspecialchars($empresasNombres[$empresaId]); ?></h5>
-                                            <table class="table table-bordered table-sm table-hover projection-table text-center mb-4">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="align-middle text-left" style="min-width:140px;">Fecha</th>
-                                                        <th class="text-right" style="min-width:110px;">Real</th>
-                                                        <th class="text-right" style="min-width:120px;">Proyectado diario</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach ($diasSemanaActual as $diaSemana) {
-                                                        $fechaDia = $diaSemana['fecha'];
-                                                        $nombreDia = $diaSemana['nombre'];
-                                                        $realDiaTotal = isset($kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['total']) ? $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['total'] : 0;
-                                                        $cumplimientoDia = $proyeccionDiaria > 0 ? ($realDiaTotal / $proyeccionDiaria) * 100 : 0;
-                                                        $colorCumplimiento = $proyeccionDiaria > 0 ? ($realDiaTotal < $proyeccionDiaria ? '#c53030' : '#2f855a') : '#4a5568';
-                                                    ?>
-                                                        <tr>
-                                                            <td class="text-left"><?php echo $nombreDia . ' ' . date('d-m', strtotime($fechaDia)); ?></td>
-                                                            <td class="text-right" style="color: <?php echo $colorCumplimiento; ?>;">
-                                                                <?php echo $realDiaTotal ? number_format($realDiaTotal, 0, ',', '.') : 'Sin recep'; ?>
-                                                                <?php if ($proyeccionDiaria) { ?>
-                                                                    <div class="small mb-0 text-muted" style="color: <?php echo $colorCumplimiento; ?> !important;">
-                                                                        <?php echo round($cumplimientoDia, 1); ?>%
-                                                                    </div>
-                                                                <?php } ?>
-                                                            </td>
-                                                            <td class="text-right text-muted"><?php echo $proyeccionDiaria ? number_format($proyeccionDiaria, 0, ',', '.') : '-'; ?></td>
-                                                        </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                            </table>
-                                        <?php } ?>
+                                        <div class="row">
+                                            <?php foreach ($empresasSemanaIds as $empresaId) {
+                                                $proyeccionDiaria = isset($proyeccionSemanaActualEmpresa[$empresaId]) ? $proyeccionSemanaActualEmpresa[$empresaId] / 7 : 0;
+                                                $tieneDatos = $proyeccionDiaria > 0 || isset($kilosDiariosPorEmpresaPlanta[$empresaId]);
+                                                if (!$tieneDatos) { continue; }
+                                            ?>
+                                                <div class="col-lg-6 col-12">
+                                                    <h5 class="mt-0 mb-2 font-weight-600"><?php echo htmlspecialchars($empresasNombres[$empresaId]); ?></h5>
+                                                    <table class="table table-bordered table-sm table-hover projection-table text-center mb-4">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="align-middle text-left" style="min-width:140px;">Fecha</th>
+                                                                <th class="text-right" style="min-width:110px;">Real</th>
+                                                                <th class="text-right" style="min-width:120px;">Proyectado diario</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php foreach ($diasSemanaActual as $diaSemana) {
+                                                                $fechaDia = $diaSemana['fecha'];
+                                                                $nombreDia = $diaSemana['nombre'];
+                                                                $realDiaTotal = isset($kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['total']) ? $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['total'] : 0;
+                                                                $cumplimientoDia = $proyeccionDiaria > 0 ? ($realDiaTotal / $proyeccionDiaria) * 100 : 0;
+                                                                $colorCumplimiento = $proyeccionDiaria > 0 ? ($realDiaTotal < $proyeccionDiaria ? '#c53030' : '#2f855a') : '#4a5568';
+                                                            ?>
+                                                                <tr>
+                                                                    <td class="text-left"><?php echo $nombreDia . ' ' . date('d-m', strtotime($fechaDia)); ?></td>
+                                                                    <td class="text-right" style="color: <?php echo $colorCumplimiento; ?>;">
+                                                                        <?php echo $realDiaTotal ? number_format($realDiaTotal, 0, ',', '.') : 'Sin recep'; ?>
+                                                                        <?php if ($proyeccionDiaria) { ?>
+                                                                            <div class="small mb-0 text-muted" style="color: <?php echo $colorCumplimiento; ?> !important;">
+                                                                                <?php echo round($cumplimientoDia, 1); ?>%
+                                                                            </div>
+                                                                        <?php } ?>
+                                                                    </td>
+                                                                    <td class="text-right text-muted"><?php echo $proyeccionDiaria ? number_format($proyeccionDiaria, 0, ',', '.') : '-'; ?></td>
+                                                                </tr>
+                                                            <?php } ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            <?php } ?>
+                                        </div>
                                     <?php } else { ?>
                                         <div class="alert alert-soft mb-0">No hay datos para la semana actual con los filtros seleccionados.</div>
                                     <?php } ?>
