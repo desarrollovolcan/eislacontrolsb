@@ -142,6 +142,15 @@ if($ARRAYREGISTROSABIERTOS){
                 border: 0;
                 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
             }
+            .compact-card .box-body {
+                padding: 12px;
+            }
+            .compact-card .box-header {
+                padding: 10px 12px;
+            }
+            .dashboard-row {
+                margin-bottom: 12px;
+            }
             .bg-gradient-sky { background: linear-gradient(135deg, #1d8cf8 0%, #5ac8fa 100%); }
             .bg-gradient-dusk { background: linear-gradient(135deg, #7b42f6 0%, #b06ab3 100%); }
             .bg-gradient-emerald { background: linear-gradient(135deg, #2ecc71 0%, #58d68d 100%); }
@@ -153,7 +162,17 @@ if($ARRAYREGISTROSABIERTOS){
             .progress-amber { background-color: #f5a623; }
             .progress-ocean { background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%); }
             .progress-coral { background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%); }
-            .mini-progress { height: 8px; }
+            .mini-progress { height: 6px; }
+            .compact-list .item {
+                padding: 6px 0;
+                border-bottom: 1px dashed #e6e6e6;
+            }
+            .compact-list .item:last-child {
+                border-bottom: none;
+            }
+            section.content {
+                padding-top: 10px;
+            }
         </style>
         <!- FUNCIONES BASES -!>
         <script type="text/javascript">
@@ -181,7 +200,7 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row dashboard-row">
                             <div class="col-xl-3 col-md-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-sky">
                                     <div class="flexbox align-items-center">
@@ -231,9 +250,9 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row dashboard-row">
                             <div class="col-xl-4 col-12">
-                                <div class="box">
+                                <div class="box compact-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Indicadores operacionales</h4>
                                     </div>
@@ -263,34 +282,36 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
 
                             <div class="col-xl-4 col-12">
-                                <div class="box">
+                                <div class="box compact-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Procesos cerrados con menor % de exportación</h4>
                                     </div>
                                     <div class="box-body">
                                         <?php if ($query_procesosBajaExportacion) { ?>
-                                            <?php foreach ($query_procesosBajaExportacion as $proceso) {
-                                                $porcentajeExpo = number_format($proceso["PDEXPORTACION_PROCESO"], 2, ".", "");
-                                                $porcentajeTotal = number_format($proceso["PDEXPORTACIONCD_PROCESO"], 2, ".", "");
-                                            ?>
-                                                <div class="mb-3 pb-2 border-bottom">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <div>
-                                                            <strong>#<?php echo $proceso["NUMERO_PROCESO"]; ?></strong>
-                                                            <div class="text-muted small"><?php echo $proceso["FECHA_PROCESO"]; ?></div>
+                                            <ul class="list-unstyled compact-list mb-0">
+                                                <?php foreach ($query_procesosBajaExportacion as $proceso) {
+                                                    $porcentajeExpo = number_format($proceso["PDEXPORTACION_PROCESO"], 2, ".", "");
+                                                    $porcentajeTotal = number_format($proceso["PDEXPORTACIONCD_PROCESO"], 2, ".", "");
+                                                ?>
+                                                    <li class="item">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <div class="font-weight-600">#<?php echo $proceso["NUMERO_PROCESO"]; ?></div>
+                                                                <div class="text-muted small"><?php echo $proceso["FECHA_PROCESO"]; ?></div>
+                                                            </div>
+                                                            <span class="badge badge-warning-light">Expo <?php echo $porcentajeExpo; ?>%</span>
                                                         </div>
-                                                        <span class="badge badge-pill badge-warning">Expo <?php echo $porcentajeExpo; ?>%</span>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between text-muted small mt-1">
-                                                        <span>Entrada: <?php echo number_format($proceso["KILOS_NETO_ENTRADA"], 0, ",", "."); ?> kg</span>
-                                                        <span>Exportado: <?php echo number_format($proceso["KILOS_EXPORTACION_PROCESO"], 0, ",", "."); ?> kg</span>
-                                                        <span>Total: <?php echo $porcentajeTotal; ?>%</span>
-                                                    </div>
-                                                    <div class="progress mini-progress mt-2">
-                                                        <div class="progress-bar progress-amber" role="progressbar" style="width: <?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>%" aria-valuenow="<?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                </div>
-                                            <?php } ?>
+                                                        <div class="d-flex justify-content-between text-muted small mt-1">
+                                                            <span>Ent: <?php echo number_format($proceso["KILOS_NETO_ENTRADA"], 0, ",", "."); ?> kg</span>
+                                                            <span>Expo: <?php echo number_format($proceso["KILOS_EXPORTACION_PROCESO"], 0, ",", "."); ?> kg</span>
+                                                            <span>T: <?php echo $porcentajeTotal; ?>%</span>
+                                                        </div>
+                                                        <div class="progress mini-progress mt-1">
+                                                            <div class="progress-bar progress-amber" role="progressbar" style="width: <?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>%" aria-valuenow="<?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </li>
+                                                <?php } ?>
+                                            </ul>
                                         <?php } else { ?>
                                             <p class="text-center mb-0">Sin procesos cerrados con baja exportación.</p>
                                         <?php } ?>
@@ -299,7 +320,7 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
 
                             <div class="col-xl-4 col-12">
-                                <div class="box">
+                                <div class="box compact-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Existencia de materia prima por variedad</h4>
                                     </div>
@@ -328,9 +349,9 @@ if($ARRAYREGISTROSABIERTOS){
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-xl-6 col-12">
-                                <div class="box">
+                        <div class="row dashboard-row">
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box compact-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Top 5 exportación por productor</h4>
                                     </div>
@@ -358,8 +379,8 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-6 col-12">
-                                <div class="box">
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box compact-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Top 5 exportación por variedad</h4>
                                     </div>
@@ -386,11 +407,9 @@ if($ARRAYREGISTROSABIERTOS){
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-xl-6 col-12">
-                                <div class="box">
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box compact-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Kg netos exportados por país</h4>
                                     </div>
@@ -418,8 +437,8 @@ if($ARRAYREGISTROSABIERTOS){
                                 </div>
                             </div>
 
-                            <div class="col-xl-6 col-12">
-                                <div class="box">
+                            <div class="col-xl-3 col-md-6 col-12">
+                                <div class="box compact-card">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Kg netos exportados por recibidor</h4>
                                     </div>
