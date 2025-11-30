@@ -57,6 +57,17 @@ $ARRAYEXISMATERIPRIMAPROCESO = "";
 if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
     $ARRAYPROCESO = $PROCESO_ADO->listarProcesoEmpresaPlantaTemporadaCBX($EMPRESAS, $PLANTAS, $TEMPORADAS);
 }
+$ARRAYPROCESOSBAJOEXPORTACION = [];
+if ($ARRAYPROCESO) {
+    foreach ($ARRAYPROCESO as $proceso) {
+        if ($proceso['PDEXPORTACION_PROCESO'] < 85) {
+            $ARRAYPROCESOSBAJOEXPORTACION[] = [
+                "numero" => $proceso['NUMERO_PROCESO'],
+                "porcentaje" => number_format($proceso['PDEXPORTACION_PROCESO'], 2, ".", "")
+            ];
+        }
+    }
+}
 include_once "../../assest/config/validarDatosUrl.php";
 include_once "../../assest/config/datosUrLP.php";
 
