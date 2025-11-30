@@ -57,6 +57,17 @@ $ARRAYEXISMATERIPRIMAPROCESO = "";
 if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
     $ARRAYPROCESO = $PROCESO_ADO->listarProcesoEmpresaPlantaTemporadaCBX($EMPRESAS, $PLANTAS, $TEMPORADAS);
 }
+$ARRAYPROCESOSBAJOEXPORTACION = [];
+if ($ARRAYPROCESO) {
+    foreach ($ARRAYPROCESO as $proceso) {
+        if ($proceso['PDEXPORTACION_PROCESO'] < 85) {
+            $ARRAYPROCESOSBAJOEXPORTACION[] = [
+                "numero" => $proceso['NUMERO_PROCESO'],
+                "porcentaje" => number_format($proceso['PDEXPORTACION_PROCESO'], 2, ".", "")
+            ];
+        }
+    }
+}
 include_once "../../assest/config/validarDatosUrl.php";
 include_once "../../assest/config/datosUrLP.php";
 
@@ -78,6 +89,30 @@ include_once "../../assest/config/datosUrLP.php";
         <style>
             .proceso-bajo-exportacion {
                 background-color: #fff0df !important;
+                background-color: transparent !important;
+            }
+
+            .proceso-bajo-exportacion td {
+                border-left: none;
+                border-top: 2px solid #f4c37d;
+                border-bottom: 2px solid #f4c37d;
+                border-left: 3px solid #f4c37d;
+            }
+
+            .proceso-bajo-exportacion .etiqueta-bajo-exportacion {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 3px 10px;
+                border-radius: 12px;
+                background-color: #fffaf2;
+                color: #a0680d;
+                font-weight: 600;
+            .proceso-bajo-exportacion td {
+                background-color: #fff6e9 !important;
+                border-left: 4px solid #ffb74d;
+            .proceso-bajo-exportacion {
+                background-color: #ffcc80 !important;
             }
         </style>
         <!- FUNCIONES BASES -!>
@@ -243,6 +278,7 @@ include_once "../../assest/config/datosUrLP.php";
 
                                                     $esProcesoBajoExportacion = $r['PDEXPORTACION_PROCESO'] < 85;
                                                     $claseProceso = $esProcesoBajoExportacion ? 'proceso-bajo-exportacion' : '';
+                                                    $claseProceso = $r['PDEXPORTACION_PROCESO'] < 85 ? 'proceso-bajo-exportacion' : '';
                                                     ?>
                                                     <tr class="text-center <?php echo $claseProceso; ?>">
                                                         <td> <?php echo $r['NUMERO_PROCESO']; ?> </td>
@@ -314,7 +350,15 @@ include_once "../../assest/config/datosUrLP.php";
                                                         <td><?php echo $r['SUMA_DIFERENCIA_PROCESO']; ?></td> 
                                                         <td><?php echo $r['SUMA_INDUSTRIAL_INFO']; ?></td> 
                                                         <td><?php echo number_format( $r['ENTRADA']-$r['EXPORTACION']-$r['SUMA_INDUSTRIAL_INFO']-$r['SUMA_DIFERENCIA_PROCESO'],2,".",""); ?></td>                                                        
-                                                        <td><?php echo $r['PDEXPORTACION_PROCESO']; ?></td>
+                                                        <td>
+                                                            <?php if ($esProcesoBajoExportacion) { ?>
+                                                                <span class="etiqueta-bajo-exportacion">
+                                                                    <?php echo $r['PDEXPORTACION_PROCESO']; ?>
+                                                                </span>
+                                                            <?php } else { ?>
+                                                                <?php echo $r['PDEXPORTACION_PROCESO']; ?>
+                                                            <?php } ?>
+                                                        </td>
                                                         <td><?php echo $r['PDEXPORTACIONCD_PROCESO']-$r['PDEXPORTACION_PROCESO']; ?></td>
                                                         <td><?php echo $r['PDINDUSTRIAL_PROCESO']; ?></td>
                                                         <td><?php echo number_format($r['PORCENTAJE_PROCESO'], 2, ".", "");  ?></td>
