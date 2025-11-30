@@ -347,7 +347,11 @@ foreach ($plantasActivas as $planta) {
             continue;
         }
 
-        $kgProcesados = isset($proceso['KILOS_NETO_PROCESO']) ? normalizarKilos($proceso['KILOS_NETO_PROCESO']) : (isset($proceso['NETO']) ? normalizarKilos($proceso['NETO']) : 0);
+        $kgProcesados = isset($proceso['ENTRADA'])
+            ? normalizarKilos($proceso['ENTRADA'])
+            : (isset($proceso['KILOS_NETO_PROCESO'])
+                ? normalizarKilos($proceso['KILOS_NETO_PROCESO'])
+                : (isset($proceso['NETO']) ? normalizarKilos($proceso['NETO']) : 0));
         if ($kgProcesados <= 0) {
             continue;
         }
