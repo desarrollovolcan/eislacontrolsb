@@ -4,9 +4,8 @@ include_once "../../assest/controlador/ERECEPCION_ADO.php";
 
 $ERECEPCION_ADO = new ERECEPCION_ADO();
 
-$ARRAYTEMPORADA = $TEMPORADA_ADO->listarTemporadaCBX();
 $empresaFiltro = $EMPRESAS;
-$temporadaFiltro = isset($_REQUEST['TEMPORADA_FILTRO']) ? $_REQUEST['TEMPORADA_FILTRO'] : $TEMPORADAS;
+$temporadaFiltro = $TEMPORADAS;
 
 $ARRAYESTANDAR = [];
 if ($empresaFiltro) {
@@ -17,6 +16,14 @@ if (!isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'])) {
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'] = [];
 }
 
+// Normaliza registros antiguos sin bandera de habilitación
+foreach ($_SESSION['INFORME_GERENCIAL_PROYECCIONES'] as &$proyeccionNormalizada) {
+    if (!isset($proyeccionNormalizada['habilitado'])) {
+        $proyeccionNormalizada['habilitado'] = true;
+    }
+}
+unset($proyeccionNormalizada);
+
 $nombreEstandares = [];
 if ($ARRAYESTANDAR) {
     foreach ($ARRAYESTANDAR as $estandar) {
@@ -25,8 +32,68 @@ if ($ARRAYESTANDAR) {
 }
 
 $mensajeExito = "";
-if (isset($_POST['AGREGAR_PROYECCION'])) {
-    $temporadaFiltro = isset($_POST['TEMPORADA_FILTRO']) ? $_POST['TEMPORADA_FILTRO'] : $temporadaFiltro;
+$indiceEditar = null;
+$datosEdicion = [
+    'semana' => '',
+    'kg_proyectado' => '',
+    'estandar' => ''
+];
+
+if (isset($_POST['DESHABILITAR'])) {
+    $indice = intval($_POST['DESHABILITAR']);
+    if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice])) {
+        $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]['habilitado'] = false;
+    }
+}
+
+if (isset($_POST['HABILITAR'])) {
+    $indice = intval($_POST['HABILITAR']);
+    if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice])) {
+        $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]['habilitado'] = true;
+    }
+}
+
+if (isset($_POST['EDITAR'])) {
+    $indiceEditar = intval($_POST['EDITAR']);
+    if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indiceEditar])) {
+        $registro = $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indiceEditar];
+        if ($registro['empresa'] == $empresaFiltro && $registro['temporada'] == $temporadaFiltro) {
+            $datosEdicion['semana'] = $registro['semana'];
+            $datosEdicion['kg_proyectado'] = $registro['kg_proyectado'];
+            $datosEdicion['estandar'] = array_search($registro['descripcion_estandar'], $nombreEstandares) ?: '';
+        } else {
+            $indiceEditar = null;
+        }
+    }
+}
+
+if (isset($_POST['GUARDAR_CAMBIOS'])) {
+    $indice = intval($_POST['INDEX']);
+    $semana = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : 0;
+    $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
+    $estandarSeleccionado = isset($_POST['ESTANDAR']) ? $_POST['ESTANDAR'] : '';
+    $descripcionEstandar = $estandarSeleccionado && isset($nombreEstandares[$estandarSeleccionado]) ? $nombreEstandares[$estandarSeleccionado] : '';
+    $tipoEmbalaje = $descripcionEstandar;
+
+    if (isset($_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]) && $semana > 0 && $kgProyectado > 0) {
+        $esBulk = stripos($tipoEmbalaje, 'bulk') !== false || stripos($descripcionEstandar, 'bulk') !== false;
+
+        $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice] = [
+            'empresa' => $empresaFiltro,
+            'temporada' => $temporadaFiltro,
+            'semana' => $semana,
+            'kg_proyectado' => $kgProyectado,
+            'tipo_embalaje' => $tipoEmbalaje,
+            'descripcion_estandar' => $descripcionEstandar,
+            'es_bulk' => $esBulk,
+            'creado' => $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]['creado'],
+            'habilitado' => $_SESSION['INFORME_GERENCIAL_PROYECCIONES'][$indice]['habilitado']
+        ];
+
+        $mensajeExito = "Proyección actualizada para la semana " . $semana . ".";
+        $indiceEditar = null;
+    }
+} elseif (isset($_POST['AGREGAR_PROYECCION'])) {
     $semana = isset($_POST['SEMANA']) ? intval($_POST['SEMANA']) : 0;
     $kgProyectado = isset($_POST['KG_PROYECTADO']) ? floatval(str_replace([",", " "], [".", ""], $_POST['KG_PROYECTADO'])) : 0;
     $estandarSeleccionado = isset($_POST['ESTANDAR']) ? $_POST['ESTANDAR'] : '';
@@ -44,7 +111,8 @@ if (isset($_POST['AGREGAR_PROYECCION'])) {
             'tipo_embalaje' => $tipoEmbalaje,
             'descripcion_estandar' => $descripcionEstandar,
             'es_bulk' => $esBulk,
-            'creado' => date('Y-m-d H:i')
+            'creado' => date('Y-m-d H:i'),
+            'habilitado' => true
         ];
 
         $mensajeExito = "Proyección agregada para la semana " . $semana . ".";
@@ -58,31 +126,6 @@ $proyeccionesFiltradas = array_values(array_filter(
     }
 ));
 
-$weeklyProjection = [];
-$totalProyectado = 0;
-$totalBulk = 0;
-$totalEnvasado = 0;
-
-foreach ($proyeccionesFiltradas as $proyeccion) {
-    $kgProyectado = $proyeccion['kg_proyectado'];
-    $semana = $proyeccion['semana'];
-    $esBulk = $proyeccion['es_bulk'];
-
-    if (!isset($weeklyProjection[$semana])) {
-        $weeklyProjection[$semana] = 0;
-    }
-
-    $weeklyProjection[$semana] += $kgProyectado;
-    $totalProyectado += $kgProyectado;
-
-    if ($esBulk) {
-        $totalBulk += $kgProyectado;
-    } else {
-        $totalEnvasado += $kgProyectado;
-    }
-}
-
-ksort($weeklyProjection);
 $empresaSeleccionada = $EMPRESA_ADO->verEmpresa($empresaFiltro);
 $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'] : '';
 ?>
@@ -121,7 +164,7 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                         <div class="d-flex align-items-center">
                             <div class="mr-auto">
                                 <h3 class="page-title">Ingresar proyección</h3>
-                                <p class="mb-0">Proyección de kilos netos por empresa y temporada.</p>
+                                <p class="mb-0">Registro de proyecciones por empresa usando la temporada activa.</p>
                             </div>
                         </div>
                     </div>
@@ -130,93 +173,41 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                         <div class="col-12">
                             <div class="box">
                                 <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Seleccionar temporada</h4>
-                                    <p class="mb-0 text-muted">Empresa: <?php echo htmlspecialchars($nombreEmpresa); ?></p>
-                                </div>
-                                <div class="box-body">
-                                    <form method="post" class="row align-items-end">
-                                        <div class="col-lg-4 col-md-6 col-12">
-                                            <label>Temporada</label>
-                                            <select name="TEMPORADA_FILTRO" class="form-control" onchange="this.form.submit()">
-                                                <?php foreach ($ARRAYTEMPORADA as $TEMP) { ?>
-                                                    <option value="<?php echo $TEMP['ID_TEMPORADA']; ?>" <?php echo $TEMP['ID_TEMPORADA'] == $temporadaFiltro ? 'selected' : ''; ?>>
-                                                        <?php echo $TEMP['NOMBRE_TEMPORADA']; ?>
-                                                    </option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                        <div class="col-lg-8 col-md-6 col-12 d-flex align-items-end">
-                                            <div class="alert alert-soft w-100 mb-0">
-                                                Ingrese las proyecciones para la temporada seleccionada. Se guardarán solo para la empresa activa.
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xl-8 col-12">
-                            <div class="box metric-card">
-                                <div class="box-header with-border">
                                     <h4 class="box-title mb-0">Registrar proyección semanal</h4>
+                                    <p class="mb-0 text-muted">Empresa: <?php echo htmlspecialchars($nombreEmpresa); ?> | Temporada activa: <?php echo htmlspecialchars($TEMPORADANOMBRE); ?></p>
                                 </div>
                                 <div class="box-body">
                                     <?php if ($mensajeExito) { ?>
                                         <div class="alert alert-soft"><?php echo $mensajeExito; ?></div>
                                     <?php } ?>
                                     <form method="post" class="row">
-                                        <input type="hidden" name="TEMPORADA_FILTRO" value="<?php echo $temporadaFiltro; ?>">
+                                        <input type="hidden" name="INDEX" value="<?php echo $indiceEditar !== null ? $indiceEditar : ''; ?>">
                                         <div class="col-md-3 col-12">
                                             <label>Semana</label>
-                                            <input type="number" name="SEMANA" class="form-control" min="1" max="53" required>
+                                            <input type="number" name="SEMANA" class="form-control" min="1" max="53" required value="<?php echo htmlspecialchars($datosEdicion['semana']); ?>">
                                         </div>
                                         <div class="col-md-5 col-12">
                                             <label>Kg netos proyectados</label>
-                                            <input type="number" step="0.01" name="KG_PROYECTADO" class="form-control" required>
+                                            <input type="number" step="0.01" name="KG_PROYECTADO" class="form-control" required value="<?php echo htmlspecialchars($datosEdicion['kg_proyectado']); ?>">
                                         </div>
                                         <div class="col-md-4 col-12 mt-10">
-                                            <label>Estandar / Tipo embalaje</label>
+                                            <label>Estandar de llegada</label>
                                             <select name="ESTANDAR" class="form-control" required>
                                                 <option value="">Seleccione un estandar</option>
                                                 <?php foreach ($ARRAYESTANDAR as $estandar) { ?>
-                                                    <option value="<?php echo $estandar['ID_ESTANDAR']; ?>"><?php echo $estandar['NOMBRE_ESTANDAR']; ?></option>
+                                                    <option value="<?php echo $estandar['ID_ESTANDAR']; ?>" <?php echo $datosEdicion['estandar'] == $estandar['ID_ESTANDAR'] ? 'selected' : ''; ?>><?php echo $estandar['NOMBRE_ESTANDAR']; ?></option>
                                                 <?php } ?>
                                             </select>
                                         </div>
                                         <div class="col-12 mt-15">
-                                            <button type="submit" name="AGREGAR_PROYECCION" class="btn btn-primary">Agregar proyección</button>
+                                            <?php if ($indiceEditar !== null) { ?>
+                                                <button type="submit" name="GUARDAR_CAMBIOS" class="btn btn-primary">Guardar cambios</button>
+                                                <a href="ingresarProyeccionGerencial.php" class="btn btn-secondary ml-10">Cancelar</a>
+                                            <?php } else { ?>
+                                                <button type="submit" name="AGREGAR_PROYECCION" class="btn btn-primary">Agregar proyección</button>
+                                            <?php } ?>
                                         </div>
                                     </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-4 col-12">
-                            <div class="box metric-card bg-lightest">
-                                <div class="box-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-10">
-                                        <span class="section-title">Totales de la temporada</span>
-                                        <span class="badge badge-primary"><?php echo count($proyeccionesFiltradas); ?> registros</span>
-                                    </div>
-                                    <div class="mb-10">
-                                        <div class="text-muted">Kg proyectados</div>
-                                        <h4 class="mb-0"><?php echo number_format($totalProyectado, 0, ',', '.'); ?> kg</h4>
-                                    </div>
-                                    <div class="d-flex mb-10">
-                                        <div class="flex-grow-1">
-                                            <div class="text-muted">Proyección en bulk</div>
-                                            <div class="font-weight-600"><?php echo number_format($totalBulk, 0, ',', '.'); ?> kg</div>
-                                            <span class="tag tag-bulk">Detectado por embalaje / estándar</span>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex">
-                                        <div class="flex-grow-1">
-                                            <div class="text-muted">Proyección envasada</div>
-                                            <div class="font-weight-600"><?php echo number_format($totalEnvasado, 0, ',', '.'); ?> kg</div>
-                                            <span class="tag tag-envasado">Sin marca de bulk</span>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -224,10 +215,10 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
 
                     <div class="row">
                         <div class="col-12">
-                            <div class="box metric-card">
+                            <div class="box">
                                 <div class="box-header with-border">
-                                    <h4 class="box-title mb-0">Detalle de proyecciones</h4>
-                                    <p class="mb-0 text-muted">Desglose semanal para la temporada seleccionada.</p>
+                                    <h4 class="box-title mb-0">Proyecciones registradas</h4>
+                                    <p class="mb-0 text-muted">Solo se muestran proyecciones de la temporada activa.</p>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <table class="table table-bordered projection-table">
@@ -237,11 +228,12 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                                                 <th>Estandar</th>
                                                 <th class="text-center">Tipo</th>
                                                 <th class="text-right">Kg proyectados</th>
-                                                <th class="text-center">Registrado</th>
+                                                <th class="text-center">Estado</th>
+                                                <th class="text-center">Operaciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php if ($proyeccionesFiltradas) { foreach ($proyeccionesFiltradas as $proy) { ?>
+                                            <?php if ($proyeccionesFiltradas) { foreach ($proyeccionesFiltradas as $index => $proy) { ?>
                                                 <tr>
                                                     <td><?php echo $proy['semana']; ?></td>
                                                     <td><?php echo htmlspecialchars($proy['descripcion_estandar']); ?></td>
@@ -253,10 +245,30 @@ $nombreEmpresa = $empresaSeleccionada ? $empresaSeleccionada[0]['NOMBRE_EMPRESA'
                                                         <?php } ?>
                                                     </td>
                                                     <td class="text-right"><?php echo number_format($proy['kg_proyectado'], 0, ',', '.'); ?></td>
-                                                    <td class="text-center text-muted"><?php echo $proy['creado']; ?></td>
+                                                    <td class="text-center">
+                                                        <?php if (!empty($proy['habilitado'])) { ?>
+                                                            <span class="badge badge-success">Habilitado</span>
+                                                        <?php } else { ?>
+                                                            <span class="badge badge-danger">Deshabilitado</span>
+                                                        <?php } ?>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <form method="post" class="d-inline">
+                                                            <button type="submit" name="EDITAR" value="<?php echo $index; ?>" class="btn btn-sm btn-outline-primary">Editar</button>
+                                                        </form>
+                                                        <?php if (!empty($proy['habilitado'])) { ?>
+                                                            <form method="post" class="d-inline" onsubmit="return confirm('¿Deshabilitar registro?');">
+                                                                <button type="submit" name="DESHABILITAR" value="<?php echo $index; ?>" class="btn btn-sm btn-outline-danger">Deshabilitar</button>
+                                                            </form>
+                                                        <?php } else { ?>
+                                                            <form method="post" class="d-inline">
+                                                                <button type="submit" name="HABILITAR" value="<?php echo $index; ?>" class="btn btn-sm btn-outline-success">Habilitar</button>
+                                                            </form>
+                                                        <?php } ?>
+                                                    </td>
                                                 </tr>
                                             <?php } } else { ?>
-                                                <tr><td colspan="5" class="text-center text-muted">Todavía no hay datos guardados para esta temporada.</td></tr>
+                                                <tr><td colspan="6" class="text-center text-muted">Todavía no hay datos guardados para esta temporada.</td></tr>
                                             <?php } ?>
                                         </tbody>
                                     </table>

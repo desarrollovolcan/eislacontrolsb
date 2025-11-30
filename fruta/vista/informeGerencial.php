@@ -50,7 +50,8 @@ foreach ($existencias as $existencia) {
 $proyeccionesFiltradas = array_values(array_filter(
     $_SESSION['INFORME_GERENCIAL_PROYECCIONES'],
     function ($proyeccion) use ($empresaFiltro, $temporadaFiltro) {
-        return $proyeccion['empresa'] == $empresaFiltro && $proyeccion['temporada'] == $temporadaFiltro;
+        $habilitado = !isset($proyeccion['habilitado']) || $proyeccion['habilitado'];
+        return $habilitado && $proyeccion['empresa'] == $empresaFiltro && $proyeccion['temporada'] == $temporadaFiltro;
     }
 ));
 
