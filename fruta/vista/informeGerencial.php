@@ -102,13 +102,18 @@ foreach ($empresasActivas as $empresaActiva) {
     $empresaId = $empresaActiva['ID_EMPRESA'];
     $existenciasEmpresa = $EXIMATERIAPRIMA_ADO->listarEximateriaprimaEmpresaTemporada($empresaId, $temporadaFiltro);
     foreach ($existenciasEmpresa as $existencia) {
-        if (!isset($existencia['ESTADO_REGISTRO']) || $existencia['ESTADO_REGISTRO'] != 1) {
+        if (!isset($existencia['ESTADO_REGISTRO']) || intval($existencia['ESTADO_REGISTRO']) !== 1) {
             continue;
         }
 
         $idVespecies = isset($existencia['ID_VESPECIES']) ? $existencia['ID_VESPECIES'] : null;
-        $especieAsociada = $idVespecies && isset($mapVespeciesEspecie[$idVespecies]) ? $mapVespeciesEspecie[$idVespecies] : '';
-        if ($especieFiltro && $especieFiltro != $especieAsociada) {
+        $especieAsociada = $idVespecies && isset($mapVespeciesEspecie[$idVespecies]) ? $mapVespeciesEspecie[$idVespecies] : null;
+        if (!$especieAsociada && isset($existencia['ID_ESPECIES'])) {
+            $especieAsociada = $existencia['ID_ESPECIES'];
+        }
+
+        $coincideEspecie = ($especieFiltro === '' || !$especieFiltro || !$especieAsociada) ? true : intval($especieAsociada) === intval($especieFiltro);
+        if (!$coincideEspecie) {
             continue;
         }
 
