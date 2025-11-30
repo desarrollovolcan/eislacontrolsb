@@ -53,7 +53,8 @@ $proyeccionesFiltradas = array_values(array_filter(
         $habilitado = !isset($proyeccion['habilitado']) || $proyeccion['habilitado'];
         $especieProyeccion = isset($proyeccion['especie']) ? $proyeccion['especie'] : null;
         $coincideEspecie = $especieFiltro === '' ? true : ($especieProyeccion ? $especieProyeccion == $especieFiltro : true);
-        $dentroSemana = !isset($proyeccion['semana']) || intval($proyeccion['semana']) <= $semanaActual;
+        $semanaProyeccion = isset($proyeccion['semana']) ? intval($proyeccion['semana']) : null;
+        $dentroSemana = $semanaProyeccion !== null && $semanaProyeccion > 0 && $semanaProyeccion <= $semanaActual;
         $coincideEmpresa = $empresaFiltro === 'ALL' ? true : (isset($proyeccion['empresa']) && intval($proyeccion['empresa']) === intval($empresaFiltro));
         return $habilitado && $coincideEmpresa && $proyeccion['temporada'] == $temporadaFiltro && $coincideEspecie && $dentroSemana;
     }
