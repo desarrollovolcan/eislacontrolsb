@@ -10,6 +10,16 @@ include_once "../../assest/controlador/TPROCESO_ADO.php";
 
 setlocale(LC_TIME, 'es_ES.UTF-8', 'es_CL.UTF-8', 'es_ES', 'es_CL');
 
+$diasSemanaMap = [
+    1 => 'Lunes',
+    2 => 'Martes',
+    3 => 'Miércoles',
+    4 => 'Jueves',
+    5 => 'Viernes',
+    6 => 'Sábado',
+    7 => 'Domingo',
+];
+
 function normalizarKilos($valor)
 {
     $limpio = str_replace([' ', '.'], '', (string)$valor);
@@ -162,9 +172,10 @@ $diasSemanaActual = [];
 for ($i = 0; $i < 7; $i++) {
     $dia = clone $inicioSemana;
     $dia->modify("+{$i} day");
+    $numeroDia = intval($dia->format('N'));
     $diasSemanaActual[] = [
         'fecha' => $dia->format('Y-m-d'),
-        'nombre' => ucfirst(strftime('%A', $dia->getTimestamp())),
+        'nombre' => isset($diasSemanaMap[$numeroDia]) ? $diasSemanaMap[$numeroDia] : $dia->format('l'),
     ];
 }
 
@@ -192,7 +203,7 @@ foreach ($empresasActivas as $empresaActiva) {
             continue;
         }
 
-        $kgReal = isset($existencia['KILOS_NETO_EXIMATERIAPRIMA']) ? floatval($existencia['KILOS_NETO_EXIMATERIAPRIMA']) : 0;
+        $kgReal = isset($existencia['KILOS_NETO_EXIMATERIAPRIMA']) ? normalizarKilos($existencia['KILOS_NETO_EXIMATERIAPRIMA']) : 0;
         $plantaId = isset($existencia['ID_PLANTA']) ? $existencia['ID_PLANTA'] : null;
         $estandarId = isset($existencia['ID_ESTANDAR']) ? $existencia['ID_ESTANDAR'] : null;
         $agrupacion = ($estandarId && isset($agrupacionPorEstandar[$estandarId])) ? $agrupacionPorEstandar[$estandarId] : null;
@@ -336,7 +347,7 @@ foreach ($plantasActivas as $planta) {
             continue;
         }
 
-        $kgProcesados = isset($proceso['KILOS_NETO_PROCESO']) ? floatval($proceso['KILOS_NETO_PROCESO']) : (isset($proceso['NETO']) ? floatval($proceso['NETO']) : 0);
+        $kgProcesados = isset($proceso['KILOS_NETO_PROCESO']) ? normalizarKilos($proceso['KILOS_NETO_PROCESO']) : (isset($proceso['NETO']) ? normalizarKilos($proceso['NETO']) : 0);
         if ($kgProcesados <= 0) {
             continue;
         }
