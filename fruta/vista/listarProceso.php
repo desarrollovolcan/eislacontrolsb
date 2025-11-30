@@ -87,6 +87,9 @@ include_once "../../assest/config/datosUrLP.php";
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
         <style>
+            .proceso-bajo-exportacion td {
+                background-color: #fff6e9 !important;
+                border-left: 4px solid #ffb74d;
             .proceso-bajo-exportacion {
                 background-color: #ffcc80 !important;
             }
