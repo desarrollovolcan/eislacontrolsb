@@ -168,12 +168,31 @@ if (isset($id_dato) && isset($accion_dato)) {
             $TRATAMIENTO2 = "" . $r['TRATAMIENTO2'];
             $ESPECIES = "" . $r['ID_ESPECIES'];
             $PRODUCTO = "" . $r['ID_PRODUCTO'];
+            $AGRUPACIONGERENCIALMP = isset($r['AGRUPACION_GERENCIAL_MP']) ? "" . $r['AGRUPACION_GERENCIAL_MP'] : "";
 
         endforeach;
     }
 }
 
+//Asegurar que el producto del registro esté disponible en el selector, incluso si no pertenece al listado filtrado
+if ($PRODUCTO) {
+    $existeProducto = false;
+    if (is_array($ARRAYPRODUCTO)) {
+        foreach ($ARRAYPRODUCTO as $p) {
+            if (isset($p['ID_PRODUCTO']) && $p['ID_PRODUCTO'] == $PRODUCTO) {
+                $existeProducto = true;
+                break;
+            }
+        }
+    }
 
+    if (!$existeProducto) {
+        $ARRAYVERPRODUCTO = $PRODUCTO_ADO->verProducto($PRODUCTO);
+        if ($ARRAYVERPRODUCTO) {
+            $ARRAYPRODUCTO = array_merge(is_array($ARRAYPRODUCTO) ? $ARRAYPRODUCTO : [], $ARRAYVERPRODUCTO);
+        }
+    }
+}
 
 
 ?>
@@ -547,7 +566,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                                                                 $NOMBRETRATAMIENTO2="Sin Datos";
                                                             }
 
-                                                            ?>
+?>
                                                         <tr class="center">
                                                             <td><?php echo $CONTADOR; ?> </td>                                                                                                                                                                 
                                                             <td class="text-center">
