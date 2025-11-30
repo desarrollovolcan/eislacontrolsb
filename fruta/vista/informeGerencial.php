@@ -6,6 +6,8 @@ include_once "../../assest/controlador/ESPECIES_ADO.php";
 include_once "../../assest/controlador/VESPECIES_ADO.php";
 include_once "../../assest/controlador/ERECEPCION_ADO.php";
 
+setlocale(LC_TIME, 'es_ES.UTF-8', 'es_CL.UTF-8', 'es_ES', 'es_CL');
+
 $EXIMATERIAPRIMA_ADO = new EXIMATERIAPRIMA_ADO();
 $PLANTA_ADO = new PLANTA_ADO();
 $ESPECIES_ADO = new ESPECIES_ADO();
@@ -472,10 +474,8 @@ $empresasSemanaIds = array_values(array_filter(array_keys($empresasConDatosSeman
                                 <div class="box-body table-responsive">
                                     <?php if ($empresasSemanaIds) { ?>
                                         <?php foreach ($empresasSemanaIds as $empresaId) {
-                                            $plantasSemana = isset($plantasPorEmpresaSemana[$empresaId]) ? array_keys($plantasPorEmpresaSemana[$empresaId]) : [];
-                                            sort($plantasSemana);
                                             $proyeccionDiaria = isset($proyeccionSemanaActualEmpresa[$empresaId]) ? $proyeccionSemanaActualEmpresa[$empresaId] / 7 : 0;
-                                            $tieneDatos = $proyeccionDiaria > 0 || !empty($plantasSemana);
+                                            $tieneDatos = $proyeccionDiaria > 0 || isset($kilosDiariosPorEmpresaPlanta[$empresaId]);
                                             if (!$tieneDatos) { continue; }
                                         ?>
                                             <h5 class="mt-0 mb-2 font-weight-600"><?php echo htmlspecialchars($empresasNombres[$empresaId]); ?></h5>
@@ -483,36 +483,29 @@ $empresasSemanaIds = array_values(array_filter(array_keys($empresasConDatosSeman
                                                 <thead>
                                                     <tr>
                                                         <th class="align-middle text-left" style="min-width:140px;">Fecha</th>
-                                                        <?php foreach ($plantasSemana as $plantaId) { ?>
-                                                            <th><?php echo htmlspecialchars($plantasNombres[$plantaId]); ?></th>
-                                                        <?php } ?>
-                                                        <th>Total real</th>
-                                                        <th>Proyectado total</th>
-                                                        <th>Cumplimiento</th>
+                                                        <th class="text-right" style="min-width:110px;">Real</th>
+                                                        <th class="text-right" style="min-width:120px;">Proyectado diario</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <?php foreach ($diasSemanaActual as $diaSemana) {
                                                         $fechaDia = $diaSemana['fecha'];
                                                         $nombreDia = $diaSemana['nombre'];
-                                                        $realDiaTotal = 0;
-                                                        $celdasPlanta = '';
-                                                        foreach ($plantasSemana as $plantaId) {
-                                                            $realPlantaDia = isset($kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['plantas'][$plantaId]['total']) ? $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['plantas'][$plantaId]['total'] : 0;
-                                                            $celdasPlanta .= '<td class="text-right">' . ($realPlantaDia ? number_format($realPlantaDia, 0, ',', '.') : '-') . '</td>';
-                                                            $realDiaTotal += $realPlantaDia;
-                                                        }
+                                                        $realDiaTotal = isset($kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['total']) ? $kilosDiariosPorEmpresaPlanta[$empresaId][$fechaDia]['total'] : 0;
                                                         $cumplimientoDia = $proyeccionDiaria > 0 ? ($realDiaTotal / $proyeccionDiaria) * 100 : 0;
                                                         $colorCumplimiento = $proyeccionDiaria > 0 ? ($realDiaTotal < $proyeccionDiaria ? '#c53030' : '#2f855a') : '#4a5568';
                                                     ?>
                                                         <tr>
                                                             <td class="text-left"><?php echo $nombreDia . ' ' . date('d-m', strtotime($fechaDia)); ?></td>
-                                                            <?php echo $celdasPlanta; ?>
-                                                            <td class="text-right"><?php echo $realDiaTotal ? number_format($realDiaTotal, 0, ',', '.') : 'Sin recep'; ?></td>
-                                                            <td class="text-right text-muted"><?php echo $proyeccionDiaria ? number_format($proyeccionDiaria, 0, ',', '.') : '-'; ?></td>
-                                                            <td style="color: <?php echo $colorCumplimiento; ?>;">
-                                                                <?php echo $proyeccionDiaria ? round($cumplimientoDia, 1) . '%' : '0%'; ?>
+                                                            <td class="text-right" style="color: <?php echo $colorCumplimiento; ?>;">
+                                                                <?php echo $realDiaTotal ? number_format($realDiaTotal, 0, ',', '.') : 'Sin recep'; ?>
+                                                                <?php if ($proyeccionDiaria) { ?>
+                                                                    <div class="small mb-0 text-muted" style="color: <?php echo $colorCumplimiento; ?> !important;">
+                                                                        <?php echo round($cumplimientoDia, 1); ?>%
+                                                                    </div>
+                                                                <?php } ?>
                                                             </td>
+                                                            <td class="text-right text-muted"><?php echo $proyeccionDiaria ? number_format($proyeccionDiaria, 0, ',', '.') : '-'; ?></td>
                                                         </tr>
                                                     <?php } ?>
                                                 </tbody>
