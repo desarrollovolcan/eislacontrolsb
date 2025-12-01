@@ -154,6 +154,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                         <table id="hexistencia" class="table-hover table-bordered" style="width: 100%;">
                                             <thead>
                                                 <tr class="text-center">
+                                                    <th class="no-export">Detalle</th>
                                                     <th>Folio Original</th>
                                                     <th>Folio Nuevo</th>
                                                     <th>Fecha Cosecha </th>
@@ -176,7 +177,14 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                     <th>Empresa</th>
                                                     <th>Planta</th>
                                                     <th>Temporada</th>
-                                                    <th>Detalle</th>
+                                                    <th class="d-none export-detalle">Estandar</th>
+                                                    <th class="d-none export-detalle">Kilos Detalle</th>
+                                                    <th class="d-none export-detalle">Recepción Detalle</th>
+                                                    <th class="d-none export-detalle">Guía Recepción</th>
+                                                    <th class="d-none export-detalle">Proceso Detalle</th>
+                                                    <th class="d-none export-detalle">Despacho Detalle</th>
+                                                    <th class="d-none export-detalle">Tratamiento 1</th>
+                                                    <th class="d-none export-detalle">Tratamiento 2</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -327,38 +335,14 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                     $nombreTemporada = $temporada[0]['NOMBRE_TEMPORADA'] ?? "Sin Datos";
 
                                                     $gasificado = $r['GASIFICADO'] === "1" ? "SI" : ($r['GASIFICADO'] === "0" ? "NO" : "Sin Datos");
+
+                                                    $detalleKilos = 'Neto: ' . $r['NETO'] . ' | Promedio: ' . $r['PROMEDIO'] . ' | Bruto: ' . $r['BRUTO'];
+                                                    $detalleRecepcion = trim($tipoRecepcion . ' #' . $numRecepcion . ($fechaRecepcion ? ' (' . $fechaRecepcion . ')' : '') . ' ' . $origenRecepcion . ' [' . $csgOrigen . ']');
+                                                    $detalleGuiaRecepcion = trim($numGuiaRecepcion . ($fechaGuiaRecepcion ? ' (' . $fechaGuiaRecepcion . ')' : ''));
+                                                    $detalleProceso = trim($tipoProceso . ' #' . $numProceso . ($fechaProceso ? ' (' . $fechaProceso . ')' : ''));
+                                                    $detalleDespacho = trim($tipoDespacho . ' #' . $numDespacho . ($fechaDespacho ? ' (' . $fechaDespacho . ')' : '') . ' ' . $destino . ' [' . $csgDestino . ']');
                                                     ?>
                                                     <tr class="text-center">
-                                                        <td>
-                                                            <span class="<?php echo $color['clase']; ?>">
-                                                                <?php echo $r['FOLIO_EXIMATERIAPRIMA']; ?>
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="<?php echo $color['clase']; ?>">
-                                                                <?php echo $r['FOLIO_AUXILIAR_EXIMATERIAPRIMA']; ?>
-                                                            </span>
-                                                        </td>
-                                                        <td><?php echo $r['COSECHA']; ?></td>
-                                                        <td><?php echo $estado; ?></td>
-                                                        <td><?php echo $color['nombre']; ?></td>
-                                                        <td><?php echo $csgProductor; ?></td>
-                                                        <td><?php echo $nombreProductor; ?></td>
-                                                        <td><?php echo $nombreEspecie; ?></td>
-                                                        <td><?php echo $nombreVariedad; ?></td>
-                                                        <td><?php echo $r['ENVASE']; ?></td>
-                                                        <td><?php echo $r['NETO']; ?></td>
-                                                        <td><?php echo $numRecepcion; ?></td>
-                                                        <td><?php echo $numProceso; ?></td>
-                                                        <td><?php echo $numDespacho; ?></td>
-                                                        <td><?php echo $nombreTManejo; ?></td>
-                                                        <td><?php echo $gasificado; ?></td>
-                                                        <td><?php echo $r['DIAS']; ?></td>
-                                                        <td><?php echo $r['INGRESO']; ?></td>
-                                                        <td><?php echo $r['MODIFICACION']; ?></td>
-                                                        <td><?php echo $nombreEmpresa; ?></td>
-                                                        <td><?php echo $nombrePlanta; ?></td>
-                                                        <td><?php echo $nombreTemporada; ?></td>
                                                         <td>
                                                             <button type="button" class="btn btn-info btn-sm detalle-existencia" data-toggle="modal" data-target="#detalleExistenciaModal"
                                                                 data-folio="<?php echo htmlspecialchars($r['FOLIO_EXIMATERIAPRIMA'], ENT_QUOTES, 'UTF-8'); ?>"
@@ -402,11 +386,50 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                                 Ver detalle
                                                             </button>
                                                         </td>
+                                                        <td>
+                                                            <span class="<?php echo $color['clase']; ?>">
+                                                                <?php echo $r['FOLIO_EXIMATERIAPRIMA']; ?>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="<?php echo $color['clase']; ?>">
+                                                                <?php echo $r['FOLIO_AUXILIAR_EXIMATERIAPRIMA']; ?>
+                                                            </span>
+                                                        </td>
+                                                        <td><?php echo $r['COSECHA']; ?></td>
+                                                        <td><?php echo $estado; ?></td>
+                                                        <td><?php echo $color['nombre']; ?></td>
+                                                        <td><?php echo $csgProductor; ?></td>
+                                                        <td><?php echo $nombreProductor; ?></td>
+                                                        <td><?php echo $nombreEspecie; ?></td>
+                                                        <td><?php echo $nombreVariedad; ?></td>
+                                                        <td><?php echo $r['ENVASE']; ?></td>
+                                                        <td><?php echo $r['NETO']; ?></td>
+                                                        <td><?php echo $numRecepcion; ?></td>
+                                                        <td><?php echo $numProceso; ?></td>
+                                                        <td><?php echo $numDespacho; ?></td>
+                                                        <td><?php echo $nombreTManejo; ?></td>
+                                                        <td><?php echo $gasificado; ?></td>
+                                                        <td><?php echo $r['DIAS']; ?></td>
+                                                        <td><?php echo $r['INGRESO']; ?></td>
+                                                        <td><?php echo $r['MODIFICACION']; ?></td>
+                                                        <td><?php echo $nombreEmpresa; ?></td>
+                                                        <td><?php echo $nombrePlanta; ?></td>
+                                                        <td><?php echo $nombreTemporada; ?></td>
+                                                        <td class="d-none export-detalle"><?php echo $codigoEstandar . ' - ' . $nombreEstandar; ?></td>
+                                                        <td class="d-none export-detalle"><?php echo $detalleKilos; ?></td>
+                                                        <td class="d-none export-detalle"><?php echo $detalleRecepcion; ?></td>
+                                                        <td class="d-none export-detalle"><?php echo $detalleGuiaRecepcion; ?></td>
+                                                        <td class="d-none export-detalle"><?php echo $detalleProceso; ?></td>
+                                                        <td class="d-none export-detalle"><?php echo $detalleDespacho; ?></td>
+                                                        <td class="d-none export-detalle"><?php echo $nombreTratamiento1; ?></td>
+                                                        <td class="d-none export-detalle"><?php echo $nombreTratamiento2; ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
                                             <tfoot>
                                                 <tr class="text-center" id="filtro">
+                                                    <th class="no-export">Detalle</th>
                                                     <th>Folio Original</th>
                                                     <th>Folio Nuevo</th>
                                                     <th>Fecha Cosecha </th>
@@ -429,7 +452,14 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                     <th>Empresa</th>
                                                     <th>Planta</th>
                                                     <th>Temporada</th>
-                                                    <th>Detalle</th>
+                                                    <th class="d-none export-detalle">Estandar</th>
+                                                    <th class="d-none export-detalle">Kilos Detalle</th>
+                                                    <th class="d-none export-detalle">Recepción Detalle</th>
+                                                    <th class="d-none export-detalle">Guía Recepción</th>
+                                                    <th class="d-none export-detalle">Proceso Detalle</th>
+                                                    <th class="d-none export-detalle">Despacho Detalle</th>
+                                                    <th class="d-none export-detalle">Tratamiento 1</th>
+                                                    <th class="d-none export-detalle">Tratamiento 2</th>
                                                 </tr>
                                             </tfoot>
                                         </table>
