@@ -567,17 +567,109 @@ if ($EMPRESAS   && $TEMPORADAS) {
             if (!modal) {
                 return;
             }
-            var content = modal.querySelector('.modal-body');
-            if (!content) {
-                return;
-            }
+
+            var getDetail = function(key) {
+                var node = modal.querySelector('[data-detail="' + key + '"]');
+                return node ? node.textContent || '' : '';
+            };
+
+            var detalle = {
+                folio: getDetail('folio'),
+                folioAux: getDetail('folio-aux'),
+                estado: getDetail('estado'),
+                estadoCalidad: getDetail('estado-calidad'),
+                estandar: getDetail('estandar'),
+                especie: getDetail('especie'),
+                productor: getDetail('productor'),
+                envases: getDetail('envases'),
+                kilos: getDetail('kilos'),
+                manejo: getDetail('manejo'),
+                gasificado: getDetail('gasificado'),
+                recepcion: getDetail('recepcion'),
+                guiaRecepcion: getDetail('guia-recepcion'),
+                proceso: getDetail('proceso'),
+                despacho: getDetail('despacho'),
+                tratamiento1: getDetail('tratamiento1'),
+                tratamiento2: getDetail('tratamiento2'),
+                empresa: getDetail('empresa'),
+                planta: getDetail('planta'),
+                temporada: getDetail('temporada'),
+                ingreso: getDetail('ingreso'),
+                modificacion: getDetail('modificacion')
+            };
+
+            var now = new Date();
+            var fecha = now.toLocaleDateString();
+            var hora = now.toLocaleTimeString();
+
+            var contenido = `
+                <div class="header">
+                    <div>
+                        <h2>Informe de detalle</h2>
+                        <p class="subtitle">Historial de existencias de materia prima</p>
+                    </div>
+                    <div class="meta">
+                        <p><strong>Fecha:</strong> ${fecha}</p>
+                        <p><strong>Hora:</strong> ${hora}</p>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Identificación</h3>
+                    <table class="info-table">
+                        <tbody>
+                            <tr><th>Folio original</th><td>${detalle.folio}</td></tr>
+                            <tr><th>Folio nuevo</th><td>${detalle.folioAux}</td></tr>
+                            <tr><th>Estado</th><td>${detalle.estado}</td></tr>
+                            <tr><th>Estado calidad</th><td>${detalle.estadoCalidad}</td></tr>
+                            <tr><th>Estandar</th><td>${detalle.estandar}</td></tr>
+                            <tr><th>Especie / Variedad</th><td>${detalle.especie}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="section">
+                    <h3>Productor y manejo</h3>
+                    <table class="info-table">
+                        <tbody>
+                            <tr><th>Productor</th><td>${detalle.productor}</td></tr>
+                            <tr><th>Cantidad</th><td>${detalle.envases}</td></tr>
+                            <tr><th>Kilos</th><td>${detalle.kilos}</td></tr>
+                            <tr><th>Manejo</th><td>${detalle.manejo}</td></tr>
+                            <tr><th>Gasificación</th><td>${detalle.gasificado}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="section">
+                    <h3>Movimientos</h3>
+                    <table class="info-table">
+                        <tbody>
+                            <tr><th>Recepción</th><td>${detalle.recepcion}</td></tr>
+                            <tr><th>Guía recepción</th><td>${detalle.guiaRecepcion}</td></tr>
+                            <tr><th>Proceso</th><td>${detalle.proceso}</td></tr>
+                            <tr><th>Despacho</th><td>${detalle.despacho}</td></tr>
+                            <tr><th>Tratamiento 1</th><td>${detalle.tratamiento1}</td></tr>
+                            <tr><th>Tratamiento 2</th><td>${detalle.tratamiento2}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="section">
+                    <h3>Ubicación y fechas</h3>
+                    <table class="info-table">
+                        <tbody>
+                            <tr><th>Empresa</th><td>${detalle.empresa}</td></tr>
+                            <tr><th>Planta</th><td>${detalle.planta}</td></tr>
+                            <tr><th>Temporada</th><td>${detalle.temporada}</td></tr>
+                            <tr><th>Ingreso</th><td>${detalle.ingreso}</td></tr>
+                            <tr><th>Modificación</th><td>${detalle.modificacion}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
 
             var printWindow = window.open('', '', 'width=900,height=700');
             printWindow.document.write('<html><head><title>Detalle existencia</title>');
-            printWindow.document.write('<style>body{font-family:Arial,sans-serif;padding:20px;} h5{margin-top:0;} dt{font-weight:600;} dd{margin:0 0 8px;} .row{display:flex;flex-wrap:wrap;} .col-sm-5{flex:0 0 40%;max-width:40%;} .col-sm-7{flex:0 0 60%;max-width:60%;} .col-md-6{box-sizing:border-box;padding:0 10px;width:50%;}</style>');
+            printWindow.document.write('<style>body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:28px;color:#1f2937;} h2{margin:0;font-size:22px;color:#111827;} h3{margin:18px 0 10px;font-size:16px;color:#0f172a;border-bottom:1px solid #e5e7eb;padding-bottom:6px;} p{margin:2px 0;} .subtitle{color:#6b7280;} .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111827;padding-bottom:12px;margin-bottom:12px;} .header .meta{text-align:right;font-size:12px;color:#4b5563;} .section{margin-bottom:14px;} .info-table{width:100%;border-collapse:collapse;font-size:13px;} .info-table th{width:28%;text-align:left;background:#f3f4f6;color:#111827;padding:8px;border:1px solid #e5e7eb;font-weight:600;} .info-table td{padding:8px;border:1px solid #e5e7eb;vertical-align:top;} </style>');
             printWindow.document.write('</head><body>');
-            printWindow.document.write('<h3>Detalle existencia</h3>');
-            printWindow.document.write(content.innerHTML);
+            printWindow.document.write(contenido);
             printWindow.document.write('</body></html>');
             printWindow.document.close();
             printWindow.focus();
