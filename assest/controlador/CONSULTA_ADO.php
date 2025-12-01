@@ -362,6 +362,46 @@ class CONSULTA_ADO
         }
     }
 
+    public function TotalKgMpRecepcionadoDesdeCincoAm($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(EXI.KILOS_NETO_EXIMATERIAPRIMA),0) AS TOTAL FROM fruta_eximateriaprima EXI
+            WHERE EXI.ID_PLANTA = '".$PLANTA."' AND EXI.ID_EMPRESA = '".$EMPRESA."' AND EXI.ESTADO = 2 AND EXI.ESTADO_REGISTRO = 1 AND EXI.ID_TEMPORADA = '".$TEMPORADA."'
+            AND EXI.FECHA_RECEPCION >= CONCAT(CURDATE(),' 05:00:00')");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function TotalKgMpRecepcionadoDiaActual($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(DR.KILOS_NETO_DRECEPCION),0) AS TOTAL FROM fruta_recepcionmp R
+                                                JOIN fruta_drecepcionmp DR ON DR.ID_RECEPCION = R.ID_RECEPCION
+                                                WHERE R.ID_PLANTA = '".$PLANTA."'
+                                                AND R.ID_EMPRESA = '".$EMPRESA."'
+                                                AND R.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND R.ESTADO = 0
+                                                AND R.ESTADO_REGISTRO = 1
+                                                AND DR.ESTADO_REGISTRO = 1
+                                                AND DATE(R.FECHA_RECEPCION) = CURDATE()");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
     public function TotalExistenciaMateriaPrimaActual($TEMPORADA, $EMPRESA, $PLANTA)
     {
         try {
@@ -499,6 +539,67 @@ class CONSULTA_ADO
                                                 AND P.ID_EMPRESA = '".$EMPRESA."'
                                                 AND P.ESTADO = 0
                                                 AND P.ID_TEMPORADA = '".$TEMPORADA."'");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function TotalKgProcesoDesdeCincoAm($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(P.KILOS_NETO_ENTRADA),0) AS TOTAL FROM fruta_proceso P
+                                                WHERE P.ID_PLANTA = '".$PLANTA."'
+                                                AND P.ID_EMPRESA = '".$EMPRESA."'
+                                                AND P.ESTADO = 0
+                                                AND P.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND P.FECHA_PROCESO >= CONCAT(CURDATE(),' 05:00:00')");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function TotalKgProcesoDiaActual($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(P.KILOS_NETO_ENTRADA),0) AS TOTAL FROM fruta_proceso P
+                                                WHERE P.ID_PLANTA = '".$PLANTA."'
+                                                AND P.ID_EMPRESA = '".$EMPRESA."'
+                                                AND P.ESTADO = 0
+                                                AND P.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND DATE(P.FECHA_PROCESO) = CURDATE()");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function TotalKgDespachoMpDiaActual($TEMPORADA, $EMPRESA, $PLANTA)
+    {
+        try {
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(D.KILOS_NETO_DESPACHO),0) AS TOTAL FROM fruta_despachomp D
+                                                WHERE D.ID_PLANTA = '".$PLANTA."'
+                                                AND D.ID_EMPRESA = '".$EMPRESA."'
+                                                AND D.ESTADO = 0
+                                                AND D.ESTADO_REGISTRO = 1
+                                                AND D.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND DATE(D.FECHA_DESPACHO) = CURDATE()");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
