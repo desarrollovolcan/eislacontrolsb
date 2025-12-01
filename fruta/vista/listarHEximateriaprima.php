@@ -125,72 +125,82 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
     <?php include_once "../../assest/config/urlHead.php"; ?>
     <style>
         .detalle-modal .modal-content {
-            border: 1px solid #d9e6f5;
-            box-shadow: 0 8px 26px rgba(0, 60, 120, 0.12);
-            border-radius: 12px;
+            border: 1px solid #d0d7e3;
+            box-shadow: 0 10px 28px rgba(0, 54, 94, 0.08);
+            border-radius: 10px;
         }
 
         .detalle-modal .modal-header {
-            background: #1b75bb;
-            color: #fff;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 14px 18px;
+            background: #fff;
+            color: #0f4a7a;
+            border-bottom: 1px solid #d0d7e3;
+            padding: 12px 14px;
         }
 
         .detalle-modal .modal-title {
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.2px;
+            margin: 0;
+            color: #0f4a7a;
+        }
+
+        .detalle-modal .modal-subtitle {
+            font-size: 11px;
+            letter-spacing: 0.4px;
+            color: #5a6f86;
+            margin-bottom: 2px;
+            opacity: 0.9;
         }
 
         .detalle-modal .close {
-            color: #fff;
-            opacity: 0.95;
+            color: #0f4a7a;
+            opacity: 0.85;
         }
 
         .detalle-modal .modal-body {
-            background: #f6f9fc;
-            padding: 16px 18px 12px;
+            background: #fff;
+            padding: 14px;
         }
 
         .detalle-resumen .resumen-item {
-            background: #fff;
-            border: 1px solid #d9e6f5;
-            border-radius: 10px;
-            padding: 10px 12px;
+            background: #f5f8fc;
+            border: 1px solid #d9e2ef;
+            border-radius: 8px;
+            padding: 8px 10px;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
         }
 
         .detalle-resumen .resumen-label {
             font-size: 11px;
             letter-spacing: 0.2px;
-            color: #4f709c;
+            color: #4b6280;
             text-transform: uppercase;
             margin: 0;
         }
 
         .detalle-resumen .resumen-valor {
             font-size: 15px;
-            font-weight: 700;
-            color: #0f375b;
+            font-weight: 800;
+            color: #0f2d4a;
             margin: 0;
         }
 
         .detalle-card {
-            background: #fff;
-            border: 1px solid #dce7f4;
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
+            background: #f9fbff;
+            border: 1px solid #d9e2ef;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
         }
 
         .detalle-card h5 {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 800;
-            color: #0f375b;
-            margin: 0 0 8px;
-            letter-spacing: 0.3px;
+            color: #0f2d4a;
+            margin: 0 0 6px;
+            letter-spacing: 0.2px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -198,8 +208,8 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
 
         .detalle-card h5:before {
             content: '';
-            width: 6px;
-            height: 18px;
+            width: 4px;
+            height: 14px;
             border-radius: 3px;
             background: #1b75bb;
             display: inline-block;
@@ -207,53 +217,58 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
 
         .detalle-list dt {
             font-weight: 700;
-            color: #1e4973;
-            font-size: 13px;
-            margin-bottom: 4px;
+            color: #1f3c5a;
+            font-size: 12px;
+            margin-bottom: 2px;
         }
 
         .detalle-list dd {
-            margin-bottom: 8px;
-            color: #0f375b;
-            font-size: 13px;
+            margin-bottom: 6px;
+            color: #0f2d4a;
+            font-size: 12.5px;
         }
 
         .detalle-badge {
             display: inline-flex;
             align-items: center;
-            padding: 5px 12px;
-            background: #e8f2fb;
-            color: #1b75bb;
+            padding: 4px 10px;
+            background: #e7f0fb;
+            color: #0f4a7a;
             border-radius: 999px;
-            font-weight: 800;
+            font-weight: 700;
             font-size: 12px;
-            border: 1px solid #c5ddf5;
+            border: 1px solid #c7d6ea;
         }
 
         .detalle-estado-calidad {
-            background: #eef5ff;
-            color: #0f375b;
-            border-color: #c5ddf5;
+            background: #f4f6fa;
+            color: #0f2d4a;
+            border-color: #d6deea;
         }
 
         .detalle-modal .modal-footer {
-            border-top: 1px solid #d9e6f5;
-            padding: 12px 18px 16px;
-            background: #f6f9fc;
+            border-top: 1px solid #d0d7e3;
+            padding: 12px 14px;
+            background: #fff;
         }
 
         .detalle-modal .btn-primary {
             background: #1b75bb;
-            border: 1px solid #1667a3;
+            border: 1px solid #1866a3;
             box-shadow: none;
             font-weight: 700;
         }
 
         .detalle-modal .btn-secondary {
-            color: #1b75bb;
-            border: 1px solid #bcd4ef;
-            background: #f8fbff;
+            color: #0f4a7a;
+            border: 1px solid #c7d6ea;
+            background: #eef2f7;
             font-weight: 700;
+        }
+
+        .detalle-modal .btn {
+            padding: 6px 12px;
+            font-size: 13px;
         }
     </style>
     <!- FUNCIONES BASES -!>
@@ -602,7 +617,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                 <div class="modal-content detalle-modal">
                     <div class="modal-header">
                         <div>
-                            <p class="mb-0 text-uppercase" style="letter-spacing: 0.5px; font-size: 11px; opacity: 0.8;">Historial de existencia</p>
+                            <p class="modal-subtitle mb-0 text-uppercase">Historial de existencia</p>
                             <h4 class="modal-title" id="detalleExistenciaModalLabel">Detalle existencia</h4>
                         </div>
                         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
