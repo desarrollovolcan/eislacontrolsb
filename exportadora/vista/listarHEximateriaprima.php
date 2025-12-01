@@ -159,24 +159,24 @@ if ($EMPRESAS   && $TEMPORADAS) {
 
         .detalle-modal .modal-body {
             background: #fff;
-            padding: 14px 14px 6px 14px;
+            padding: 12px;
         }
 
         .detalle-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
             align-items: start;
         }
 
         .detalle-resumen .resumen-item {
-            background: #f5f8fc;
-            border: 1px solid #d9e2ef;
+            background: #f7f9fc;
+            border: 1px solid #dbe3ef;
             border-radius: 8px;
             padding: 8px 10px;
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 2px;
         }
 
         .detalle-resumen .resumen-label {
@@ -195,28 +195,30 @@ if ($EMPRESAS   && $TEMPORADAS) {
         }
 
         .detalle-card {
-            background: #f9fbff;
-            border: 1px solid #d9e2ef;
+            background: #fff;
+            border: 1px solid #dce4ef;
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 8px 10px;
+            box-shadow: 0 2px 6px rgba(15, 62, 91, 0.05);
         }
 
         .detalle-card h5 {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
             color: #0f2d4a;
-            margin: 0 0 6px;
-            letter-spacing: 0.2px;
+            margin: 0 0 5px;
+            letter-spacing: 0.3px;
             display: flex;
             align-items: center;
             gap: 6px;
+            text-transform: uppercase;
         }
 
         .detalle-card h5:before {
             content: '';
-            width: 4px;
+            width: 3px;
             height: 14px;
-            border-radius: 3px;
+            border-radius: 2px;
             background: #1b75bb;
             display: inline-block;
         }
@@ -225,11 +227,11 @@ if ($EMPRESAS   && $TEMPORADAS) {
             font-weight: 700;
             color: #1f3c5a;
             font-size: 12px;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
 
         .detalle-list dd {
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             color: #0f2d4a;
             font-size: 12.5px;
         }
