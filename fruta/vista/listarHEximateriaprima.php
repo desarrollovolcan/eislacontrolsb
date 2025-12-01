@@ -166,7 +166,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                                     <th>Estado Calidad</th>
                                                     <th>CSG</th>
                                                     <th>Productor</th>
-                                                    <th>Especies</th>
+                                                    <th class="d-none export-only">Especies</th>
                                                     <th>Variedad</th>
                                                     <th>Cantidad Envase</th>
                                                     <th>Kilos Neto</th>
@@ -178,17 +178,9 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                                     <th>Días</th>
                                                     <th>Ingreso</th>
                                                     <th>Modificación</th>
-                                                    <th>Empresa</th>
-                                                    <th>Planta</th>
-                                                    <th>Temporada</th>
-                                                    <th class="d-none export-detalle">Estandar</th>
-                                                    <th class="d-none export-detalle">Kilos Detalle</th>
-                                                    <th class="d-none export-detalle">Recepción Detalle</th>
-                                                    <th class="d-none export-detalle">Guía Recepción</th>
-                                                    <th class="d-none export-detalle">Proceso Detalle</th>
-                                                    <th class="d-none export-detalle">Despacho Detalle</th>
-                                                    <th class="d-none export-detalle">Tratamiento 1</th>
-                                                    <th class="d-none export-detalle">Tratamiento 2</th>
+                                                    <th class="d-none export-only">Empresa</th>
+                                                    <th class="d-none export-only">Planta</th>
+                                                    <th class="d-none export-only">Temporada</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -340,11 +332,6 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
 
                                                     $gasificado = $r['GASIFICADO'] === "1" ? "SI" : ($r['GASIFICADO'] === "0" ? "NO" : "Sin Datos");
 
-                                                    $detalleKilos = 'Neto: ' . $r['NETO'] . ' | Promedio: ' . $r['PROMEDIO'] . ' | Bruto: ' . $r['BRUTO'];
-                                                    $detalleRecepcion = trim($tipoRecepcion . ' #' . $numRecepcion . ($fechaRecepcion ? ' (' . $fechaRecepcion . ')' : '') . ' ' . $origenRecepcion . ' [' . $csgOrigen . ']');
-                                                    $detalleGuiaRecepcion = trim($numGuiaRecepcion . ($fechaGuiaRecepcion ? ' (' . $fechaGuiaRecepcion . ')' : ''));
-                                                    $detalleProceso = trim($tipoProceso . ' #' . $numProceso . ($fechaProceso ? ' (' . $fechaProceso . ')' : ''));
-                                                    $detalleDespacho = trim($tipoDespacho . ' #' . $numDespacho . ($fechaDespacho ? ' (' . $fechaDespacho . ')' : '') . ' ' . $destino . ' [' . $csgDestino . ']');
 
                                                     ?>
                                                     <tr class="text-center">
@@ -406,7 +393,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                                         <td><?php echo $color['nombre']; ?></td>
                                                         <td><?php echo $csgProductor; ?></td>
                                                         <td><?php echo $nombreProductor; ?></td>
-                                                        <td><?php echo $nombreEspecie; ?></td>
+                                                        <td class="d-none export-only"><?php echo $nombreEspecie; ?></td>
                                                         <td><?php echo $nombreVariedad; ?></td>
                                                         <td><?php echo $r['ENVASE']; ?></td>
                                                         <td><?php echo $r['NETO']; ?></td>
@@ -418,17 +405,9 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                                         <td><?php echo $r['DIAS']; ?></td>
                                                         <td><?php echo $r['INGRESO']; ?></td>
                                                         <td><?php echo $r['MODIFICACION']; ?></td>
-                                                        <td><?php echo $nombreEmpresa; ?></td>
-                                                        <td><?php echo $nombrePlanta; ?></td>
-                                                        <td><?php echo $nombreTemporada; ?></td>
-                                                        <td class="d-none export-detalle"><?php echo $codigoEstandar . ' - ' . $nombreEstandar; ?></td>
-                                                        <td class="d-none export-detalle"><?php echo $detalleKilos; ?></td>
-                                                        <td class="d-none export-detalle"><?php echo $detalleRecepcion; ?></td>
-                                                        <td class="d-none export-detalle"><?php echo $detalleGuiaRecepcion; ?></td>
-                                                        <td class="d-none export-detalle"><?php echo $detalleProceso; ?></td>
-                                                        <td class="d-none export-detalle"><?php echo $detalleDespacho; ?></td>
-                                                        <td class="d-none export-detalle"><?php echo $nombreTratamiento1; ?></td>
-                                                        <td class="d-none export-detalle"><?php echo $nombreTratamiento2; ?></td>
+                                                        <td class="d-none export-only"><?php echo $nombreEmpresa; ?></td>
+                                                        <td class="d-none export-only"><?php echo $nombrePlanta; ?></td>
+                                                        <td class="d-none export-only"><?php echo $nombreTemporada; ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
@@ -442,7 +421,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                                     <th>Estado Calidad</th>
                                                     <th>CSG</th>
                                                     <th>Productor</th>
-                                                    <th>Especies</th>
+                                                    <th class="d-none export-only">Especies</th>
                                                     <th>Variedad</th>
                                                     <th>Cantidad Envase</th>
                                                     <th>Kilos Neto</th>
@@ -454,17 +433,9 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                                     <th>Días</th>
                                                     <th>Ingreso</th>
                                                     <th>Modificación</th>
-                                                    <th>Empresa</th>
-                                                    <th>Planta</th>
-                                                    <th>Temporada</th>
-                                                    <th class="d-none export-detalle">Estandar</th>
-                                                    <th class="d-none export-detalle">Kilos Detalle</th>
-                                                    <th class="d-none export-detalle">Recepción Detalle</th>
-                                                    <th class="d-none export-detalle">Guía Recepción</th>
-                                                    <th class="d-none export-detalle">Proceso Detalle</th>
-                                                    <th class="d-none export-detalle">Despacho Detalle</th>
-                                                    <th class="d-none export-detalle">Tratamiento 1</th>
-                                                    <th class="d-none export-detalle">Tratamiento 2</th>
+                                                    <th class="d-none export-only">Empresa</th>
+                                                    <th class="d-none export-only">Planta</th>
+                                                    <th class="d-none export-only">Temporada</th>
                                                 </tr>
                                             </tfoot>
                                         </table>
@@ -492,7 +463,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                         <div class="row">
                             <div class="col-md-6">
                                 <h5>Identificación</h5>
-                                <dl class="row mb-0">
+                                <dl class="row mb-3">
                                     <dt class="col-sm-5">Folio original</dt>
                                     <dd class="col-sm-7" data-detail="folio"></dd>
                                     <dt class="col-sm-5">Folio nuevo</dt>
@@ -503,10 +474,13 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                     <dd class="col-sm-7" data-detail="estado-calidad"></dd>
                                     <dt class="col-sm-5">Estandar</dt>
                                     <dd class="col-sm-7" data-detail="estandar"></dd>
-                                    <dt class="col-sm-5">Productor</dt>
-                                    <dd class="col-sm-7" data-detail="productor"></dd>
                                     <dt class="col-sm-5">Especie / Variedad</dt>
                                     <dd class="col-sm-7" data-detail="especie"></dd>
+                                </dl>
+                                <h5>Productor y manejo</h5>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-5">Productor</dt>
+                                    <dd class="col-sm-7" data-detail="productor"></dd>
                                     <dt class="col-sm-5">Cantidad</dt>
                                     <dd class="col-sm-7" data-detail="envases"></dd>
                                     <dt class="col-sm-5">Kilos</dt>
@@ -519,7 +493,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                             </div>
                             <div class="col-md-6">
                                 <h5>Movimientos</h5>
-                                <dl class="row mb-0">
+                                <dl class="row mb-3">
                                     <dt class="col-sm-5">Recepción</dt>
                                     <dd class="col-sm-7" data-detail="recepcion"></dd>
                                     <dt class="col-sm-5">Guía recepción</dt>
@@ -532,6 +506,9 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                     <dd class="col-sm-7" data-detail="tratamiento1"></dd>
                                     <dt class="col-sm-5">Tratamiento 2</dt>
                                     <dd class="col-sm-7" data-detail="tratamiento2"></dd>
+                                </dl>
+                                <h5>Ubicación y fechas</h5>
+                                <dl class="row mb-0">
                                     <dt class="col-sm-5">Empresa</dt>
                                     <dd class="col-sm-7" data-detail="empresa"></dd>
                                     <dt class="col-sm-5">Planta</dt>
@@ -547,6 +524,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="exportDetallePdf()">Descargar PDF</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
@@ -558,7 +536,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
         <?php include_once "../../assest/config/menuExtraFruta.php"; ?>
     </div>
     <!- LLAMADA URL DE ARCHIVOS DE DISEÑO Y JQUERY E OTROS -!>
-    <?php include_once "../../assest/config/urlBase.php"; ?>
+        <?php include_once "../../assest/config/urlBase.php"; ?>
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function() {
             $('#detalleExistenciaModal').on('show.bs.modal', function(event) {
@@ -588,6 +566,29 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                 modal.find('[data-detail="modificacion"]').text(button.data('modificacion'));
             });
         });
+
+        function exportDetallePdf() {
+            var modal = document.getElementById('detalleExistenciaModal');
+            if (!modal) {
+                return;
+            }
+            var content = modal.querySelector('.modal-body');
+            if (!content) {
+                return;
+            }
+
+            var printWindow = window.open('', '', 'width=900,height=700');
+            printWindow.document.write('<html><head><title>Detalle existencia</title>');
+            printWindow.document.write('<style>body{font-family:Arial,sans-serif;padding:20px;} h5{margin-top:0;} dt{font-weight:600;} dd{margin:0 0 8px;} .row{display:flex;flex-wrap:wrap;} .col-sm-5{flex:0 0 40%;max-width:40%;} .col-sm-7{flex:0 0 60%;max-width:60%;} .col-md-6{box-sizing:border-box;padding:0 10px;width:50%;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h3>Detalle existencia</h3>');
+            printWindow.document.write(content.innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
     </script>
 </body>
 
