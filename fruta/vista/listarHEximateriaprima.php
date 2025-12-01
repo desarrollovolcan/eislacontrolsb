@@ -166,7 +166,8 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 6px;
-            align-items: start;
+            align-items: stretch;
+            grid-auto-rows: 1fr;
         }
 
         .detalle-resumen .resumen-item {
@@ -178,6 +179,12 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             flex-direction: column;
             gap: 6px;
             height: 100%;
+        }
+
+        .detalle-resumen .resumen-inline {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .detalle-resumen .estado-line {
@@ -217,11 +224,14 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             border-radius: 8px;
             padding: 0;
             box-shadow: 0 1px 4px rgba(15, 62, 91, 0.05);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .detalle-card h5 {
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
             color: #0f2d4a;
             margin: 0;
             letter-spacing: 0.3px;
@@ -241,6 +251,26 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             font-weight: 800;
             letter-spacing: 0.3px;
             text-transform: uppercase;
+        }
+
+        .detalle-table {
+            width: 100%;
+            margin: 0;
+            table-layout: fixed;
+        }
+
+        .detalle-card .detalle-table {
+            flex: 1;
+        }
+
+        .detalle-table th,
+        .detalle-table td {
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #12263f;
+            vertical-align: top;
+            white-space: normal;
+            word-break: break-word;
         }
 
         .badge-amarillo {
@@ -705,7 +735,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                 <div class="resumen-item">
                                     <p class="resumen-label">Folio original</p>
                                     <p class="resumen-valor" data-detail="folio"></p>
-                                    <button type="button" class="btn btn-outline-primary resumen-btn" onclick="imprimirTarja()">Imprimir tarja</button>
+                                    <button type="button" class="btn btn-outline-primary resumen-btn" onclick="imprimirTarja()">Imprimir Trazabilidad</button>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-2">
@@ -715,9 +745,9 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                 </div>
                             </div>
                             <div class="col-md-4 mb-2 d-flex align-items-stretch">
-                                <div class="resumen-item w-100">
-                                    <p class="resumen-label mb-1">Estado y calidad</p>
-                                    <div class="estado-line">
+                                <div class="resumen-item resumen-inline w-100">
+                                    <p class="resumen-label mb-0">Estado / Calidad</p>
+                                    <div class="estado-line mb-0">
                                         <span class="detalle-badge" data-detail="estado"></span>
                                         <span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span>
                                     </div>
