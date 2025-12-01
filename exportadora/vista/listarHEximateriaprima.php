@@ -125,15 +125,15 @@ if ($EMPRESAS   && $TEMPORADAS) {
     <?php include_once "../../assest/config/urlHead.php"; ?>
     <style>
         .detalle-modal .modal-content {
-            border: none;
-            box-shadow: 0 10px 40px rgba(0, 75, 135, 0.18);
+            border: 1px solid #d9e6f5;
+            box-shadow: 0 8px 26px rgba(0, 60, 120, 0.12);
             border-radius: 12px;
         }
 
         .detalle-modal .modal-header {
-            background: linear-gradient(135deg, #1b75bb, #39a0de);
+            background: #1b75bb;
             color: #fff;
-            border-bottom: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
             padding: 14px 18px;
         }
 
@@ -142,25 +142,29 @@ if ($EMPRESAS   && $TEMPORADAS) {
             letter-spacing: 0.2px;
         }
 
+        .detalle-modal .close {
+            color: #fff;
+            opacity: 0.95;
+        }
+
         .detalle-modal .modal-body {
-            background: #f3f7fb;
-            padding: 16px 18px 10px;
+            background: #f6f9fc;
+            padding: 16px 18px 12px;
         }
 
         .detalle-resumen .resumen-item {
             background: #fff;
             border: 1px solid #d9e6f5;
             border-radius: 10px;
-            padding: 9px 11px;
-            box-shadow: 0 3px 12px rgba(0, 117, 187, 0.08);
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 4px;
         }
 
         .detalle-resumen .resumen-label {
             font-size: 11px;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             color: #4f709c;
             text-transform: uppercase;
             margin: 0;
@@ -179,7 +183,6 @@ if ($EMPRESAS   && $TEMPORADAS) {
             border-radius: 12px;
             padding: 12px 14px;
             margin-bottom: 10px;
-            box-shadow: 0 4px 14px rgba(0, 90, 170, 0.08);
         }
 
         .detalle-card h5 {
@@ -198,7 +201,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
             width: 6px;
             height: 18px;
             border-radius: 3px;
-            background: linear-gradient(135deg, #1b75bb, #39a0de);
+            background: #1b75bb;
             display: inline-block;
         }
 
@@ -218,7 +221,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
         .detalle-badge {
             display: inline-flex;
             align-items: center;
-            padding: 4px 10px;
+            padding: 5px 12px;
             background: #e8f2fb;
             color: #1b75bb;
             border-radius: 999px;
@@ -227,32 +230,30 @@ if ($EMPRESAS   && $TEMPORADAS) {
             border: 1px solid #c5ddf5;
         }
 
-        .detalle-tags {
-            gap: 8px;
-        }
-
         .detalle-estado-calidad {
-            background: #ecfdf3;
-            color: #166534;
-            border-color: #bbf7d0;
+            background: #eef5ff;
+            color: #0f375b;
+            border-color: #c5ddf5;
         }
 
         .detalle-modal .modal-footer {
-            border-top: none;
+            border-top: 1px solid #d9e6f5;
             padding: 12px 18px 16px;
-            background: #f3f7fb;
+            background: #f6f9fc;
         }
 
         .detalle-modal .btn-primary {
-            background: linear-gradient(135deg, #1b75bb, #39a0de);
-            border: none;
-            box-shadow: 0 6px 16px rgba(27, 117, 187, 0.28);
+            background: #1b75bb;
+            border: 1px solid #1667a3;
+            box-shadow: none;
+            font-weight: 700;
         }
 
         .detalle-modal .btn-secondary {
-            color: #1e3753;
-            border: 1px solid #d9e6f5;
-            background: #fff;
+            color: #1b75bb;
+            border: 1px solid #bcd4ef;
+            background: #f8fbff;
+            font-weight: 700;
         }
     </style>
     <!- FUNCIONES BASES -!>
@@ -619,11 +620,10 @@ if ($EMPRESAS   && $TEMPORADAS) {
                             </div>
                             <div class="col-md-4 mb-2 d-flex align-items-stretch">
                                 <div class="resumen-item w-100">
-                                    <p class="resumen-label">Estado</p>
-                                    <div class="d-flex align-items-center detalle-tags">
-                                        <span class="detalle-badge" data-detail="estado"></span>
-                                        <span class="detalle-badge detalle-estado-calidad ml-2" data-detail="estado-calidad"></span>
-                                    </div>
+                                    <p class="resumen-label mb-1">Estado</p>
+                                    <span class="detalle-badge mb-2" data-detail="estado"></span>
+                                    <p class="resumen-label mb-1">Calidad</p>
+                                    <span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span>
                                 </div>
                             </div>
                         </div>
