@@ -126,15 +126,15 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
     <style>
         .detalle-modal .modal-content {
             border: none;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.22);
+            box-shadow: 0 10px 40px rgba(0, 75, 135, 0.18);
             border-radius: 12px;
         }
 
         .detalle-modal .modal-header {
-            background: linear-gradient(135deg, #0f172a, #1f2937);
+            background: linear-gradient(135deg, #1b75bb, #39a0de);
             color: #fff;
             border-bottom: none;
-            padding: 16px 20px;
+            padding: 14px 18px;
         }
 
         .detalle-modal .modal-title {
@@ -143,50 +143,50 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
         }
 
         .detalle-modal .modal-body {
-            background: #f8fafc;
-            padding: 18px 20px 12px;
+            background: #f3f7fb;
+            padding: 16px 18px 10px;
         }
 
         .detalle-resumen .resumen-item {
             background: #fff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #d9e6f5;
             border-radius: 10px;
-            padding: 10px 12px;
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+            padding: 9px 11px;
+            box-shadow: 0 3px 12px rgba(0, 117, 187, 0.08);
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
         }
 
         .detalle-resumen .resumen-label {
             font-size: 11px;
             letter-spacing: 0.3px;
-            color: #6b7280;
+            color: #4f709c;
             text-transform: uppercase;
             margin: 0;
         }
 
         .detalle-resumen .resumen-valor {
             font-size: 15px;
-            font-weight: 600;
-            color: #0f172a;
+            font-weight: 700;
+            color: #0f375b;
             margin: 0;
         }
 
         .detalle-card {
             background: #fff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #dce7f4;
             border-radius: 12px;
-            padding: 14px 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 14px rgba(0, 90, 170, 0.08);
         }
 
         .detalle-card h5 {
             font-size: 14px;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 0 0 10px;
+            font-weight: 800;
+            color: #0f375b;
+            margin: 0 0 8px;
             letter-spacing: 0.3px;
             display: flex;
             align-items: center;
@@ -198,20 +198,20 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             width: 6px;
             height: 18px;
             border-radius: 3px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            background: linear-gradient(135deg, #1b75bb, #39a0de);
             display: inline-block;
         }
 
         .detalle-list dt {
-            font-weight: 600;
-            color: #374151;
+            font-weight: 700;
+            color: #1e4973;
             font-size: 13px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .detalle-list dd {
-            margin-bottom: 10px;
-            color: #111827;
+            margin-bottom: 8px;
+            color: #0f375b;
             font-size: 13px;
         }
 
@@ -219,12 +219,12 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             display: inline-flex;
             align-items: center;
             padding: 4px 10px;
-            background: #eff6ff;
-            color: #1d4ed8;
+            background: #e8f2fb;
+            color: #1b75bb;
             border-radius: 999px;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 12px;
-            border: 1px solid #bfdbfe;
+            border: 1px solid #c5ddf5;
         }
 
         .detalle-tags {
@@ -239,19 +239,19 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
 
         .detalle-modal .modal-footer {
             border-top: none;
-            padding: 14px 20px 18px;
-            background: #f8fafc;
+            padding: 12px 18px 16px;
+            background: #f3f7fb;
         }
 
         .detalle-modal .btn-primary {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            background: linear-gradient(135deg, #1b75bb, #39a0de);
             border: none;
-            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 6px 16px rgba(27, 117, 187, 0.28);
         }
 
         .detalle-modal .btn-secondary {
-            color: #374151;
-            border: 1px solid #e5e7eb;
+            color: #1e3753;
+            border: 1px solid #d9e6f5;
             background: #fff;
         }
     </style>
@@ -852,7 +852,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
 
             var printWindow = window.open('', '', 'width=900,height=700');
             printWindow.document.write('<html><head><title>Detalle existencia</title>');
-            printWindow.document.write('<style>@page{size:Letter;margin:18mm 16mm;} body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;color:#1f2937;} .report{padding:18px;} h2{margin:0;font-size:22px;color:#111827;} h3{margin:18px 0 10px;font-size:16px;color:#0f172a;border-bottom:1px solid #e5e7eb;padding-bottom:6px;} p{margin:2px 0;} .subtitle{color:#6b7280;} .header{display:grid;grid-template-columns:140px 1fr auto;grid-gap:14px;align-items:center;border-bottom:2px solid #111827;padding-bottom:12px;margin-bottom:12px;} .logo img{max-height:70px;max-width:140px;object-fit:contain;} .title{align-self:start;} .meta{text-align:right;font-size:12px;color:#4b5563;} .section{margin-bottom:14px;} .info-table{width:100%;border-collapse:collapse;font-size:13px;} .info-table th{width:32%;text-align:left;background:#f3f4f6;color:#111827;padding:8px;border:1px solid #e5e7eb;font-weight:600;} .info-table td{padding:8px;border:1px solid #e5e7eb;vertical-align:top;} </style>');
+            printWindow.document.write('<style>@page{size:Letter;margin:12mm 10mm;} body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;color:#0f375b;} .report{padding:12px 10px;} h2{margin:0;font-size:20px;color:#0f375b;} h3{margin:14px 0 8px;font-size:14px;color:#0f375b;border-bottom:1px solid #c5ddf5;padding-bottom:6px;} p{margin:2px 0;} .subtitle{color:#4f709c;} .header{display:grid;grid-template-columns:120px 1fr auto;grid-gap:10px;align-items:center;border-bottom:2px solid #1b75bb;padding-bottom:10px;margin-bottom:10px;} .logo img{max-height:60px;max-width:120px;object-fit:contain;} .title{align-self:start;} .meta{text-align:right;font-size:11px;color:#4f709c;} .section{margin-bottom:12px;} .info-table{width:100%;border-collapse:collapse;font-size:12px;} .info-table th{width:34%;text-align:left;background:#e8f2fb;color:#0f375b;padding:6px;border:1px solid #d9e6f5;font-weight:700;} .info-table td{padding:6px;border:1px solid #d9e6f5;vertical-align:top;} </style>');
             printWindow.document.write('</head><body>');
             printWindow.document.write(contenido);
             printWindow.document.write('</body></html>');
