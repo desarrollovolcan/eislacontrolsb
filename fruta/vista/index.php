@@ -17,11 +17,12 @@ $query_datosPlanta = $CONSULTA_ADO->verPlanta($PLANTAS);
 //acumulados materia prima
 $query_acumuladoMP = $CONSULTA_ADO->TotalKgMpRecepcionadoAcumulado($TEMPORADAS, $EMPRESAS, $PLANTAS);
 $query_existenciaActual = $CONSULTA_ADO->TotalExistenciaMateriaPrimaActual($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_recepcionDesdeCincoAm = $CONSULTA_ADO->TotalKgMpRecepcionadoDesdeCincoAm($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_recepcionDiaActual = $CONSULTA_ADO->TotalKgMpRecepcionadoDiaActual($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_despachoDiaActual = $CONSULTA_ADO->TotalKgDespachoMpDiaActual($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
 //proceso
 $query_totalesProceso = $CONSULTA_ADO->TotalKgProcesoEntradaSalida($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_totalesProcesoDesdeCincoAm = $CONSULTA_ADO->TotalKgProcesoDesdeCincoAm($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_totalesProcesoDiaActual = $CONSULTA_ADO->TotalKgProcesoDiaActual($TEMPORADAS, $EMPRESAS, $PLANTAS);
 $query_procesosBajaExportacion = $CONSULTA_ADO->UltimosProcesosBajaExportacionCerrados($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
 //exportación
@@ -37,9 +38,10 @@ $query_registrosAbiertos = $CONSULTA_ADO->contarRegistrosAbiertosFruta($EMPRESAS
 
 $kilosMateriaPrimaAcumulado = $query_acumuladoMP ? $query_acumuladoMP[0]["TOTAL"] : 0;
 $kilosMateriaPrimaActual = $query_existenciaActual ? $query_existenciaActual[0]["TOTAL"] : 0;
-$kilosRecepcionDesdeCincoAm = $query_recepcionDesdeCincoAm ? $query_recepcionDesdeCincoAm[0]["TOTAL"] : 0;
-$kilosProcesoDesdeCincoAm = $query_totalesProcesoDesdeCincoAm ? $query_totalesProcesoDesdeCincoAm[0]["TOTAL"] : 0;
-$kilosMateriaPrimaHastaCinco = $kilosMateriaPrimaActual + $kilosProcesoDesdeCincoAm - $kilosRecepcionDesdeCincoAm;
+$kilosRecepcionDiaActual = $query_recepcionDiaActual ? $query_recepcionDiaActual[0]["TOTAL"] : 0;
+$kilosProcesoDiaActual = $query_totalesProcesoDiaActual ? $query_totalesProcesoDiaActual[0]["TOTAL"] : 0;
+$kilosDespachoDiaActual = $query_despachoDiaActual ? $query_despachoDiaActual[0]["TOTAL"] : 0;
+$kilosMateriaPrimaHastaCinco = $kilosMateriaPrimaActual + $kilosProcesoDiaActual + $kilosDespachoDiaActual - $kilosRecepcionDiaActual;
 $kilosEntradaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["ENTRADA"])) ? $query_totalesProceso[0]["ENTRADA"] : 0;
 $kilosSalidaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["SALIDA"])) ? $query_totalesProceso[0]["SALIDA"] : 0;
 $recepcionesAbiertas = $query_registrosAbiertos ? $query_registrosAbiertos[0]["RECEPCION"] : 0;
