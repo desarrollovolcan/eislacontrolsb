@@ -159,7 +159,14 @@ if ($EMPRESAS   && $TEMPORADAS) {
 
         .detalle-modal .modal-body {
             background: #fff;
-            padding: 14px;
+            padding: 14px 14px 6px 14px;
+        }
+
+        .detalle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 10px;
+            align-items: start;
         }
 
         .detalle-resumen .resumen-item {
@@ -192,7 +199,6 @@ if ($EMPRESAS   && $TEMPORADAS) {
             border: 1px solid #d9e2ef;
             border-radius: 8px;
             padding: 10px 12px;
-            margin-bottom: 8px;
         }
 
         .detalle-card h5 {
@@ -253,22 +259,24 @@ if ($EMPRESAS   && $TEMPORADAS) {
         }
 
         .detalle-modal .btn-primary {
-            background: #1b75bb;
-            border: 1px solid #1866a3;
+            background: #0c63a8;
+            border: 1px solid #0a588f;
             box-shadow: none;
             font-weight: 700;
         }
 
         .detalle-modal .btn-secondary {
-            color: #0f4a7a;
-            border: 1px solid #c7d6ea;
-            background: #eef2f7;
+            color: #0f2d4a !important;
+            border: 1px solid #b7c7de;
+            background: #e8f0f9;
             font-weight: 700;
+            box-shadow: none;
         }
 
         .detalle-modal .btn {
             padding: 6px 12px;
             font-size: 13px;
+            border-radius: 6px;
         }
     </style>
     <!- FUNCIONES BASES -!>
@@ -642,66 +650,62 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="detalle-card">
-                                    <h5>Identificación</h5>
-                                    <dl class="row detalle-list mb-0">
-                                        <dt class="col-sm-5">Estandar</dt>
-                                        <dd class="col-sm-7" data-detail="estandar"></dd>
-                                        <dt class="col-sm-5">Especie / Variedad</dt>
-                                        <dd class="col-sm-7" data-detail="especie"></dd>
-                                    </dl>
-                                </div>
-                                <div class="detalle-card">
-                                    <h5>Productor y manejo</h5>
-                                    <dl class="row detalle-list mb-0">
-                                        <dt class="col-sm-5">Productor</dt>
-                                        <dd class="col-sm-7" data-detail="productor"></dd>
-                                        <dt class="col-sm-5">Cantidad</dt>
-                                        <dd class="col-sm-7" data-detail="envases"></dd>
-                                        <dt class="col-sm-5">Kilos</dt>
-                                        <dd class="col-sm-7" data-detail="kilos"></dd>
-                                        <dt class="col-sm-5">Manejo</dt>
-                                        <dd class="col-sm-7" data-detail="manejo"></dd>
-                                        <dt class="col-sm-5">Gasificación</dt>
-                                        <dd class="col-sm-7" data-detail="gasificado"></dd>
-                                    </dl>
-                                </div>
+                        <div class="detalle-grid mb-2">
+                            <div class="detalle-card">
+                                <h5>Identificación</h5>
+                                <dl class="row detalle-list mb-0">
+                                    <dt class="col-sm-5">Estandar</dt>
+                                    <dd class="col-sm-7" data-detail="estandar"></dd>
+                                    <dt class="col-sm-5">Especie / Variedad</dt>
+                                    <dd class="col-sm-7" data-detail="especie"></dd>
+                                </dl>
                             </div>
-                            <div class="col-md-6">
-                                <div class="detalle-card">
-                                    <h5>Movimientos</h5>
-                                    <dl class="row detalle-list mb-0">
-                                        <dt class="col-sm-5">Recepción</dt>
-                                        <dd class="col-sm-7" data-detail="recepcion"></dd>
-                                        <dt class="col-sm-5">Guía recepción</dt>
-                                        <dd class="col-sm-7" data-detail="guia-recepcion"></dd>
-                                        <dt class="col-sm-5">Proceso</dt>
-                                        <dd class="col-sm-7" data-detail="proceso"></dd>
-                                        <dt class="col-sm-5">Despacho</dt>
-                                        <dd class="col-sm-7" data-detail="despacho"></dd>
-                                        <dt class="col-sm-5">Tratamiento 1</dt>
-                                        <dd class="col-sm-7" data-detail="tratamiento1"></dd>
-                                        <dt class="col-sm-5">Tratamiento 2</dt>
-                                        <dd class="col-sm-7" data-detail="tratamiento2"></dd>
-                                    </dl>
-                                </div>
-                                <div class="detalle-card mb-1">
-                                    <h5>Ubicación y fechas</h5>
-                                    <dl class="row detalle-list mb-0">
-                                        <dt class="col-sm-5">Empresa</dt>
-                                        <dd class="col-sm-7" data-detail="empresa"></dd>
-                                        <dt class="col-sm-5">Planta</dt>
-                                        <dd class="col-sm-7" data-detail="planta"></dd>
-                                        <dt class="col-sm-5">Temporada</dt>
-                                        <dd class="col-sm-7" data-detail="temporada"></dd>
-                                        <dt class="col-sm-5">Ingreso</dt>
-                                        <dd class="col-sm-7" data-detail="ingreso"></dd>
-                                        <dt class="col-sm-5">Modificación</dt>
-                                        <dd class="col-sm-7" data-detail="modificacion"></dd>
-                                    </dl>
-                                </div>
+                            <div class="detalle-card">
+                                <h5>Productor y manejo</h5>
+                                <dl class="row detalle-list mb-0">
+                                    <dt class="col-sm-5">Productor</dt>
+                                    <dd class="col-sm-7" data-detail="productor"></dd>
+                                    <dt class="col-sm-5">Cantidad</dt>
+                                    <dd class="col-sm-7" data-detail="envases"></dd>
+                                    <dt class="col-sm-5">Kilos</dt>
+                                    <dd class="col-sm-7" data-detail="kilos"></dd>
+                                    <dt class="col-sm-5">Manejo</dt>
+                                    <dd class="col-sm-7" data-detail="manejo"></dd>
+                                    <dt class="col-sm-5">Gasificación</dt>
+                                    <dd class="col-sm-7" data-detail="gasificado"></dd>
+                                </dl>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Movimientos</h5>
+                                <dl class="row detalle-list mb-0">
+                                    <dt class="col-sm-5">Recepción</dt>
+                                    <dd class="col-sm-7" data-detail="recepcion"></dd>
+                                    <dt class="col-sm-5">Guía recepción</dt>
+                                    <dd class="col-sm-7" data-detail="guia-recepcion"></dd>
+                                    <dt class="col-sm-5">Proceso</dt>
+                                    <dd class="col-sm-7" data-detail="proceso"></dd>
+                                    <dt class="col-sm-5">Despacho</dt>
+                                    <dd class="col-sm-7" data-detail="despacho"></dd>
+                                    <dt class="col-sm-5">Tratamiento 1</dt>
+                                    <dd class="col-sm-7" data-detail="tratamiento1"></dd>
+                                    <dt class="col-sm-5">Tratamiento 2</dt>
+                                    <dd class="col-sm-7" data-detail="tratamiento2"></dd>
+                                </dl>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Ubicación y fechas</h5>
+                                <dl class="row detalle-list mb-0">
+                                    <dt class="col-sm-5">Empresa</dt>
+                                    <dd class="col-sm-7" data-detail="empresa"></dd>
+                                    <dt class="col-sm-5">Planta</dt>
+                                    <dd class="col-sm-7" data-detail="planta"></dd>
+                                    <dt class="col-sm-5">Temporada</dt>
+                                    <dd class="col-sm-7" data-detail="temporada"></dd>
+                                    <dt class="col-sm-5">Ingreso</dt>
+                                    <dd class="col-sm-7" data-detail="ingreso"></dd>
+                                    <dt class="col-sm-5">Modificación</dt>
+                                    <dd class="col-sm-7" data-detail="modificacion"></dd>
+                                </dl>
                             </div>
                         </div>
                     </div>
