@@ -734,24 +734,31 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                     </div>
                     <div class="modal-body">
                         <div class="row detalle-resumen mb-2">
-                            <div class="col-md-4 mb-2">
-                                <div class="resumen-item">
+                            <div class="col-lg-3 col-md-6 mb-2 d-flex align-items-stretch">
+                                <div class="resumen-item w-100">
                                     <p class="resumen-label">Folio original</p>
                                     <p class="resumen-valor" data-detail="folio"></p>
                                     <button type="button" class="btn btn-outline-primary resumen-btn" onclick="imprimirTarja()">Imprimir Trazabilidad</button>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-2">
-                                <div class="resumen-item">
+                            <div class="col-lg-3 col-md-6 mb-2 d-flex align-items-stretch">
+                                <div class="resumen-item w-100">
                                     <p class="resumen-label">Folio nuevo</p>
                                     <p class="resumen-valor" data-detail="folio-aux"></p>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-2 d-flex align-items-stretch">
-                                <div class="resumen-item resumen-inline w-100">
-                                    <p class="resumen-label mb-0">Estado / Calidad</p>
+                            <div class="col-lg-3 col-md-6 mb-2 d-flex align-items-stretch">
+                                <div class="resumen-item w-100">
+                                    <p class="resumen-label mb-0">Estado</p>
                                     <div class="estado-line mb-0">
                                         <span class="detalle-badge" data-detail="estado"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mb-2 d-flex align-items-stretch">
+                                <div class="resumen-item w-100">
+                                    <p class="resumen-label mb-0">Calidad</p>
+                                    <div class="estado-line mb-0">
                                         <span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span>
                                     </div>
                                 </div>
