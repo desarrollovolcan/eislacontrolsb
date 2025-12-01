@@ -170,6 +170,19 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             grid-auto-rows: 1fr;
         }
 
+        .detalle-resumen {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 8px;
+            margin: 0;
+        }
+
+        .detalle-resumen .resumen-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
         .detalle-resumen .resumen-item {
             background: #f7f9fc;
             border: 1px solid #dbe3ef;
@@ -179,6 +192,8 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             flex-direction: column;
             gap: 6px;
             height: 100%;
+            min-height: 150px;
+            justify-content: space-between;
         }
 
         .detalle-resumen .resumen-inline {
@@ -733,21 +748,21 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="row detalle-resumen mb-2">
-                            <div class="col-lg-3 col-md-6 mb-2 d-flex align-items-stretch">
+                        <div class="detalle-resumen mb-2">
+                            <div class="resumen-wrapper">
                                 <div class="resumen-item w-100">
                                     <p class="resumen-label">Folio original</p>
                                     <p class="resumen-valor" data-detail="folio"></p>
                                     <button type="button" class="btn btn-outline-primary resumen-btn" onclick="imprimirTarja()">Imprimir Trazabilidad</button>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 mb-2 d-flex align-items-stretch">
+                            <div class="resumen-wrapper">
                                 <div class="resumen-item w-100">
                                     <p class="resumen-label">Folio nuevo</p>
                                     <p class="resumen-valor" data-detail="folio-aux"></p>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 mb-2 d-flex align-items-stretch">
+                            <div class="resumen-wrapper">
                                 <div class="resumen-item w-100">
                                     <p class="resumen-label mb-0">Estado</p>
                                     <div class="estado-line mb-0">
@@ -755,7 +770,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 mb-2 d-flex align-items-stretch">
+                            <div class="resumen-wrapper">
                                 <div class="resumen-item w-100">
                                     <p class="resumen-label mb-0">Calidad</p>
                                     <div class="estado-line mb-0">
@@ -766,7 +781,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                         </div>
                         <div class="detalle-grid mb-1">
                             <div class="detalle-card">
-                                <h5>Identificación <span class="titulo-badge badge-azul">Detalle</span></h5>
+                                <h5>Identificación</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Estandar</th>
@@ -779,7 +794,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Productor y manejo <span class="titulo-badge badge-amarillo">Proceso</span></h5>
+                                <h5>Productor y manejo</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Productor</th>
@@ -804,7 +819,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Movimientos <span class="titulo-badge badge-azul">Exportación</span></h5>
+                                <h5>Movimientos</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Recepción</th>
@@ -833,7 +848,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Ubicación y fechas <span class="titulo-badge badge-celeste">Inspección</span></h5>
+                                <h5>Ubicación y fechas</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Empresa</th>
