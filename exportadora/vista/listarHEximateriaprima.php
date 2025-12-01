@@ -183,8 +183,9 @@ if ($EMPRESAS   && $TEMPORADAS) {
 
         .detalle-resumen .resumen-inline {
             flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .detalle-resumen .estado-line {
@@ -192,6 +193,8 @@ if ($EMPRESAS   && $TEMPORADAS) {
             gap: 6px;
             align-items: center;
             flex-wrap: wrap;
+            flex: 1 1 180px;
+            min-width: 0;
         }
 
         .detalle-resumen .resumen-label {
