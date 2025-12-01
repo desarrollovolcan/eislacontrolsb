@@ -170,78 +170,25 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             grid-auto-rows: 1fr;
         }
 
-        .detalle-resumen {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 10px;
-            margin: 0;
-            align-items: stretch;
-            grid-auto-rows: 1fr;
+        .detalle-resumen-table {
+            margin-bottom: 8px;
         }
 
-        .detalle-resumen .resumen-wrapper {
-            display: flex;
-            width: 100%;
-            height: 100%;
+        .detalle-resumen-table .detalle-table {
+            table-layout: fixed;
         }
 
-        .detalle-resumen .resumen-item {
-            background: #f7f9fc;
-            border: 1px solid #dbe3ef;
-            border-radius: 8px;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            height: 100%;
-            min-height: 130px;
-        }
-
-        .detalle-resumen .resumen-inline {
-            flex-direction: row;
-            align-items: flex-start;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .detalle-resumen .estado-line {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            flex-wrap: wrap;
-            flex: 1 1 180px;
-            min-width: 0;
-        }
-
-        .detalle-resumen .resumen-label {
-            font-size: 11px;
-            letter-spacing: 0.2px;
-            color: #4b6280;
+        .detalle-resumen-table thead th {
+            background: #f2f6fb;
             text-transform: uppercase;
-            margin: 0;
-        }
-
-        .detalle-resumen .resumen-valor {
-            font-size: 15px;
+            font-size: 11px;
+            letter-spacing: 0.4px;
             font-weight: 700;
-            color: #0f2d4a;
-            margin: 0;
-            word-break: break-word;
         }
 
-        .detalle-resumen .resumen-actions {
-            margin-top: auto;
-            width: 100%;
-        }
-
-        .detalle-resumen .resumen-btn {
-            align-self: stretch;
-            padding: 4px 10px;
-            font-size: 12px;
+        .detalle-resumen-table tbody td {
+            font-size: 14px;
             font-weight: 700;
-            border-radius: 6px;
-            width: 100%;
-            text-align: center;
         }
 
         .detalle-card {
@@ -756,38 +703,25 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="detalle-resumen mb-2">
-                              <div class="resumen-wrapper">
-                                  <div class="resumen-item w-100">
-                                      <p class="resumen-label">Folio original</p>
-                                      <p class="resumen-valor" data-detail="folio"></p>
-                                      <div class="resumen-actions">
-                                          <button type="button" class="btn btn-outline-primary resumen-btn" onclick="imprimirTarja()">Imprimir Trazabilidad</button>
-                                      </div>
-                                  </div>
-                              </div>
-                            <div class="resumen-wrapper">
-                                <div class="resumen-item w-100">
-                                    <p class="resumen-label">Folio nuevo</p>
-                                    <p class="resumen-valor" data-detail="folio-aux"></p>
-                                </div>
-                            </div>
-                            <div class="resumen-wrapper">
-                                <div class="resumen-item w-100">
-                                    <p class="resumen-label mb-0">Estado</p>
-                                    <div class="estado-line mb-0">
-                                        <span class="detalle-badge" data-detail="estado"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="resumen-wrapper">
-                                <div class="resumen-item w-100">
-                                    <p class="resumen-label mb-0">Calidad</p>
-                                    <div class="estado-line mb-0">
-                                        <span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="detalle-resumen-table">
+                            <table class="detalle-table resumen-table">
+                                <thead>
+                                    <tr>
+                                        <th>Folio original</th>
+                                        <th>Folio nuevo</th>
+                                        <th>Estado</th>
+                                        <th>Calidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td data-detail="folio"></td>
+                                        <td data-detail="folio-aux"></td>
+                                        <td><span class="detalle-badge" data-detail="estado"></span></td>
+                                        <td><span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <div class="detalle-grid mb-1">
                             <div class="detalle-card">
@@ -885,7 +819,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="exportDetallePdf()">Descargar PDF</button>
+                        <button type="button" class="btn btn-primary" onclick="exportDetallePdf()">Imprimir Trazabilidad</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
