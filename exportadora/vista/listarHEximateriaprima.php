@@ -15,6 +15,7 @@ include_once '../../assest/controlador/TMANEJO_ADO.php';
 include_once '../../assest/controlador/COMPRADOR_ADO.php';
 include_once '../../assest/controlador/TTRATAMIENTO1_ADO.php';
 include_once '../../assest/controlador/TTRATAMIENTO2_ADO.php';
+include_once '../../assest/controlador/EMPRESA_ADO.php';
 
 include_once '../../assest/controlador/EXIMATERIAPRIMA_ADO.php';
 
@@ -32,6 +33,7 @@ $TMANEJO_ADO =  new TMANEJO_ADO();
 $COMPRADOR_ADO =  new COMPRADOR_ADO();
 $TTRATAMIENTO1_ADO =  new TTRATAMIENTO1_ADO();
 $TTRATAMIENTO2_ADO =  new TTRATAMIENTO2_ADO();
+$EMPRESA_ADO = new EMPRESA_ADO();
 
 $EXIMATERIAPRIMA_ADO =  new EXIMATERIAPRIMA_ADO();
 
@@ -72,6 +74,7 @@ $COLORCALIDAD = [
 //INCIALIZAR VARIBALES A OCUPAR PARA LA FUNCIONALIDAD
 //INICIALIZAR ARREGLOS
 $ARRAYEXIMATERIAPRIMA = "";
+$ARRAYEMPRESA = [];
 
 //CACHES PARA REDUCIR CONSULTAS
 $PRODUCTOR_CACHE = [];
@@ -91,6 +94,17 @@ $TRATAMIENTO1_CACHE = [];
 $TRATAMIENTO2_CACHE = [];
 $COMPRADOR_CACHE = [];
 
+$LOGOEMPRESA = '';
+$NOMBREEMPRESA = '';
+
+if ($EMPRESAS) {
+    $ARRAYEMPRESA = $EMPRESA_ADO->verEmpresa($EMPRESAS);
+    if ($ARRAYEMPRESA) {
+        $LOGOEMPRESA = $ARRAYEMPRESA[0]['LOGO_EMPRESA'];
+        $NOMBREEMPRESA = $ARRAYEMPRESA[0]['NOMBRE_EMPRESA'];
+    }
+}
+
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
 if ($EMPRESAS   && $TEMPORADAS) {
     $ARRAYEXIMATERIAPRIMA = $EXIMATERIAPRIMA_ADO->listarEximateriaprimaEmpresaTemporada($EMPRESAS,  $TEMPORADAS);
@@ -109,6 +123,138 @@ if ($EMPRESAS   && $TEMPORADAS) {
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
     <?php include_once "../../assest/config/urlHead.php"; ?>
+    <style>
+        .detalle-modal .modal-content {
+            border: none;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.22);
+            border-radius: 12px;
+        }
+
+        .detalle-modal .modal-header {
+            background: linear-gradient(135deg, #0f172a, #1f2937);
+            color: #fff;
+            border-bottom: none;
+            padding: 16px 20px;
+        }
+
+        .detalle-modal .modal-title {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .detalle-modal .modal-body {
+            background: #f8fafc;
+            padding: 18px 20px 12px;
+        }
+
+        .detalle-resumen .resumen-item {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 10px 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detalle-resumen .resumen-label {
+            font-size: 11px;
+            letter-spacing: 0.3px;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .detalle-resumen .resumen-valor {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .detalle-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+        }
+
+        .detalle-card h5 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 10px;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detalle-card h5:before {
+            content: '';
+            width: 6px;
+            height: 18px;
+            border-radius: 3px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            display: inline-block;
+        }
+
+        .detalle-list dt {
+            font-weight: 600;
+            color: #374151;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .detalle-list dd {
+            margin-bottom: 10px;
+            color: #111827;
+            font-size: 13px;
+        }
+
+        .detalle-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12px;
+            border: 1px solid #bfdbfe;
+        }
+
+        .detalle-tags {
+            gap: 8px;
+        }
+
+        .detalle-estado-calidad {
+            background: #ecfdf3;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .detalle-modal .modal-footer {
+            border-top: none;
+            padding: 14px 20px 18px;
+            background: #f8fafc;
+        }
+
+        .detalle-modal .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: none;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+        }
+
+        .detalle-modal .btn-secondary {
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+        }
+    </style>
     <!- FUNCIONES BASES -!>
     <script type="text/javascript">
         //REDIRECCIONAR A LA PAGINA SELECIONADA
@@ -447,74 +593,100 @@ if ($EMPRESAS   && $TEMPORADAS) {
 
         <div class="modal fade" id="detalleExistenciaModal" tabindex="-1" role="dialog" aria-labelledby="detalleExistenciaModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
+                <div class="modal-content detalle-modal">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="detalleExistenciaModalLabel">Detalle existencia</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <div>
+                            <p class="mb-0 text-uppercase" style="letter-spacing: 0.5px; font-size: 11px; opacity: 0.8;">Historial de existencia</p>
+                            <h4 class="modal-title" id="detalleExistenciaModalLabel">Detalle existencia</h4>
+                        </div>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="row detalle-resumen mb-3">
+                            <div class="col-md-4 mb-2">
+                                <div class="resumen-item">
+                                    <p class="resumen-label">Folio original</p>
+                                    <p class="resumen-valor" data-detail="folio"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="resumen-item">
+                                    <p class="resumen-label">Folio nuevo</p>
+                                    <p class="resumen-valor" data-detail="folio-aux"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2 d-flex align-items-stretch">
+                                <div class="resumen-item w-100">
+                                    <p class="resumen-label">Estado</p>
+                                    <div class="d-flex align-items-center detalle-tags">
+                                        <span class="detalle-badge" data-detail="estado"></span>
+                                        <span class="detalle-badge detalle-estado-calidad ml-2" data-detail="estado-calidad"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <h5>Identificación</h5>
-                                <dl class="row mb-3">
-                                    <dt class="col-sm-5">Folio original</dt>
-                                    <dd class="col-sm-7" data-detail="folio"></dd>
-                                    <dt class="col-sm-5">Folio nuevo</dt>
-                                    <dd class="col-sm-7" data-detail="folio-aux"></dd>
-                                    <dt class="col-sm-5">Estado</dt>
-                                    <dd class="col-sm-7" data-detail="estado"></dd>
-                                    <dt class="col-sm-5">Estado calidad</dt>
-                                    <dd class="col-sm-7" data-detail="estado-calidad"></dd>
-                                    <dt class="col-sm-5">Estandar</dt>
-                                    <dd class="col-sm-7" data-detail="estandar"></dd>
-                                    <dt class="col-sm-5">Especie / Variedad</dt>
-                                    <dd class="col-sm-7" data-detail="especie"></dd>
-                                </dl>
-                                <h5>Productor y manejo</h5>
-                                <dl class="row mb-0">
-                                    <dt class="col-sm-5">Productor</dt>
-                                    <dd class="col-sm-7" data-detail="productor"></dd>
-                                    <dt class="col-sm-5">Cantidad</dt>
-                                    <dd class="col-sm-7" data-detail="envases"></dd>
-                                    <dt class="col-sm-5">Kilos</dt>
-                                    <dd class="col-sm-7" data-detail="kilos"></dd>
-                                    <dt class="col-sm-5">Manejo</dt>
-                                    <dd class="col-sm-7" data-detail="manejo"></dd>
-                                    <dt class="col-sm-5">Gasificación</dt>
-                                    <dd class="col-sm-7" data-detail="gasificado"></dd>
-                                </dl>
+                                <div class="detalle-card">
+                                    <h5>Identificación</h5>
+                                    <dl class="row detalle-list mb-0">
+                                        <dt class="col-sm-5">Estandar</dt>
+                                        <dd class="col-sm-7" data-detail="estandar"></dd>
+                                        <dt class="col-sm-5">Especie / Variedad</dt>
+                                        <dd class="col-sm-7" data-detail="especie"></dd>
+                                    </dl>
+                                </div>
+                                <div class="detalle-card">
+                                    <h5>Productor y manejo</h5>
+                                    <dl class="row detalle-list mb-0">
+                                        <dt class="col-sm-5">Productor</dt>
+                                        <dd class="col-sm-7" data-detail="productor"></dd>
+                                        <dt class="col-sm-5">Cantidad</dt>
+                                        <dd class="col-sm-7" data-detail="envases"></dd>
+                                        <dt class="col-sm-5">Kilos</dt>
+                                        <dd class="col-sm-7" data-detail="kilos"></dd>
+                                        <dt class="col-sm-5">Manejo</dt>
+                                        <dd class="col-sm-7" data-detail="manejo"></dd>
+                                        <dt class="col-sm-5">Gasificación</dt>
+                                        <dd class="col-sm-7" data-detail="gasificado"></dd>
+                                    </dl>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <h5>Movimientos</h5>
-                                <dl class="row mb-3">
-                                    <dt class="col-sm-5">Recepción</dt>
-                                    <dd class="col-sm-7" data-detail="recepcion"></dd>
-                                    <dt class="col-sm-5">Guía recepción</dt>
-                                    <dd class="col-sm-7" data-detail="guia-recepcion"></dd>
-                                    <dt class="col-sm-5">Proceso</dt>
-                                    <dd class="col-sm-7" data-detail="proceso"></dd>
-                                    <dt class="col-sm-5">Despacho</dt>
-                                    <dd class="col-sm-7" data-detail="despacho"></dd>
-                                    <dt class="col-sm-5">Tratamiento 1</dt>
-                                    <dd class="col-sm-7" data-detail="tratamiento1"></dd>
-                                    <dt class="col-sm-5">Tratamiento 2</dt>
-                                    <dd class="col-sm-7" data-detail="tratamiento2"></dd>
-                                </dl>
-                                <h5>Ubicación y fechas</h5>
-                                <dl class="row mb-0">
-                                    <dt class="col-sm-5">Empresa</dt>
-                                    <dd class="col-sm-7" data-detail="empresa"></dd>
-                                    <dt class="col-sm-5">Planta</dt>
-                                    <dd class="col-sm-7" data-detail="planta"></dd>
-                                    <dt class="col-sm-5">Temporada</dt>
-                                    <dd class="col-sm-7" data-detail="temporada"></dd>
-                                    <dt class="col-sm-5">Ingreso</dt>
-                                    <dd class="col-sm-7" data-detail="ingreso"></dd>
-                                    <dt class="col-sm-5">Modificación</dt>
-                                    <dd class="col-sm-7" data-detail="modificacion"></dd>
-                                </dl>
+                                <div class="detalle-card">
+                                    <h5>Movimientos</h5>
+                                    <dl class="row detalle-list mb-0">
+                                        <dt class="col-sm-5">Recepción</dt>
+                                        <dd class="col-sm-7" data-detail="recepcion"></dd>
+                                        <dt class="col-sm-5">Guía recepción</dt>
+                                        <dd class="col-sm-7" data-detail="guia-recepcion"></dd>
+                                        <dt class="col-sm-5">Proceso</dt>
+                                        <dd class="col-sm-7" data-detail="proceso"></dd>
+                                        <dt class="col-sm-5">Despacho</dt>
+                                        <dd class="col-sm-7" data-detail="despacho"></dd>
+                                        <dt class="col-sm-5">Tratamiento 1</dt>
+                                        <dd class="col-sm-7" data-detail="tratamiento1"></dd>
+                                        <dt class="col-sm-5">Tratamiento 2</dt>
+                                        <dd class="col-sm-7" data-detail="tratamiento2"></dd>
+                                    </dl>
+                                </div>
+                                <div class="detalle-card mb-1">
+                                    <h5>Ubicación y fechas</h5>
+                                    <dl class="row detalle-list mb-0">
+                                        <dt class="col-sm-5">Empresa</dt>
+                                        <dd class="col-sm-7" data-detail="empresa"></dd>
+                                        <dt class="col-sm-5">Planta</dt>
+                                        <dd class="col-sm-7" data-detail="planta"></dd>
+                                        <dt class="col-sm-5">Temporada</dt>
+                                        <dd class="col-sm-7" data-detail="temporada"></dd>
+                                        <dt class="col-sm-5">Ingreso</dt>
+                                        <dd class="col-sm-7" data-detail="ingreso"></dd>
+                                        <dt class="col-sm-5">Modificación</dt>
+                                        <dd class="col-sm-7" data-detail="modificacion"></dd>
+                                    </dl>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -533,6 +705,9 @@ if ($EMPRESAS   && $TEMPORADAS) {
     <!- LLAMADA URL DE ARCHIVOS DE DISEÑO Y JQUERY E OTROS -!>
         <?php include_once "../../assest/config/urlBase.php"; ?>
     <script type="text/javascript">
+        const LOGO_EMPRESA = "<?php echo htmlspecialchars($LOGOEMPRESA ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+        const NOMBRE_EMPRESA = "<?php echo htmlspecialchars($NOMBREEMPRESA ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+
         document.addEventListener('DOMContentLoaded', function() {
             $('#detalleExistenciaModal').on('show.bs.modal', function(event) {
                 var button = $(event.relatedTarget);
@@ -601,73 +776,78 @@ if ($EMPRESAS   && $TEMPORADAS) {
             var now = new Date();
             var fecha = now.toLocaleDateString();
             var hora = now.toLocaleTimeString();
+            var logoUrl = LOGO_EMPRESA ? new URL(LOGO_EMPRESA, window.location.href).href : '';
+            var tituloEmpresa = NOMBRE_EMPRESA || 'Informe de detalle';
 
             var contenido = `
-                <div class="header">
-                    <div>
-                        <h2>Informe de detalle</h2>
-                        <p class="subtitle">Historial de existencias de materia prima</p>
+                <div class="report">
+                    <div class="header">
+                        <div class="logo">${logoUrl ? `<img src="${logoUrl}" alt="Logo empresa">` : ''}</div>
+                        <div class="title">
+                            <h2>${tituloEmpresa}</h2>
+                            <p class="subtitle">Historial de existencias de materia prima</p>
+                        </div>
+                        <div class="meta">
+                            <p><strong>Fecha:</strong> ${fecha}</p>
+                            <p><strong>Hora:</strong> ${hora}</p>
+                        </div>
                     </div>
-                    <div class="meta">
-                        <p><strong>Fecha:</strong> ${fecha}</p>
-                        <p><strong>Hora:</strong> ${hora}</p>
+                    <div class="section">
+                        <h3>Identificación</h3>
+                        <table class="info-table">
+                            <tbody>
+                                <tr><th>Folio original</th><td>${detalle.folio}</td></tr>
+                                <tr><th>Folio nuevo</th><td>${detalle.folioAux}</td></tr>
+                                <tr><th>Estado</th><td>${detalle.estado}</td></tr>
+                                <tr><th>Estado calidad</th><td>${detalle.estadoCalidad}</td></tr>
+                                <tr><th>Estandar</th><td>${detalle.estandar}</td></tr>
+                                <tr><th>Especie / Variedad</th><td>${detalle.especie}</td></tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-                <div class="section">
-                    <h3>Identificación</h3>
-                    <table class="info-table">
-                        <tbody>
-                            <tr><th>Folio original</th><td>${detalle.folio}</td></tr>
-                            <tr><th>Folio nuevo</th><td>${detalle.folioAux}</td></tr>
-                            <tr><th>Estado</th><td>${detalle.estado}</td></tr>
-                            <tr><th>Estado calidad</th><td>${detalle.estadoCalidad}</td></tr>
-                            <tr><th>Estandar</th><td>${detalle.estandar}</td></tr>
-                            <tr><th>Especie / Variedad</th><td>${detalle.especie}</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="section">
-                    <h3>Productor y manejo</h3>
-                    <table class="info-table">
-                        <tbody>
-                            <tr><th>Productor</th><td>${detalle.productor}</td></tr>
-                            <tr><th>Cantidad</th><td>${detalle.envases}</td></tr>
-                            <tr><th>Kilos</th><td>${detalle.kilos}</td></tr>
-                            <tr><th>Manejo</th><td>${detalle.manejo}</td></tr>
-                            <tr><th>Gasificación</th><td>${detalle.gasificado}</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="section">
-                    <h3>Movimientos</h3>
-                    <table class="info-table">
-                        <tbody>
-                            <tr><th>Recepción</th><td>${detalle.recepcion}</td></tr>
-                            <tr><th>Guía recepción</th><td>${detalle.guiaRecepcion}</td></tr>
-                            <tr><th>Proceso</th><td>${detalle.proceso}</td></tr>
-                            <tr><th>Despacho</th><td>${detalle.despacho}</td></tr>
-                            <tr><th>Tratamiento 1</th><td>${detalle.tratamiento1}</td></tr>
-                            <tr><th>Tratamiento 2</th><td>${detalle.tratamiento2}</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="section">
-                    <h3>Ubicación y fechas</h3>
-                    <table class="info-table">
-                        <tbody>
-                            <tr><th>Empresa</th><td>${detalle.empresa}</td></tr>
-                            <tr><th>Planta</th><td>${detalle.planta}</td></tr>
-                            <tr><th>Temporada</th><td>${detalle.temporada}</td></tr>
-                            <tr><th>Ingreso</th><td>${detalle.ingreso}</td></tr>
-                            <tr><th>Modificación</th><td>${detalle.modificacion}</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="section">
+                        <h3>Productor y manejo</h3>
+                        <table class="info-table">
+                            <tbody>
+                                <tr><th>Productor</th><td>${detalle.productor}</td></tr>
+                                <tr><th>Cantidad</th><td>${detalle.envases}</td></tr>
+                                <tr><th>Kilos</th><td>${detalle.kilos}</td></tr>
+                                <tr><th>Manejo</th><td>${detalle.manejo}</td></tr>
+                                <tr><th>Gasificación</th><td>${detalle.gasificado}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="section">
+                        <h3>Movimientos</h3>
+                        <table class="info-table">
+                            <tbody>
+                                <tr><th>Recepción</th><td>${detalle.recepcion}</td></tr>
+                                <tr><th>Guía recepción</th><td>${detalle.guiaRecepcion}</td></tr>
+                                <tr><th>Proceso</th><td>${detalle.proceso}</td></tr>
+                                <tr><th>Despacho</th><td>${detalle.despacho}</td></tr>
+                                <tr><th>Tratamiento 1</th><td>${detalle.tratamiento1}</td></tr>
+                                <tr><th>Tratamiento 2</th><td>${detalle.tratamiento2}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="section">
+                        <h3>Ubicación y fechas</h3>
+                        <table class="info-table">
+                            <tbody>
+                                <tr><th>Empresa</th><td>${detalle.empresa}</td></tr>
+                                <tr><th>Planta</th><td>${detalle.planta}</td></tr>
+                                <tr><th>Temporada</th><td>${detalle.temporada}</td></tr>
+                                <tr><th>Ingreso</th><td>${detalle.ingreso}</td></tr>
+                                <tr><th>Modificación</th><td>${detalle.modificacion}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             `;
 
             var printWindow = window.open('', '', 'width=900,height=700');
             printWindow.document.write('<html><head><title>Detalle existencia</title>');
-            printWindow.document.write('<style>body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:28px;color:#1f2937;} h2{margin:0;font-size:22px;color:#111827;} h3{margin:18px 0 10px;font-size:16px;color:#0f172a;border-bottom:1px solid #e5e7eb;padding-bottom:6px;} p{margin:2px 0;} .subtitle{color:#6b7280;} .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111827;padding-bottom:12px;margin-bottom:12px;} .header .meta{text-align:right;font-size:12px;color:#4b5563;} .section{margin-bottom:14px;} .info-table{width:100%;border-collapse:collapse;font-size:13px;} .info-table th{width:28%;text-align:left;background:#f3f4f6;color:#111827;padding:8px;border:1px solid #e5e7eb;font-weight:600;} .info-table td{padding:8px;border:1px solid #e5e7eb;vertical-align:top;} </style>');
+            printWindow.document.write('<style>@page{size:Letter;margin:18mm 16mm;} body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;color:#1f2937;} .report{padding:18px;} h2{margin:0;font-size:22px;color:#111827;} h3{margin:18px 0 10px;font-size:16px;color:#0f172a;border-bottom:1px solid #e5e7eb;padding-bottom:6px;} p{margin:2px 0;} .subtitle{color:#6b7280;} .header{display:grid;grid-template-columns:140px 1fr auto;grid-gap:14px;align-items:center;border-bottom:2px solid #111827;padding-bottom:12px;margin-bottom:12px;} .logo img{max-height:70px;max-width:140px;object-fit:contain;} .title{align-self:start;} .meta{text-align:right;font-size:12px;color:#4b5563;} .section{margin-bottom:14px;} .info-table{width:100%;border-collapse:collapse;font-size:13px;} .info-table th{width:32%;text-align:left;background:#f3f4f6;color:#111827;padding:8px;border:1px solid #e5e7eb;font-weight:600;} .info-table td{padding:8px;border:1px solid #e5e7eb;vertical-align:top;} </style>');
             printWindow.document.write('</head><body>');
             printWindow.document.write(contenido);
             printWindow.document.write('</body></html>');
