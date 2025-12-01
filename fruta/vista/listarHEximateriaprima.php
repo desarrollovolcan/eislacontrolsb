@@ -172,9 +172,11 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
 
         .detalle-resumen {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px;
             margin: 0;
+            align-items: stretch;
+            grid-auto-rows: 1fr;
         }
 
         .detalle-resumen .resumen-wrapper {
@@ -187,13 +189,12 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             background: #f7f9fc;
             border: 1px solid #dbe3ef;
             border-radius: 8px;
-            padding: 8px 10px 10px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
             gap: 6px;
             height: 100%;
-            min-height: 150px;
-            justify-content: space-between;
+            min-height: 130px;
         }
 
         .detalle-resumen .resumen-inline {
@@ -228,12 +229,19 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             word-break: break-word;
         }
 
+        .detalle-resumen .resumen-actions {
+            margin-top: auto;
+            width: 100%;
+        }
+
         .detalle-resumen .resumen-btn {
-            align-self: flex-start;
+            align-self: stretch;
             padding: 4px 10px;
             font-size: 12px;
             font-weight: 700;
             border-radius: 6px;
+            width: 100%;
+            text-align: center;
         }
 
         .detalle-card {
@@ -749,13 +757,15 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                     </div>
                     <div class="modal-body">
                         <div class="detalle-resumen mb-2">
-                            <div class="resumen-wrapper">
-                                <div class="resumen-item w-100">
-                                    <p class="resumen-label">Folio original</p>
-                                    <p class="resumen-valor" data-detail="folio"></p>
-                                    <button type="button" class="btn btn-outline-primary resumen-btn" onclick="imprimirTarja()">Imprimir Trazabilidad</button>
-                                </div>
-                            </div>
+                              <div class="resumen-wrapper">
+                                  <div class="resumen-item w-100">
+                                      <p class="resumen-label">Folio original</p>
+                                      <p class="resumen-valor" data-detail="folio"></p>
+                                      <div class="resumen-actions">
+                                          <button type="button" class="btn btn-outline-primary resumen-btn" onclick="imprimirTarja()">Imprimir Trazabilidad</button>
+                                      </div>
+                                  </div>
+                              </div>
                             <div class="resumen-wrapper">
                                 <div class="resumen-item w-100">
                                     <p class="resumen-label">Folio nuevo</p>
