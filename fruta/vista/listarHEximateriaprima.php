@@ -781,7 +781,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                         </div>
                         <div class="detalle-grid mb-1">
                             <div class="detalle-card">
-                                <h5>Identificación <span class="titulo-badge badge-azul">Detalle</span></h5>
+                                <h5>Identificación</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Estandar</th>
@@ -794,7 +794,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Productor y manejo <span class="titulo-badge badge-amarillo">Proceso</span></h5>
+                                <h5>Productor y manejo</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Productor</th>
@@ -819,7 +819,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Movimientos <span class="titulo-badge badge-azul">Exportación</span></h5>
+                                <h5>Movimientos</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Recepción</th>
@@ -848,7 +848,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Ubicación y fechas <span class="titulo-badge badge-celeste">Inspección</span></h5>
+                                <h5>Ubicación y fechas</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Empresa</th>
