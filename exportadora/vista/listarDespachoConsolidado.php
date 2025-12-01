@@ -387,7 +387,7 @@ if ($EMPRESAS  &&  $TEMPORADAS) {
                                                         $NOMBRETEMPORADA = "Sin Datos";
                                                     }
 
-                                                    $ARRAYTOMADO = $EXIEXPORTACION_ADO->buscarPordespacho($r['ID_DESPACHO']);
+                                                    $ARRAYTOMADO = $EXIEXPORTACION_ADO->buscarPordespacho($r['ID_DESPACHO'], $r['ID_EMPRESA']);
                                                     ?>
                                                     <?php foreach ($ARRAYTOMADO as $s) : ?>
                                                         <?php
