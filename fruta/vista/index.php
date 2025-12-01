@@ -16,11 +16,12 @@ $query_datosPlanta = $CONSULTA_ADO->verPlanta($PLANTAS);
 
 //acumulados materia prima
 $query_acumuladoMP = $CONSULTA_ADO->TotalKgMpRecepcionadoAcumulado($TEMPORADAS, $EMPRESAS, $PLANTAS);
-$query_acumuladoHastaCincoAm = $CONSULTA_ADO->TotalKgMpRecepcionadoHastaCincoAm($TEMPORADAS, $EMPRESAS, $PLANTAS);
 $query_existenciaActual = $CONSULTA_ADO->TotalExistenciaMateriaPrimaActual($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_recepcionDesdeCincoAm = $CONSULTA_ADO->TotalKgMpRecepcionadoDesdeCincoAm($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
 //proceso
 $query_totalesProceso = $CONSULTA_ADO->TotalKgProcesoEntradaSalida($TEMPORADAS, $EMPRESAS, $PLANTAS);
+$query_totalesProcesoDesdeCincoAm = $CONSULTA_ADO->TotalKgProcesoDesdeCincoAm($TEMPORADAS, $EMPRESAS, $PLANTAS);
 $query_procesosBajaExportacion = $CONSULTA_ADO->UltimosProcesosBajaExportacionCerrados($TEMPORADAS, $EMPRESAS, $PLANTAS);
 
 //exportación
@@ -35,8 +36,10 @@ $query_existenciaVariedad = $CONSULTA_ADO->ExistenciaMateriaPrimaPorVariedad($TE
 $query_registrosAbiertos = $CONSULTA_ADO->contarRegistrosAbiertosFruta($EMPRESAS, $PLANTAS, $TEMPORADAS);
 
 $kilosMateriaPrimaAcumulado = $query_acumuladoMP ? $query_acumuladoMP[0]["TOTAL"] : 0;
-$kilosMateriaPrimaHastaCinco = $query_acumuladoHastaCincoAm ? $query_acumuladoHastaCincoAm[0]["TOTAL"] : 0;
 $kilosMateriaPrimaActual = $query_existenciaActual ? $query_existenciaActual[0]["TOTAL"] : 0;
+$kilosRecepcionDesdeCincoAm = $query_recepcionDesdeCincoAm ? $query_recepcionDesdeCincoAm[0]["TOTAL"] : 0;
+$kilosProcesoDesdeCincoAm = $query_totalesProcesoDesdeCincoAm ? $query_totalesProcesoDesdeCincoAm[0]["TOTAL"] : 0;
+$kilosMateriaPrimaHastaCinco = $kilosMateriaPrimaActual + $kilosProcesoDesdeCincoAm - $kilosRecepcionDesdeCincoAm;
 $kilosEntradaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["ENTRADA"])) ? $query_totalesProceso[0]["ENTRADA"] : 0;
 $kilosSalidaProceso = ($query_totalesProceso && isset($query_totalesProceso[0]["SALIDA"])) ? $query_totalesProceso[0]["SALIDA"] : 0;
 $recepcionesAbiertas = $query_registrosAbiertos ? $query_registrosAbiertos[0]["RECEPCION"] : 0;
