@@ -138,7 +138,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
         }
 
         .detalle-modal .modal-title {
-            font-weight: 800;
+            font-weight: 700;
             letter-spacing: 0.2px;
             margin: 0;
             color: #0f4a7a;
@@ -164,7 +164,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
 
         .detalle-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 6px;
             align-items: start;
         }
@@ -173,10 +173,18 @@ if ($EMPRESAS   && $TEMPORADAS) {
             background: #f7f9fc;
             border: 1px solid #dbe3ef;
             border-radius: 8px;
-            padding: 8px 10px;
+            padding: 8px 10px 10px;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 6px;
+            height: 100%;
+        }
+
+        .detalle-resumen .estado-line {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .detalle-resumen .resumen-label {
@@ -189,9 +197,18 @@ if ($EMPRESAS   && $TEMPORADAS) {
 
         .detalle-resumen .resumen-valor {
             font-size: 15px;
-            font-weight: 800;
+            font-weight: 700;
             color: #0f2d4a;
             margin: 0;
+            word-break: break-word;
+        }
+
+        .detalle-resumen .resumen-btn {
+            align-self: flex-start;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 6px;
         }
 
         .detalle-card {
@@ -204,7 +221,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
 
         .detalle-card h5 {
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 700;
             color: #0f2d4a;
             margin: 0;
             letter-spacing: 0.3px;
@@ -251,7 +268,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
             width: 46%;
             padding: 6px 8px;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
             color: #304a6b;
             background: #f5f7fb;
             border-bottom: 1px solid #e7ecf4;
@@ -262,6 +279,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
             font-size: 12.5px;
             color: #0f2d4a;
             border-bottom: 1px solid #eef2f7;
+            word-break: break-word;
         }
 
         .detalle-table tr:last-child th,
@@ -312,6 +330,17 @@ if ($EMPRESAS   && $TEMPORADAS) {
             padding: 6px 12px;
             font-size: 13px;
             border-radius: 6px;
+        }
+
+        .mov-link {
+            color: #0c63a8;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .mov-link:hover,
+        .mov-link:focus {
+            text-decoration: underline;
         }
     </style>
     <!- FUNCIONES BASES -!>
@@ -551,6 +580,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                                 data-promedio="<?php echo htmlspecialchars($r['PROMEDIO'], ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-bruto="<?php echo htmlspecialchars($r['BRUTO'], ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-num-recepcion="<?php echo htmlspecialchars($numRecepcion, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-id-recepcion="<?php echo htmlspecialchars($r['ID_RECEPCION'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-fecha-recepcion="<?php echo htmlspecialchars($fechaRecepcion, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-tipo-recepcion="<?php echo htmlspecialchars($tipoRecepcion, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-csg-origen="<?php echo htmlspecialchars($csgOrigen, ENT_QUOTES, 'UTF-8'); ?>"
@@ -558,9 +588,11 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                                 data-num-guia-recepcion="<?php echo htmlspecialchars($numGuiaRecepcion, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-fecha-guia-recepcion="<?php echo htmlspecialchars($fechaGuiaRecepcion, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-num-proceso="<?php echo htmlspecialchars($numProceso, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-id-proceso="<?php echo htmlspecialchars($r['ID_PROCESO'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-fecha-proceso="<?php echo htmlspecialchars($fechaProceso, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-tipo-proceso="<?php echo htmlspecialchars($tipoProceso, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-num-despacho="<?php echo htmlspecialchars($numDespacho, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-id-despacho="<?php echo htmlspecialchars($r['ID_DESPACHO'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-fecha-despacho="<?php echo htmlspecialchars($fechaDespacho, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-num-guia-despacho="<?php echo htmlspecialchars($numGuiaDespacho, ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-tipo-despacho="<?php echo htmlspecialchars($tipoDespacho, ENT_QUOTES, 'UTF-8'); ?>"
@@ -668,6 +700,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                 <div class="resumen-item">
                                     <p class="resumen-label">Folio original</p>
                                     <p class="resumen-valor" data-detail="folio"></p>
+                                    <button type="button" class="btn btn-outline-primary resumen-btn" onclick="imprimirTarja()">Imprimir tarja</button>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-2">
@@ -678,10 +711,11 @@ if ($EMPRESAS   && $TEMPORADAS) {
                             </div>
                             <div class="col-md-4 mb-2 d-flex align-items-stretch">
                                 <div class="resumen-item w-100">
-                                    <p class="resumen-label mb-1">Estado</p>
-                                    <span class="detalle-badge mb-2" data-detail="estado"></span>
-                                    <p class="resumen-label mb-1">Calidad</p>
-                                    <span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span>
+                                    <p class="resumen-label mb-1">Estado y calidad</p>
+                                    <div class="estado-line">
+                                        <span class="detalle-badge" data-detail="estado"></span>
+                                        <span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -799,6 +833,24 @@ if ($EMPRESAS   && $TEMPORADAS) {
         const NOMBRE_EMPRESA = "<?php echo htmlspecialchars($NOMBREEMPRESA ?? '', ENT_QUOTES, 'UTF-8'); ?>";
 
         document.addEventListener('DOMContentLoaded', function() {
+            function setDetailWithLink(modal, key, text, url) {
+                var container = modal.find('[data-detail="' + key + '"]');
+                if (!container.length) {
+                    return;
+                }
+                if (url) {
+                    var link = $('<a/>', {
+                        class: 'mov-link',
+                        href: url,
+                        target: '_blank',
+                        text: text
+                    });
+                    container.empty().append(link);
+                } else {
+                    container.text(text);
+                }
+            }
+
             $('#detalleExistenciaModal').on('show.bs.modal', function(event) {
                 var button = $(event.relatedTarget);
                 var modal = $(this);
@@ -813,10 +865,16 @@ if ($EMPRESAS   && $TEMPORADAS) {
                 modal.find('[data-detail="kilos"]').text('Neto: ' + button.data('neto') + ' | Promedio: ' + button.data('promedio') + ' | Bruto: ' + button.data('bruto'));
                 modal.find('[data-detail="manejo"]').text(button.data('tmanejo'));
                 modal.find('[data-detail="gasificado"]').text(button.data('gasificado'));
-                modal.find('[data-detail="recepcion"]').text(button.data('tipo-recepcion') + ' #' + button.data('num-recepcion') + ' (' + button.data('fecha-recepcion') + ') ' + button.data('origen') + ' [' + button.data('csg-origen') + ']');
+                var recepcionTexto = button.data('tipo-recepcion') + ' #' + button.data('num-recepcion') + ' (' + button.data('fecha-recepcion') + ') ' + button.data('origen') + ' [' + button.data('csg-origen') + ']';
+                var recepcionUrl = button.data('id-recepcion') ? '../../fruta/vista/registroRecepcionmp.php?op&id=' + encodeURIComponent(button.data('id-recepcion')) + '&a=ver' : '';
+                setDetailWithLink(modal, 'recepcion', recepcionTexto, recepcionUrl);
                 modal.find('[data-detail="guia-recepcion"]').text(button.data('num-guia-recepcion') + (button.data('fecha-guia-recepcion') ? ' (' + button.data('fecha-guia-recepcion') + ')' : ''));
-                modal.find('[data-detail="proceso"]').text(button.data('tipo-proceso') + ' #' + button.data('num-proceso') + ' (' + button.data('fecha-proceso') + ')');
-                modal.find('[data-detail="despacho"]').text(button.data('tipo-despacho') + ' #' + button.data('num-despacho') + ' (' + button.data('fecha-despacho') + ') ' + button.data('destino') + ' [' + button.data('csg-destino') + ']');
+                var procesoTexto = button.data('tipo-proceso') + ' #' + button.data('num-proceso') + ' (' + button.data('fecha-proceso') + ')';
+                var procesoUrl = button.data('id-proceso') ? '../../fruta/vista/registroProceso.php?op&id=' + encodeURIComponent(button.data('id-proceso')) + '&a=ver' : '';
+                setDetailWithLink(modal, 'proceso', procesoTexto, procesoUrl);
+                var despachoTexto = button.data('tipo-despacho') + ' #' + button.data('num-despacho') + ' (' + button.data('fecha-despacho') + ') ' + button.data('destino') + ' [' + button.data('csg-destino') + ']';
+                var despachoUrl = button.data('id-despacho') ? '../../fruta/vista/registroDespachomp.php?op&id=' + encodeURIComponent(button.data('id-despacho')) + '&a=ver' : '';
+                setDetailWithLink(modal, 'despacho', despachoTexto, despachoUrl);
                 modal.find('[data-detail="tratamiento1"]').text(button.data('tratamiento1'));
                 modal.find('[data-detail="tratamiento2"]').text(button.data('tratamiento2'));
                 modal.find('[data-detail="empresa"]').text(button.data('empresa'));
@@ -826,6 +884,10 @@ if ($EMPRESAS   && $TEMPORADAS) {
                 modal.find('[data-detail="modificacion"]').text(button.data('modificacion'));
             });
         });
+
+        function imprimirTarja() {
+            exportDetallePdf();
+        }
 
         function exportDetallePdf() {
             var modal = document.getElementById('detalleExistenciaModal');
