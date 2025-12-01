@@ -126,7 +126,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
     <style>
         .detalle-modal .modal-content {
             border: 1px solid #d0d7e3;
-            box-shadow: 0 10px 28px rgba(0, 54, 94, 0.08);
+            box-shadow: 0 8px 22px rgba(0, 54, 94, 0.08);
             border-radius: 10px;
         }
 
@@ -134,7 +134,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             background: #fff;
             color: #0f4a7a;
             border-bottom: 1px solid #d0d7e3;
-            padding: 12px 14px;
+            padding: 10px 12px;
         }
 
         .detalle-modal .modal-title {
@@ -159,13 +159,13 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
 
         .detalle-modal .modal-body {
             background: #fff;
-            padding: 12px;
+            padding: 10px;
         }
 
         .detalle-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 6px;
             align-items: start;
         }
 
@@ -198,42 +198,75 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             background: #fff;
             border: 1px solid #dce4ef;
             border-radius: 8px;
-            padding: 8px 10px;
-            box-shadow: 0 2px 6px rgba(15, 62, 91, 0.05);
+            padding: 0;
+            box-shadow: 0 1px 4px rgba(15, 62, 91, 0.05);
         }
 
         .detalle-card h5 {
             font-size: 12px;
             font-weight: 800;
             color: #0f2d4a;
-            margin: 0 0 5px;
+            margin: 0;
             letter-spacing: 0.3px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
+            gap: 8px;
+            text-transform: uppercase;
+            padding: 8px 10px;
+            border-bottom: 1px solid #dce4ef;
+        }
+
+        .detalle-card .titulo-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
             text-transform: uppercase;
         }
 
-        .detalle-card h5:before {
-            content: '';
-            width: 3px;
-            height: 14px;
-            border-radius: 2px;
-            background: #1b75bb;
-            display: inline-block;
+        .badge-amarillo {
+            background: #f7c948;
+            color: #7a4b00;
         }
 
-        .detalle-list dt {
-            font-weight: 700;
-            color: #1f3c5a;
+        .badge-azul {
+            background: #e5efff;
+            color: #0f4a7a;
+        }
+
+        .badge-celeste {
+            background: #d5f5ff;
+            color: #0b5b73;
+        }
+
+        .detalle-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .detalle-table th {
+            width: 46%;
+            padding: 6px 8px;
             font-size: 12px;
-            margin-bottom: 1px;
+            font-weight: 700;
+            color: #304a6b;
+            background: #f5f7fb;
+            border-bottom: 1px solid #e7ecf4;
         }
 
-        .detalle-list dd {
-            margin-bottom: 4px;
-            color: #0f2d4a;
+        .detalle-table td {
+            padding: 6px 8px;
             font-size: 12.5px;
+            color: #0f2d4a;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .detalle-table tr:last-child th,
+        .detalle-table tr:last-child td {
+            border-bottom: none;
         }
 
         .detalle-badge {
@@ -635,7 +668,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="row detalle-resumen mb-3">
+                        <div class="row detalle-resumen mb-2">
                             <div class="col-md-4 mb-2">
                                 <div class="resumen-item">
                                     <p class="resumen-label">Folio original</p>
@@ -657,62 +690,98 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                 </div>
                             </div>
                         </div>
-                        <div class="detalle-grid mb-2">
+                        <div class="detalle-grid mb-1">
                             <div class="detalle-card">
-                                <h5>Identificación</h5>
-                                <dl class="row detalle-list mb-0">
-                                    <dt class="col-sm-5">Estandar</dt>
-                                    <dd class="col-sm-7" data-detail="estandar"></dd>
-                                    <dt class="col-sm-5">Especie / Variedad</dt>
-                                    <dd class="col-sm-7" data-detail="especie"></dd>
-                                </dl>
+                                <h5>Identificación <span class="titulo-badge badge-azul">Detalle</span></h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Estandar</th>
+                                        <td data-detail="estandar"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Especie / Variedad</th>
+                                        <td data-detail="especie"></td>
+                                    </tr>
+                                </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Productor y manejo</h5>
-                                <dl class="row detalle-list mb-0">
-                                    <dt class="col-sm-5">Productor</dt>
-                                    <dd class="col-sm-7" data-detail="productor"></dd>
-                                    <dt class="col-sm-5">Cantidad</dt>
-                                    <dd class="col-sm-7" data-detail="envases"></dd>
-                                    <dt class="col-sm-5">Kilos</dt>
-                                    <dd class="col-sm-7" data-detail="kilos"></dd>
-                                    <dt class="col-sm-5">Manejo</dt>
-                                    <dd class="col-sm-7" data-detail="manejo"></dd>
-                                    <dt class="col-sm-5">Gasificación</dt>
-                                    <dd class="col-sm-7" data-detail="gasificado"></dd>
-                                </dl>
+                                <h5>Productor y manejo <span class="titulo-badge badge-amarillo">Proceso</span></h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Productor</th>
+                                        <td data-detail="productor"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Cantidad</th>
+                                        <td data-detail="envases"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Kilos</th>
+                                        <td data-detail="kilos"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Manejo</th>
+                                        <td data-detail="manejo"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Gasificación</th>
+                                        <td data-detail="gasificado"></td>
+                                    </tr>
+                                </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Movimientos</h5>
-                                <dl class="row detalle-list mb-0">
-                                    <dt class="col-sm-5">Recepción</dt>
-                                    <dd class="col-sm-7" data-detail="recepcion"></dd>
-                                    <dt class="col-sm-5">Guía recepción</dt>
-                                    <dd class="col-sm-7" data-detail="guia-recepcion"></dd>
-                                    <dt class="col-sm-5">Proceso</dt>
-                                    <dd class="col-sm-7" data-detail="proceso"></dd>
-                                    <dt class="col-sm-5">Despacho</dt>
-                                    <dd class="col-sm-7" data-detail="despacho"></dd>
-                                    <dt class="col-sm-5">Tratamiento 1</dt>
-                                    <dd class="col-sm-7" data-detail="tratamiento1"></dd>
-                                    <dt class="col-sm-5">Tratamiento 2</dt>
-                                    <dd class="col-sm-7" data-detail="tratamiento2"></dd>
-                                </dl>
+                                <h5>Movimientos <span class="titulo-badge badge-azul">Exportación</span></h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Recepción</th>
+                                        <td data-detail="recepcion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Guía recepción</th>
+                                        <td data-detail="guia-recepcion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Proceso</th>
+                                        <td data-detail="proceso"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Despacho</th>
+                                        <td data-detail="despacho"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Tratamiento 1</th>
+                                        <td data-detail="tratamiento1"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Tratamiento 2</th>
+                                        <td data-detail="tratamiento2"></td>
+                                    </tr>
+                                </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Ubicación y fechas</h5>
-                                <dl class="row detalle-list mb-0">
-                                    <dt class="col-sm-5">Empresa</dt>
-                                    <dd class="col-sm-7" data-detail="empresa"></dd>
-                                    <dt class="col-sm-5">Planta</dt>
-                                    <dd class="col-sm-7" data-detail="planta"></dd>
-                                    <dt class="col-sm-5">Temporada</dt>
-                                    <dd class="col-sm-7" data-detail="temporada"></dd>
-                                    <dt class="col-sm-5">Ingreso</dt>
-                                    <dd class="col-sm-7" data-detail="ingreso"></dd>
-                                    <dt class="col-sm-5">Modificación</dt>
-                                    <dd class="col-sm-7" data-detail="modificacion"></dd>
-                                </dl>
+                                <h5>Ubicación y fechas <span class="titulo-badge badge-celeste">Inspección</span></h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Empresa</th>
+                                        <td data-detail="empresa"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Planta</th>
+                                        <td data-detail="planta"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Temporada</th>
+                                        <td data-detail="temporada"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Ingreso</th>
+                                        <td data-detail="ingreso"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Modificación</th>
+                                        <td data-detail="modificacion"></td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                     </div>
