@@ -262,6 +262,11 @@ if (isset($id_dato) && isset($accion_dato)) {
     //OBTENECION DE INFORMACION DE LA TABLAS DE LA VISTA
     $ARRAYTOMADA = $EXIMATERIAPRIMA_ADO->buscarPorProceso2($IDOP);
     $ARRAYDEXPORTACIONPORPROCESO = $DPEXPORTACION_ADO->buscarPorProceso2($IDOP);
+    if ($ARRAYDEXPORTACIONPORPROCESO) {
+        usort($ARRAYDEXPORTACIONPORPROCESO, function ($a, $b) {
+            return $a['FOLIO_DPEXPORTACION'] <=> $b['FOLIO_DPEXPORTACION'];
+        });
+    }
     $ARRATDINDUSTRIALPORPROCESO = $DPINDUSTRIAL_ADO->buscarPorProceso2($IDOP);
 
     //OBTENCIONS DE TOTALES O EL RESUMEN DE LAS TABLAS
@@ -1044,6 +1049,7 @@ if (isset($_POST)) {
                                                     <th>Estado</th>
                                                     <th>P. Terminado/Industrial</th>
                                                     <th>Folio</th>
+                                                    <th>Estado Folio</th>
                                                     <th class="text-center">Operaciones</th>
                                                     <th>Fecha Embalado </th>
                                                     <th>Codigo Estandar</th>
@@ -1108,61 +1114,62 @@ if (isset($_POST)) {
                                                         $detalleExistencia = $EXIEXPORTACION_ADO->buscarPorFolio($r['FOLIO_DPEXPORTACION']);
                                                         $etiquetasFolio = [];
                                                         $estadoFolioClase = 'badge-secondary';
-                                                        $estadoFolioTexto = 'No identificado';
+                                                        $estadoFolioTexto = 'Sin estado';
+
+                                                        switch ($r['ESTADO_FOLIO']) {
+                                                            case 1:
+                                                                $estadoFolioClase = 'badge-success';
+                                                                $estadoFolioTexto = 'Completo';
+                                                                break;
+                                                            case 2:
+                                                                $estadoFolioClase = 'badge-warning';
+                                                                $estadoFolioTexto = 'Incompleto';
+                                                                break;
+                                                            default:
+                                                                $estadoFolioClase = 'badge-secondary';
+                                                                $estadoFolioTexto = 'Sin estado';
+                                                                break;
+                                                        }
 
                                                         if ($detalleExistencia) {
                                                             $estadoExistencia = (int) $detalleExistencia[0]['ESTADO'];
-                                                            $estadoFolioMap = [
-                                                                0 => ['texto' => 'Eliminado', 'clase' => 'badge-dark'],
-                                                                1 => ['texto' => 'Ingresando', 'clase' => 'badge-primary'],
-                                                                2 => ['texto' => 'Disponible', 'clase' => 'badge-success'],
-                                                                3 => ['texto' => 'En Repaletizaje', 'clase' => 'badge-warning'],
-                                                                4 => ['texto' => 'Repaletizado', 'clase' => 'badge-info'],
-                                                                5 => ['texto' => 'En Reembalaje', 'clase' => 'badge-warning'],
-                                                                6 => ['texto' => 'Reembalaje', 'clase' => 'badge-info'],
-                                                                7 => ['texto' => 'En Despacho', 'clase' => 'badge-warning'],
-                                                                8 => ['texto' => 'Despachado', 'clase' => 'badge-danger'],
-                                                                9 => ['texto' => 'En Transito', 'clase' => 'badge-primary'],
-                                                                10 => ['texto' => 'En Inspección Sag', 'clase' => 'badge-primary'],
-                                                                11 => ['texto' => 'Rechazado', 'clase' => 'badge-danger']
-                                                            ];
+                                                            $idRepaletizaje = $detalleExistencia[0]['ID_REPALETIZAJE'];
+                                                            $idReembalaje = $detalleExistencia[0]['ID_REEMBALAJE'];
+                                                            $idDespacho = $detalleExistencia[0]['ID_DESPACHOEX'] ? $detalleExistencia[0]['ID_DESPACHOEX'] : $detalleExistencia[0]['ID_DESPACHO'];
+                                                            $idInpsag = $detalleExistencia[0]['ID_INPSAG'];
 
-                                                            if (isset($estadoFolioMap[$estadoExistencia])) {
-                                                                $estadoFolioTexto = $estadoFolioMap[$estadoExistencia]['texto'];
-                                                                $estadoFolioClase = $estadoFolioMap[$estadoExistencia]['clase'];
-                                                            }
-
-                                                            $esRepaletizado = in_array($estadoExistencia, [3, 4], true) || $detalleExistencia[0]['ID_REPALETIZAJE'];
-                                                            $esReembalado = in_array($estadoExistencia, [5, 6], true) || $detalleExistencia[0]['ID_REEMBALAJE'];
-                                                            $esDespachado = in_array($estadoExistencia, [7, 8], true) || $detalleExistencia[0]['ID_DESPACHO'] || $detalleExistencia[0]['ID_DESPACHOEX'];
+                                                            $esRepaletizado = in_array($estadoExistencia, [3, 4], true) || $idRepaletizaje;
+                                                            $esReembalado = in_array($estadoExistencia, [5, 6], true) || $idReembalaje;
+                                                            $esDespachado = in_array($estadoExistencia, [7, 8], true) || $idDespacho;
+                                                            $esInspeccionado = in_array($estadoExistencia, [10], true) || $idInpsag;
 
                                                             if ($esRepaletizado) {
-                                                                $etiquetasFolio[] = ['texto' => 'Repaletizado', 'clase' => 'badge-info'];
+                                                                $etiquetasFolio[] = [
+                                                                    'texto' => 'Repaletizado',
+                                                                    'clase' => 'badge-info',
+                                                                    'url' => $idRepaletizaje ? "registroRepaletizajePTFrigorifico.php?op&id={$idRepaletizaje}&a=ver" : ''
+                                                                ];
                                                             }
                                                             if ($esReembalado) {
-                                                                $etiquetasFolio[] = ['texto' => 'Reembalado', 'clase' => 'badge-secondary'];
+                                                                $etiquetasFolio[] = [
+                                                                    'texto' => 'Reembalado',
+                                                                    'clase' => 'badge-secondary',
+                                                                    'url' => $idReembalaje ? "registroReembalajeEx.php?op&id={$idReembalaje}&a=ver" : ''
+                                                                ];
                                                             }
                                                             if ($esDespachado) {
-                                                                $etiquetasFolio[] = ['texto' => 'Despachado', 'clase' => 'badge-danger'];
+                                                                $etiquetasFolio[] = [
+                                                                    'texto' => 'Despachado',
+                                                                    'clase' => 'badge-danger',
+                                                                    'url' => $idDespacho ? "registroDespachoEX.php?op&id={$idDespacho}&a=ver" : ''
+                                                                ];
                                                             }
-                                                        } else {
-                                                            switch ($r['ESTADO_FOLIO']) {
-                                                                case 1:
-                                                                    $estadoFolioClase = 'badge-success';
-                                                                    $estadoFolioTexto = 'P. Completado';
-                                                                    break;
-                                                                case 2:
-                                                                    $estadoFolioClase = 'badge-warning';
-                                                                    $estadoFolioTexto = 'P. Incompleto';
-                                                                    break;
-                                                                case 3:
-                                                                    $estadoFolioClase = 'badge-primary';
-                                                                    $estadoFolioTexto = 'P. Muestra';
-                                                                    break;
-                                                                default:
-                                                                    $estadoFolioClase = 'badge-secondary';
-                                                                    $estadoFolioTexto = 'No identificado';
-                                                                    break;
+                                                            if ($esInspeccionado) {
+                                                                $etiquetasFolio[] = [
+                                                                    'texto' => 'Inspeccionado',
+                                                                    'clase' => 'badge-primary',
+                                                                    'url' => $idInpsag ? "registroInpsag.php?op&id={$idInpsag}&a=ver" : ''
+                                                                ];
                                                             }
                                                         }
                                                         ?>
@@ -1171,17 +1178,21 @@ if (isset($_POST)) {
                                                                 <span class="badge <?php echo $estadoFolioClase; ?> w-100"><?php echo $estadoFolioTexto; ?></span>
                                                             </td>
                                                             <td>P. Terminado</td>
+                                                            <td class="font-weight-bold"><?php echo $r['FOLIO_DPEXPORTACION']; ?></td>
                                                             <td>
-                                                                <div class="d-flex flex-column align-items-center">
-                                                                    <span class="font-weight-bold"><?php echo $r['FOLIO_DPEXPORTACION']; ?></span>
-                                                                    <?php if ($etiquetasFolio) { ?>
-                                                                        <div class="d-flex flex-wrap justify-content-center mt-1">
-                                                                            <?php foreach ($etiquetasFolio as $etiqueta) : ?>
+                                                                <?php if ($etiquetasFolio) { ?>
+                                                                    <div class="d-flex flex-wrap justify-content-center">
+                                                                        <?php foreach ($etiquetasFolio as $etiqueta) : ?>
+                                                                            <?php if (!empty($etiqueta['url'])) { ?>
+                                                                                <a href="<?php echo $etiqueta['url']; ?>" class="badge <?php echo $etiqueta['clase']; ?> mr-1 mb-1" target="_blank"><?php echo $etiqueta['texto']; ?></a>
+                                                                            <?php } else { ?>
                                                                                 <span class="badge <?php echo $etiqueta['clase']; ?> mr-1 mb-1"><?php echo $etiqueta['texto']; ?></span>
-                                                                            <?php endforeach; ?>
-                                                                        </div>
-                                                                    <?php } ?>
-                                                                </div>
+                                                                            <?php } ?>
+                                                                        <?php endforeach; ?>
+                                                                    </div>
+                                                                <?php } else { ?>
+                                                                    <span class="text-muted">Sin proceso</span>
+                                                                <?php } ?>
                                                             </td>
                                                             <td class="text-center">
                                                                 <form method="post" id="form3" id="form3">
@@ -1255,6 +1266,7 @@ if (isset($_POST)) {
                                                             <td><span class="badge badge-light">Sin estado</span></td>
                                                             <td>P. Industrial</td>
                                                             <td><?php echo $r['FOLIO_DPINDUSTRIAL']; ?></td>
+                                                            <td><span class="text-muted">-</span></td>
                                                             <td class="text-center">
                                                                 <form method="post" id="form4" id="form4">
                                                                     <input type="hidden" class="form-control" placeholder="ID DPINDUSTRIAL" id="IDD" name="IDD" value="<?php echo $r['ID_DPINDUSTRIAL']; ?>" />
