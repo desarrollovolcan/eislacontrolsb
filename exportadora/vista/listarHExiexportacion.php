@@ -388,13 +388,11 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                     <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
                                         <div class="table-responsive">
                                             <table id="hexistencia" class="table-hover table-bordered" style="width: 300%;">
-                                                <thead>
+                                                                                                <thead>
                                                     <tr class="text-center">
-                                                        <th>Detalle</th>
-                                                        <th>Detalle</th>
+                                                        <th>Trazabilidad</th>
                                                         <th>Folio Original</th>
-                                                        <th>Folio Nuevo</th>
-                                                        <th>Fecha Embalado </th>
+                                                        <th>Fecha Embalado</th>
                                                         <th>Estado </th>
                                                         <th>Estado Calidad</th>
                                                         <th>Condición </th>
@@ -416,7 +414,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Recepción</th>
                                                         <th>Origen Recepción </th>
                                                         <th>Número Guía Recepción </th>
-                                                        <th>Fecha Guía Recepción
+                                                        <th>Fecha Guía Recepción</th>
                                                         <th>Número Repaletizaje </th>
                                                         <th>Fecha Repaletizaje </th>
                                                         <th>Número Proceso </th>
@@ -424,7 +422,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Proceso </th>
                                                         <th>Número Reembalaje </th>
                                                         <th>Fecha Reembalaje </th>
-                                                        <th>Tipo Reembalaje </th>                                              
+                                                        <th>Tipo Reembalaje </th>
                                                         <th>Número Inspección </th>
                                                         <th>Fecha Inspección </th>
                                                         <th>Tipo Inspección </th>
@@ -435,14 +433,14 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Despacho</th>
                                                         <th>Destino Despacho</th>
                                                         <th>Tipo Manejo</th>
-                                                        <th>Tipo Calibre </th>
+                                                        <th>Tipo Calibre (Detalle)</th>
                                                         <th>Tipo Embalaje </th>
                                                         <th>Stock</th>
                                                         <th>Embolsado</th>
                                                         <th>Gasificacion</th>
                                                         <th>Prefrío</th>
                                                         <th>Tipo Categoria </th>
-                                                        <th>Tipo Color </th>      
+                                                        <th>Tipo Color </th>
                                                         <th>Días</th>
                                                         <th>Ingreso</th>
                                                         <th>Modificación</th>
@@ -821,14 +819,6 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                             } else {
                                                                 $NOMBRETEMBALAJE = "Sin Datos";
                                                             }
-                                                            $ARRAYTEMBALAJE = obtenerDesdeCache($r['ID_TEMBALAJE'], $TEMBALAJE_CACHE, function ($id) use ($TEMBALAJE_ADO) {
-                                                                return $TEMBALAJE_ADO->verEmbalaje($id);
-                                                            });
-                                                            if ($ARRAYTEMBALAJE) {
-                                                                $NOMBRETEMBALAJE = $ARRAYTEMBALAJE[0]['NOMBRE_TEMBALAJE'];
-                                                            } else {
-                                                                $NOMBRETEMBALAJE = "Sin Datos";
-                                                            }
                                                             $ARRAYTCATEGORIA = obtenerDesdeCache($r['ID_TCATEGORIA'], $TCATEGORIA_CACHE, function ($id) use ($TCATEGORIA_ADO) {
                                                                 return $TCATEGORIA_ADO->verTcategoria($id);
                                                             });
@@ -1011,10 +1001,10 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <?php endforeach; ?>        
                                                     <?php endforeach; ?>
                                                 </tbody>
-                                                <tfoot>
+                                                                                                <tfoot>
                                                     <tr class="text-center" id="filtro">
+                                                        <th>Trazabilidad</th>
                                                         <th>Folio Original</th>
-                                                        <th>Folio Nuevo</th>
                                                         <th>Fecha Embalado </th>
                                                         <th>Estado </th>
                                                         <th>Estado Calidad</th>
@@ -1037,7 +1027,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Recepción</th>
                                                         <th>Origen Recepción </th>
                                                         <th>Número Guía Recepción </th>
-                                                        <th>Fecha Guía Recepción
+                                                        <th>Fecha Guía Recepción</th>
                                                         <th>Número Repaletizaje </th>
                                                         <th>Fecha Repaletizaje </th>
                                                         <th>Número Proceso </th>
@@ -1045,7 +1035,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Proceso </th>
                                                         <th>Número Reembalaje </th>
                                                         <th>Fecha Reembalaje </th>
-                                                        <th>Tipo Reembalaje </th>                                       
+                                                        <th>Tipo Reembalaje </th>
                                                         <th>Número Inspección </th>
                                                         <th>Fecha Inspección </th>
                                                         <th>Tipo Inspección </th>
@@ -1056,14 +1046,14 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Despacho</th>
                                                         <th>Destino Despacho</th>
                                                         <th>Tipo Manejo</th>
-                                                        <th>Tipo Calibre </th>
+                                                        <th>Tipo Calibre (Detalle)</th>
                                                         <th>Tipo Embalaje </th>
                                                         <th>Stock</th>
                                                         <th>Embolsado</th>
                                                         <th>Gasificacion</th>
                                                         <th>Prefrío</th>
                                                         <th>Tipo Categoria </th>
-                                                        <th>Tipo Color </th>      
+                                                        <th>Tipo Color </th>
                                                         <th>Días</th>
                                                         <th>Ingreso</th>
                                                         <th>Modificación</th>
