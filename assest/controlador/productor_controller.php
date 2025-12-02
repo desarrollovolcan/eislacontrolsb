@@ -41,6 +41,10 @@ class ProductorController {
         return $this->documentoModel->getUltimosDocumentosByProductores($productorIds, $especieId, $limit);
     }
 
+    public function documentosPorVencerProductores(array $productorIds, $especieId, $limit = 5, $diasAviso = 45) {
+        return $this->documentoModel->getDocumentosPorVencerByProductores($productorIds, $especieId, $limit, $diasAviso);
+    }
+
     public function uploadDocumento() {
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

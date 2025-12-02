@@ -923,14 +923,16 @@ class CONSULTA_ADO
 
             $productoresIn = implode("','", $PRODUCTORES);
 
-            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(P.KILOS_NETO_ENTRADA),0) AS TOTAL
-                                                FROM fruta_proceso P
-                                                LEFT JOIN fruta_vespecies V ON P.ID_VESPECIES = V.ID_VESPECIES
-                                                WHERE P.ESTADO_REGISTRO = 1
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(EXI.KILOS_NETO_EXIMATERIAPRIMA),0) AS TOTAL
+                                                FROM fruta_eximateriaprima EXI
+                                                INNER JOIN fruta_proceso P ON EXI.ID_PROCESO = P.ID_PROCESO
+                                                LEFT JOIN fruta_vespecies V ON EXI.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE EXI.ESTADO_REGISTRO = 1
+                                                AND P.ESTADO_REGISTRO = 1
                                                 AND P.ESTADO = 1
                                                 AND P.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND P.ID_PRODUCTOR IN ('".$productoresIn."');");
+                                                AND EXI.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
@@ -950,15 +952,17 @@ class CONSULTA_ADO
 
             $productoresIn = implode("','", $PRODUCTORES);
 
-            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(P.KILOS_NETO_ENTRADA),0) AS TOTAL
-                                                FROM fruta_proceso P
-                                                LEFT JOIN fruta_vespecies V ON P.ID_VESPECIES = V.ID_VESPECIES
-                                                WHERE P.ESTADO_REGISTRO = 1
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(EXI.KILOS_NETO_EXIMATERIAPRIMA),0) AS TOTAL
+                                                FROM fruta_eximateriaprima EXI
+                                                INNER JOIN fruta_proceso P ON EXI.ID_PROCESO = P.ID_PROCESO
+                                                LEFT JOIN fruta_vespecies V ON EXI.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE EXI.ESTADO_REGISTRO = 1
+                                                AND P.ESTADO_REGISTRO = 1
                                                 AND P.ESTADO = 1
                                                 AND P.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
                                                 AND DATE(P.FECHA_PROCESO) = CURDATE()
-                                                AND P.ID_PRODUCTOR IN ('".$productoresIn."');");
+                                                AND EXI.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;

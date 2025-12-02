@@ -46,6 +46,33 @@ class DocumentoModel {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public function getDocumentosPorVencerByProductores(array $productores, $especieId = null, $limit = 5, $diasAviso = 45) {
+        if (empty($productores)) {
+            return [];
+        }
+
+        $limit = (int) $limit;
+        $diasAviso = (int) $diasAviso;
+        $placeholders = implode(',', array_fill(0, count($productores), '?'));
+        $params = $productores;
+
+        $query = "SELECT * FROM tb_documento WHERE estado_documento = 1 AND productor_documento IN ($placeholders)";
+        $query .= " AND DATE(vigencia_documento) >= CURDATE()";
+
+        if ($especieId) {
+            $query .= " AND especie_documento = ?";
+            $params[] = $especieId;
+        }
+
+        $query .= " AND DATE(vigencia_documento) <= DATE_ADD(CURDATE(), INTERVAL $diasAviso DAY)";
+        $query .= " ORDER BY vigencia_documento ASC, create_documento DESC LIMIT $limit";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
     public function getDocumentoById($id) {
         $query = "SELECT * FROM tb_documento WHERE id_documento = :id";
         $stmt = $this->db->prepare($query);

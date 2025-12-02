@@ -17,7 +17,7 @@ $KILOSVARIEDAD = array();
 $KILOSSEMANA = array();
 $DETALLEPRODUCTOR = array();
 $DETALLECSPVARIEDAD = array();
-$ULTIMOSDOCUMENTOS = array();
+$DOCUMENTOSPORVENCER = array();
 
 $KILOSRECEPCIONACUMULADOS = 0;
 $KILOSRECEPCIONHOY = 0;
@@ -43,7 +43,7 @@ if ($PRODUCTORESASOCIADOS) {
     $KILOSPROCESOACUMULADOS = $CONSULTA_ADO->kilosProcesadosProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $KILOSPROCESOHOY = $CONSULTA_ADO->kilosProcesadosHoyProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
 
-    $ULTIMOSDOCUMENTOS = $productorController->ultimosDocumentosProductores($PRODUCTORESASOCIADOS, $ESPECIE, 8);
+    $DOCUMENTOSPORVENCER = $productorController->documentosPorVencerProductores($PRODUCTORESASOCIADOS, $ESPECIE, 8, 60);
 }
 ?>
 
@@ -61,25 +61,33 @@ if ($PRODUCTORESASOCIADOS) {
         <link rel="stylesheet" href="../../api/cryptioadmin10/html/assets/vendor_components/c3/c3.min.css">
         <style>
             .kpi-card {
-                border: 1px solid #e5e5e5;
+                border: 1px solid #e5e7eb;
                 border-radius: 12px;
                 background: #fff;
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-                padding: 18px 20px;
+                padding: 16px 18px;
                 height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 6px;
             }
 
             .kpi-title {
                 font-size: 0.95rem;
                 color: #6c757d;
-                margin-bottom: 6px;
-                text-transform: uppercase;
                 letter-spacing: 0.04em;
+                margin: 0;
             }
 
             .kpi-value {
-                font-size: 1.9rem;
+                font-size: 1.8rem;
                 font-weight: 600;
+                color: #1f2937;
+                margin: 0;
+            }
+
+            .kpi-foot {
+                color: #6b7280;
                 margin: 0;
             }
 
@@ -96,7 +104,7 @@ if ($PRODUCTORESASOCIADOS) {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 10px;
+                margin-bottom: 12px;
             }
 
             .section-header .helper-text {
@@ -104,10 +112,9 @@ if ($PRODUCTORESASOCIADOS) {
                 color: #6c757d;
             }
 
-            .btn-export {
-                border: 1px solid #007bff;
-                color: #007bff;
-                background: #fff;
+            .box.box-clean {
+                border: 1px solid #e5e7eb;
+                box-shadow: none;
             }
         </style>
         <!- FUNCIONES BASES ->
@@ -148,41 +155,41 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
                                 <div class="kpi-card">
-                                    <div class="kpi-title">Kilos recepcionados acumulados</div>
-                                    <p class="kpi-value text-primary"><?php echo number_format($KILOSRECEPCIONACUMULADOS, 0, ',', '.'); ?> kg</p>
-                                    <p class="mb-0 text-muted">Materia prima neta recepcionada</p>
+                                    <p class="kpi-title">Kilos recepcionados acumulados</p>
+                                    <p class="kpi-value"><?php echo number_format($KILOSRECEPCIONACUMULADOS, 0, ',', '.'); ?> kg</p>
+                                    <p class="kpi-foot">Materia prima neta recepcionada</p>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
                                 <div class="kpi-card">
-                                    <div class="kpi-title">Kilos recepcionados hoy</div>
-                                    <p class="kpi-value text-primary"><?php echo number_format($KILOSRECEPCIONHOY, 0, ',', '.'); ?> kg</p>
-                                    <p class="mb-0 text-muted">Ingresos del día actual</p>
+                                    <p class="kpi-title">Kilos recepcionados hoy</p>
+                                    <p class="kpi-value"><?php echo number_format($KILOSRECEPCIONHOY, 0, ',', '.'); ?> kg</p>
+                                    <p class="kpi-foot">Ingresos del día actual</p>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
                                 <div class="kpi-card">
-                                    <div class="kpi-title">Kilos procesados acumulados</div>
-                                    <p class="kpi-value text-primary"><?php echo number_format($KILOSPROCESOACUMULADOS, 0, ',', '.'); ?> kg</p>
-                                    <p class="mb-0 text-muted">Procesos cerrados a la fecha</p>
+                                    <p class="kpi-title">Kilos procesados acumulados</p>
+                                    <p class="kpi-value"><?php echo number_format($KILOSPROCESOACUMULADOS, 0, ',', '.'); ?> kg</p>
+                                    <p class="kpi-foot">Neto de entrada procesado a la fecha</p>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
                                 <div class="kpi-card">
-                                    <div class="kpi-title">Kilos procesados hoy</div>
-                                    <p class="kpi-value text-primary"><?php echo number_format($KILOSPROCESOHOY, 0, ',', '.'); ?> kg</p>
-                                    <p class="mb-0 text-muted">Procesos registrados en el día</p>
+                                    <p class="kpi-title">Kilos procesados hoy</p>
+                                    <p class="kpi-value"><?php echo number_format($KILOSPROCESOHOY, 0, ',', '.'); ?> kg</p>
+                                    <p class="kpi-foot">Procesos registrados en el día</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="row mb-20">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box">
+                                <div class="box box-clean">
                                     <div class="box-body">
                                         <div class="section-header">
                                             <h4 class="box-title mb-0">Kilos por productor (CSP)</h4>
-                                            <button class="btn btn-sm btn-export" onclick="exportProductores()">Descargar Excel</button>
+                                            <p class="helper-text mb-0">Netos de recepciones</p>
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-hover table-compact">
@@ -216,11 +223,11 @@ if ($PRODUCTORESASOCIADOS) {
                                 </div>
                             </div>
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box">
+                                <div class="box box-clean">
                                     <div class="box-body">
                                         <div class="section-header">
                                             <h4 class="box-title mb-0">Kilos por variedad</h4>
-                                            <button class="btn btn-sm btn-export" onclick="exportVariedades()">Descargar Excel</button>
+                                            <p class="helper-text mb-0">Distribución por especie</p>
                                         </div>
                                         <div id="chartVariedad" class="chart-container"></div>
                                     </div>
@@ -230,7 +237,7 @@ if ($PRODUCTORESASOCIADOS) {
 
                         <div class="row mb-20">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box">
+                                <div class="box box-clean">
                                     <div class="box-body">
                                         <div class="section-header">
                                             <h4 class="box-title mb-0">Kilos por semana</h4>
@@ -241,11 +248,11 @@ if ($PRODUCTORESASOCIADOS) {
                                 </div>
                             </div>
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box">
+                                <div class="box box-clean">
                                     <div class="box-body">
                                         <div class="section-header">
                                             <h4 class="box-title mb-0">Kilos por CSP y variedad</h4>
-                                            <button class="btn btn-sm btn-export" onclick="exportCspVariedad()">Descargar Excel</button>
+                                            <span class="helper-text">Detalle neto por productor y variedad</span>
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-striped table-compact">
@@ -282,10 +289,10 @@ if ($PRODUCTORESASOCIADOS) {
 
                         <div class="row">
                             <div class="col-12">
-                                <div class="box">
+                                <div class="box box-clean">
                                     <div class="box-body">
                                         <div class="section-header">
-                                            <h4 class="box-title mb-0">Últimos documentos subidos</h4>
+                                            <h4 class="box-title mb-0">Documentos próximos a vencer</h4>
                                             <span class="helper-text">Nombre registrado, vigencia y descarga directa</span>
                                         </div>
                                         <div class="table-responsive">
@@ -294,15 +301,22 @@ if ($PRODUCTORESASOCIADOS) {
                                                     <tr>
                                                         <th>Nombre registrado</th>
                                                         <th>Vigencia</th>
+                                                        <th>Días restantes</th>
                                                         <th>Descargar</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php if ($ULTIMOSDOCUMENTOS) { ?>
-                                                        <?php foreach ($ULTIMOSDOCUMENTOS as $documento) { ?>
+                                                    <?php if ($DOCUMENTOSPORVENCER) { ?>
+                                                        <?php $hoy = new DateTime(); ?>
+                                                        <?php foreach ($DOCUMENTOSPORVENCER as $documento) { ?>
+                                                            <?php
+                                                                $vigencia = new DateTime($documento->vigencia_documento);
+                                                                $diasRestantes = (int) $hoy->diff($vigencia)->format('%r%a');
+                                                            ?>
                                                             <tr>
                                                                 <td><?php echo htmlspecialchars($documento->nombre_documento); ?></td>
                                                                 <td><?php echo $documento->vigencia_documento; ?></td>
+                                                                <td><?php echo $diasRestantes >= 0 ? $diasRestantes . ' días' : 'Vencido'; ?></td>
                                                                 <td>
                                                                     <a href="../../data/data_productor/<?php echo $documento->archivo_documento; ?>" target="_blank" class="btn btn-info btn-sm">
                                                                         <i class="ti-download"></i>
@@ -312,7 +326,7 @@ if ($PRODUCTORESASOCIADOS) {
                                                         <?php } ?>
                                                     <?php } else { ?>
                                                         <tr>
-                                                            <td colspan="3" class="text-center text-muted">Aún no existen documentos registrados.</td>
+                                                            <td colspan="4" class="text-center text-muted">Aún no existen documentos próximos a vencer.</td>
                                                         </tr>
                                                     <?php } ?>
                                                 </tbody>
@@ -336,40 +350,6 @@ if ($PRODUCTORESASOCIADOS) {
         <script>
             const datosVariedad = <?php echo json_encode($KILOSVARIEDAD); ?>;
             const datosSemanas = <?php echo json_encode($KILOSSEMANA); ?>;
-            const datosProductor = <?php echo json_encode($DETALLEPRODUCTOR); ?>;
-            const datosCspVariedad = <?php echo json_encode($DETALLECSPVARIEDAD); ?>;
-
-            function exportToExcel(filename, headers, rows) {
-                let csv = headers.join(';') + "\n";
-                rows.forEach((fila) => {
-                    csv += fila.join(';') + "\n";
-                });
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-
-            function exportProductores() {
-                const headers = ['Productor', 'CSP', 'Kilos netos', 'Recepciones'];
-                const rows = datosProductor.map((p) => [p.NOMBRE, p.CSP || 'Sin dato', p.TOTAL, p.RECEPCIONES]);
-                exportToExcel('kilos_por_productor.csv', headers, rows);
-            }
-
-            function exportVariedades() {
-                const headers = ['Variedad', 'Kilos netos'];
-                const rows = datosVariedad.map((v) => [v.NOMBRE, v.TOTAL]);
-                exportToExcel('kilos_por_variedad.csv', headers, rows);
-            }
-
-            function exportCspVariedad() {
-                const headers = ['Productor', 'CSP', 'Variedad', 'Kilos netos'];
-                const rows = datosCspVariedad.map((v) => [v.PRODUCTOR, v.CSP || 'Sin dato', v.VARIEDAD, v.TOTAL]);
-                exportToExcel('kilos_por_csp_variedad.csv', headers, rows);
-            }
 
             (function generarCharts() {
                 const variedadColumns = [['Variedad', ...datosVariedad.map((v) => v.TOTAL)]];
