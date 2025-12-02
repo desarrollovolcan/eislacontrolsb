@@ -7,7 +7,6 @@
 
 
 <!--     bootstrap  -->        
-<link rel="stylesheet" href="../../api/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="../../api/bootstrap/css/bootstrap.min.css" />
 
 <!-- Plantilla Estilo-->
