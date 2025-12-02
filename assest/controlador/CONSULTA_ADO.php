@@ -929,7 +929,7 @@ class CONSULTA_ADO
                                                 LEFT JOIN fruta_vespecies V ON EXI.ID_VESPECIES = V.ID_VESPECIES
                                                 WHERE EXI.ESTADO_REGISTRO = 1
                                                 AND P.ESTADO_REGISTRO = 1
-                                                AND P.ESTADO = 1
+                                                AND P.ESTADO = 0
                                                 AND P.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
                                                 AND EXI.ID_PRODUCTOR IN ('".$productoresIn."');");
@@ -958,7 +958,7 @@ class CONSULTA_ADO
                                                 LEFT JOIN fruta_vespecies V ON EXI.ID_VESPECIES = V.ID_VESPECIES
                                                 WHERE EXI.ESTADO_REGISTRO = 1
                                                 AND P.ESTADO_REGISTRO = 1
-                                                AND P.ESTADO = 1
+                                                AND P.ESTADO = 0
                                                 AND P.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
                                                 AND DATE(P.FECHA_PROCESO) = CURDATE()
