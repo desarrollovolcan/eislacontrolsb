@@ -15,8 +15,6 @@
         body,
         html {
             height: 100%;
-            background: #f5f7fb;
-            color: #1f2d3d;
         }
 
         .portal-wrapper {
@@ -24,15 +22,14 @@
         }
 
         .portal-card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
             padding: 28px 26px 26px;
         }
 
         .portal-card h2 {
-            color: #1b2a4a;
+            color: #1f2d3d;
             margin-bottom: 8px;
             font-weight: 700;
         }
@@ -48,7 +45,7 @@
         }
     </style>
 </head>
-<body class="hold-transition">
+<body class="hold-transition theme-primary bg-gradient-primary">
     <div class="container portal-wrapper d-flex align-items-center justify-content-center">
         <div class="row w-100 justify-content-center">
             <div class="col-lg-6 col-md-8 col-sm-11">
@@ -59,10 +56,10 @@
                     </div>
                     <div class="row g-3 portal-actions">
                         <div class="col-12 col-md-6">
-                            <a class="btn btn-primary btn-block w-100" href="./interno.php">Interno</a>
+                            <a class="btn bg-gradient-primary btn-block w-100" href="./interno.php">Interno</a>
                         </div>
                         <div class="col-12 col-md-6">
-                            <a class="btn btn-outline-primary btn-block w-100" href="./estadistica/">Productor</a>
+                            <a class="btn bg-gradient-secondary btn-block w-100" href="./estadistica/">Productor</a>
                         </div>
                     </div>
                 </div>
