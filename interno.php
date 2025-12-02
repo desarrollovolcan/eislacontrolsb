@@ -89,6 +89,29 @@
                     <p class="mb-3">Indicadores y reportes.</p>
                     <a class="btn btn-outline-primary btn-block w-100" href="./estadistica/">Entrar</a>
                 </div>
+                <p class="grid-section__text">Navega por cada módulo sin modificar su funcionamiento.</p>
+            </header>
+            <div class="card-grid">
+                <a class="card" href="./fruta/">
+                    <div class="card__label">Módulo</div>
+                    <h3 class="card__title">Fruta</h3>
+                    <p class="card__text">Gestiona la información y los procesos de fruta.</p>
+                </a>
+                <a class="card" href="./exportadora/">
+                    <div class="card__label">Módulo</div>
+                    <h3 class="card__title">Exportadora</h3>
+                    <p class="card__text">Administra las operaciones de exportación.</p>
+                </a>
+                <a class="card" href="./estadistica/">
+                    <div class="card__label">Módulo</div>
+                    <h3 class="card__title">Estadísticas</h3>
+                    <p class="card__text">Consulta y analiza indicadores clave.</p>
+                </a>
+                <a class="card" href="./material/">
+                    <div class="card__label">Módulo</div>
+                    <h3 class="card__title">Materiales</h3>
+                    <p class="card__text">Controla materiales y recursos disponibles.</p>
+                </a>
             </div>
         </div>
     </div>

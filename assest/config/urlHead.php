@@ -4,6 +4,7 @@
 <!--Estilo base-->
 <link rel="stylesheet" type="text/css" HREF="../../assest/css/reset.css" />
 <link rel="stylesheet" type="text/css" HREF="../../assest/css/style.css" />
+<link rel="stylesheet" type="text/css" href="../../assest/css/view-theme.css" />
 
 
 <!--     bootstrap  -->        

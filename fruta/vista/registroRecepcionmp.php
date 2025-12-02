@@ -1255,68 +1255,6 @@ if (isset($_POST)) {
                                             ?>
                                 <div class="card-body">
                                     <div class=" table-responsive">
-                                        <?php
-                                        $ARRAYESTADOEXISTENCIA = $EXIMATERIAPRIMA_ADO->buscarPorRecepcion($IDOP);
-                                        $ARRAYESTADOFOLIOS = [];
-                                        if ($ARRAYESTADOEXISTENCIA) {
-                                            foreach ($ARRAYESTADOEXISTENCIA as $existencia) {
-                                                $folioExistencia = $existencia['FOLIO_EXIMATERIAPRIMA'];
-                                                if (!isset($ARRAYESTADOFOLIOS[$folioExistencia])) {
-                                                    $ARRAYESTADOFOLIOS[$folioExistencia] = [];
-                                                }
-                                                if ($existencia['ID_PROCESO']) {
-                                                    $arrayProceso = $PROCESO_ADO->verProceso2($existencia['ID_PROCESO']);
-                                                    if ($arrayProceso) {
-                                                        $ARRAYESTADOFOLIOS[$folioExistencia][] = [
-                                                            'texto' => 'Procesado #' . $arrayProceso[0]['NUMERO_PROCESO'],
-                                                            'url' => 'registroProceso.php?op=ver&id=' . $existencia['ID_PROCESO'],
-                                                            'color' => 'badge-success'
-                                                        ];
-                                                    }
-                                                }
-                                                if ($existencia['ID_DESPACHO']) {
-                                                    $arrayDespacho = $DESPACHOMP_ADO->verDespachomp2($existencia['ID_DESPACHO']);
-                                                    if ($arrayDespacho) {
-                                                        $ARRAYESTADOFOLIOS[$folioExistencia][] = [
-                                                            'texto' => 'Despachado #' . $arrayDespacho[0]['NUMERO_DESPACHO'],
-                                                            'url' => 'registroDespachomp.php?op=ver&id=' . $existencia['ID_DESPACHO'],
-                                                            'color' => 'badge-primary'
-                                                        ];
-                                                    }
-                                                }
-                                                if ($existencia['ID_DESPACHO2']) {
-                                                    $arrayDespacho = $DESPACHOMP_ADO->verDespachomp2($existencia['ID_DESPACHO2']);
-                                                    if ($arrayDespacho) {
-                                                        $ARRAYESTADOFOLIOS[$folioExistencia][] = [
-                                                            'texto' => 'Despachado #' . $arrayDespacho[0]['NUMERO_DESPACHO'],
-                                                            'url' => 'registroDespachomp.php?op=ver&id=' . $existencia['ID_DESPACHO2'],
-                                                            'color' => 'badge-primary'
-                                                        ];
-                                                    }
-                                                }
-                                                if ($existencia['ID_RECHAZADO']) {
-                                                    $arrayRechazo = $RECHAZOMP_ADO->verRechazo2($existencia['ID_RECHAZADO']);
-                                                    if ($arrayRechazo) {
-                                                        $ARRAYESTADOFOLIOS[$folioExistencia][] = [
-                                                            'texto' => 'Rechazado #' . $arrayRechazo[0]['NUMERO_RECHAZO'],
-                                                            'url' => 'registroRechazomp.php?op=ver&id=' . $existencia['ID_RECHAZADO'],
-                                                            'color' => 'badge-danger'
-                                                        ];
-                                                    }
-                                                }
-                                                if ($existencia['ID_LEVANTAMIENTO']) {
-                                                    $arrayLevantamiento = $LEVANTAMIENTOMP_ADO->verLevantamiento2($existencia['ID_LEVANTAMIENTO']);
-                                                    if ($arrayLevantamiento) {
-                                                        $ARRAYESTADOFOLIOS[$folioExistencia][] = [
-                                                            'texto' => 'Levantamiento #' . $arrayLevantamiento[0]['NUMERO_LEVANTAMIENTO'],
-                                                            'url' => 'registroLevantamientomp.php?op=ver&id=' . $existencia['ID_LEVANTAMIENTO'],
-                                                            'color' => 'badge-warning'
-                                                        ];
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        ?>
                                         <table id="detalle" class="table-hover " style="width: 100%;">
                                             <thead>
                                                 <tr class="text-center">
@@ -1382,19 +1320,73 @@ if (isset($_POST)) {
                                                         }else{
                                                             $NOMBRETTRATAMIENTO2="Sin Datos";
                                                         }
+                                                        $ARRAYESTADOFOLIO = [];
+                                                        $ARRAYESTADOEXISTENCIA = $EXIMATERIAPRIMA_ADO->buscarPorRecepcionNumeroFolio($IDOP, $s['FOLIO_DRECEPCION']);
+                                                        if ($ARRAYESTADOEXISTENCIA) {
+                                                            foreach ($ARRAYESTADOEXISTENCIA as $existencia) {
+                                                                if ($existencia['ID_PROCESO']) {
+                                                                    $arrayProceso = $PROCESO_ADO->verProceso2($existencia['ID_PROCESO']);
+                                                                    if ($arrayProceso) {
+                                                                        $ARRAYESTADOFOLIO[] = [
+                                                                            'texto' => 'Procesado #' . $arrayProceso[0]['NUMERO_PROCESO'],
+                                                                            'url' => 'registroProceso.php?op&id=' . $existencia['ID_PROCESO'] . '&a=ver',
+                                                                            'color' => 'badge-success'
+                                                                        ];
+                                                                    }
+                                                                }
+                                                                if ($existencia['ID_DESPACHO']) {
+                                                                    $arrayDespacho = $DESPACHOMP_ADO->verDespachomp2($existencia['ID_DESPACHO']);
+                                                                    if ($arrayDespacho) {
+                                                                        $ARRAYESTADOFOLIO[] = [
+                                                                            'texto' => 'Despachado #' . $arrayDespacho[0]['NUMERO_DESPACHO'],
+                                                                            'url' => 'registroDespachomp.php?op&id=' . $existencia['ID_DESPACHO'] . '&a=ver',
+                                                                            'color' => 'badge-primary'
+                                                                        ];
+                                                                    }
+                                                                }
+                                                                if ($existencia['ID_DESPACHO2']) {
+                                                                    $arrayDespacho = $DESPACHOMP_ADO->verDespachomp2($existencia['ID_DESPACHO2']);
+                                                                    if ($arrayDespacho) {
+                                                                        $ARRAYESTADOFOLIO[] = [
+                                                                            'texto' => 'Despachado #' . $arrayDespacho[0]['NUMERO_DESPACHO'],
+                                                                            'url' => 'registroDespachomp.php?op&id=' . $existencia['ID_DESPACHO2'] . '&a=ver',
+                                                                            'color' => 'badge-primary'
+                                                                        ];
+                                                                    }
+                                                                }
+                                                                if ($existencia['ID_RECHAZADO']) {
+                                                                    $arrayRechazo = $RECHAZOMP_ADO->verRechazo2($existencia['ID_RECHAZADO']);
+                                                                    if ($arrayRechazo) {
+                                                                        $ARRAYESTADOFOLIO[] = [
+                                                                            'texto' => 'Rechazado #' . $arrayRechazo[0]['NUMERO_RECHAZO'],
+                                                                            'url' => 'registroRechazomp.php?op&id=' . $existencia['ID_RECHAZADO'] . '&a=ver',
+                                                                            'color' => 'badge-danger'
+                                                                        ];
+                                                                    }
+                                                                }
+                                                                if ($existencia['ID_LEVANTAMIENTO']) {
+                                                                    $arrayLevantamiento = $LEVANTAMIENTOMP_ADO->verLevantamiento2($existencia['ID_LEVANTAMIENTO']);
+                                                                    if ($arrayLevantamiento) {
+                                                                        $ARRAYESTADOFOLIO[] = [
+                                                                            'texto' => 'Levantamiento #' . $arrayLevantamiento[0]['NUMERO_LEVANTAMIENTO'],
+                                                                            'url' => 'registroLevantamientomp.php?op&id=' . $existencia['ID_LEVANTAMIENTO'] . '&a=ver',
+                                                                            'color' => 'badge-warning'
+                                                                        ];
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
                                                         ?>
                                                         <tr class="text-lef">
                                                             <td><?php echo $CONTADOR ?></td>
                                                             <td><?php echo $s['FOLIO_DRECEPCION']; ?></td>
                                                             <td>
-                                                                <?php if (isset($ARRAYESTADOFOLIOS[$s['FOLIO_DRECEPCION']])) : ?>
-                                                                    <?php foreach ($ARRAYESTADOFOLIOS[$s['FOLIO_DRECEPCION']] as $estadoFolio) : ?>
+                                                                <?php if (!empty($ARRAYESTADOFOLIO)) : ?>
+                                                                    <?php foreach ($ARRAYESTADOFOLIO as $estadoFolio) : ?>
                                                                         <a target="_blank" href="<?php echo $estadoFolio['url']; ?>" class="badge <?php echo $estadoFolio['color']; ?> d-block w-100 mb-1" style="white-space: normal;">
                                                                             <?php echo $estadoFolio['texto']; ?>
                                                                         </a>
                                                                     <?php endforeach; ?>
-                                                                <?php else : ?>
-                                                                    <span class="badge badge-secondary d-block w-100">Sin Operaciones</span>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td>
