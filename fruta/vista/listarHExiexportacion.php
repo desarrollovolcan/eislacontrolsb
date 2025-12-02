@@ -1231,6 +1231,15 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                 <h5>Fechas</h5>
                                 <table class="detalle-table">
                                     <tr>
+                                        <th>Referencia</th>
+                                        <td data-detail="referencia"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Fechas</h5>
+                                <table class="detalle-table">
+                                    <tr>
                                         <th>Ingreso</th>
                                         <td data-detail="ingreso"></td>
                                     </tr>
