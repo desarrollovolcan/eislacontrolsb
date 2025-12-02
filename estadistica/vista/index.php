@@ -73,17 +73,24 @@ if ($PRODUCTORESASOCIADOS) {
         <?php include_once "../../assest/config/urlHead.php"; ?>
         <link rel="stylesheet" href="../../api/cryptioadmin10/html/assets/vendor_components/c3/c3.min.css">
         <style>
+            .kpi-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 14px;
+                width: 100%;
+            }
+
             .kpi-card {
                 border: 1px solid #e5e7eb;
                 border-radius: 12px;
                 background: #fff;
                 padding: 16px 18px;
-                height: 100%;
+                min-height: 120px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 gap: 6px;
-                box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
+                box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
             }
 
             .kpi-title {
@@ -135,14 +142,35 @@ if ($PRODUCTORESASOCIADOS) {
                 background: #fff;
                 border: 1px solid #e5e7eb;
                 border-radius: 12px;
-                padding: 18px;
+                padding: 16px;
                 height: 100%;
-                box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
+                box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
+            }
+
+            .section-shell + .section-shell {
+                margin-top: 0;
             }
 
             tfoot tr td {
                 font-weight: 600;
                 background: #f8fafc;
+            }
+
+            .main-sidebar {
+                height: 100vh;
+                overflow-y: auto;
+            }
+
+            .sidebar-menu > li.active > a,
+            .sidebar-menu > li.menu-open > a,
+            .sidebar-menu > li:hover > a {
+                background: transparent !important;
+                color: #0d6efd !important;
+            }
+
+            .sidebar-menu > li > a {
+                padding-top: 10px;
+                padding-bottom: 10px;
             }
         </style>
         <!- FUNCIONES BASES ->
@@ -177,33 +205,25 @@ if ($PRODUCTORESASOCIADOS) {
                         </div>
                     </div>
                     <section class="content">
-                        <div class="row mb-20 align-items-stretch">
-                            <div class="col-12">
-                                <p class="text-muted mb-5">Información basada en productores asociados, temporada y especie seleccionada. Los acumulados y gráficos consideran datos hasta el día previo; las cifras diarias corresponden al último día cerrado.</p>
-                            </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15 d-flex">
-                                <div class="kpi-card w-100">
+                        <div class="mb-15">
+                            <p class="text-muted mb-10">Información basada en productores asociados, temporada y especie seleccionada. Los acumulados y gráficos consideran datos hasta el día previo; las cifras diarias corresponden al último día cerrado.</p>
+                            <div class="kpi-grid">
+                                <div class="kpi-card">
                                     <p class="kpi-title">Kilos recepcionados acumulados</p>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSRECEPCIONACUMULADOS, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Materia prima neta recepcionada</p>
                                 </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15 d-flex">
-                                <div class="kpi-card w-100">
+                                <div class="kpi-card">
                                     <p class="kpi-title">Kilos recepcionados (día anterior)</p>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSRECEPCIONHOY, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Ingresos netos del último día cerrado</p>
                                 </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15 d-flex">
-                                <div class="kpi-card w-100">
+                                <div class="kpi-card">
                                     <p class="kpi-title">Kilos procesados acumulados</p>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSPROCESOACUMULADOS, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Neto de entrada procesado al día previo</p>
                                 </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15 d-flex">
-                                <div class="kpi-card w-100">
+                                <div class="kpi-card">
                                     <p class="kpi-title">Kilos procesados (día anterior)</p>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Procesos cerrados el último día</p>
@@ -256,7 +276,6 @@ if ($PRODUCTORESASOCIADOS) {
                                                 <?php } ?>
                                             </table>
                                         </div>
-                                        <div id="chartSemanas" class="chart-container"></div>
                                     </div>
                                 </div>
                             </div>
