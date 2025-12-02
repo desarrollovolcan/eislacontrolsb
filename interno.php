@@ -1,14 +1,19 @@
-<!DOCTYPE html>
-<html lang="es">
+<html lang="es-Ep">
+
 <head>
-    <meta charset="utf-8">
+    <title>Sistemas</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistemas internos</title>
-    <link rel="icon" href="assest/img/favicon.png">
-    <link rel="stylesheet" type="text/css" href="assest/css/reset.css" />
+
     <link rel="stylesheet" type="text/css" href="assest/css/style.css" />
-    <link rel="stylesheet" href="api/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" HREF="assest/css/reset.css" />
+    <link rel="icon" href="assest/img/favicon.png">
+
+    <!-- Plantilla Estilo-->
+    <!-- Vendors Style-->
+
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/vendors_css.css">
+    <!-- Style-->
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/style.css">
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/skin_color.css">
     <style>
@@ -35,14 +40,21 @@
             margin-bottom: 10px;
         }
 
-        .module-card p {
-            color: #4b5563;
-            margin-bottom: 16px;
-        }
+                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
+                                    <div class="form-group">
+                                        <a href="./exportadora/">
+                                            <button type="button" class="btn bg-gradient-secondary btn-block " id="ENTRAR" name="ENTRAR">Exportadora</button>
+                                        </a>
+                                    </div>
+                                </div>
 
-        .module-grid {
-            gap: 14px;
-        }
+                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
+                                    <div class="form-group">
+                                        <a href="./estadistica/">
+                                            <button type="button" class="btn bg-gradient-secondary btn-block " id="ENTRAR" name="ENTRAR">Estadísticas</button>
+                                        </a>
+                                    </div>
+                                </div>
 
         .module-card .btn {
             padding: 11px 12px;
@@ -111,6 +123,7 @@
                 </a>
             </div>
         </div>
-    </div>
+        <?php //include_once "assest/config/footer.php"; ?>
+    </div>   
 </body>
 </html>

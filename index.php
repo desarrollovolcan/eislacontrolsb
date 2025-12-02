@@ -1,24 +1,33 @@
-<!DOCTYPE html>
-<html lang="es">
+<html lang="es-Ep">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistemas</title>
-    <link rel="icon" href="assest/img/favicon.png">
-    <link rel="stylesheet" type="text/css" href="assest/css/reset.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link rel="stylesheet" type="text/css" href="assest/css/style.css" />
-    <link rel="stylesheet" href="api/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" HREF="assest/css/reset.css" />
+    <link rel="icon" href="assest/img/favicon.png">
+
+    <!-- Plantilla Estilo-->
+    <!-- Vendors Style-->
+
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/vendors_css.css">
+    <!-- Style-->
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/style.css">
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/skin_color.css">
+
     <style>
-        body,
-        html {
+        body, html {
             height: 100%;
         }
 
-        .portal-wrapper {
-            min-height: 100vh;
+        .split {
+            height: 100%;
+            width: 50%;
+            position: fixed;
+            top: 0;
+            overflow-x: hidden;
         }
 
         .portal-card {
@@ -34,16 +43,20 @@
             font-weight: 700;
         }
 
-        .portal-card p {
-            color: #4b5563;
-            margin-bottom: 18px;
+        .left {
+            background-image: url('./assest/img/fondo.jpg'); /* Imagen de fondo de ejemplo */
+            width: 100%;
+            /*background: red;*/
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+
+           
         }
 
-        .portal-actions .btn {
-            padding: 12px 14px;
-            font-weight: 600;
-        }
+
     </style>
+
 </head>
 <body class="hold-transition theme-primary bg-gradient-primary">
     <div class="container portal-wrapper d-flex align-items-center justify-content-center">
@@ -61,10 +74,12 @@
                         <div class="col-12 col-md-6">
                             <a class="btn bg-gradient-secondary btn-block w-100" href="./estadistica/">Productor</a>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+
+
+    </div>
+
+   
+
 </body>
 </html>
