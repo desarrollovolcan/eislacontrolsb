@@ -1,102 +1,67 @@
-<html lang="es-Ep">
-
+<!DOCTYPE html>
+<html lang="es">
 <head>
-    <title>Sistemas</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <link rel="stylesheet" type="text/css" href="assest/css/style.css" />
-    <link rel="stylesheet" type="text/css" HREF="assest/css/reset.css" />
+    <title>Sistemas</title>
     <link rel="icon" href="assest/img/favicon.png">
-
-    <!-- Plantilla Estilo-->
-    <!-- Vendors Style-->
-
-    <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/vendors_css.css">
-    <!-- Style-->
-    <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/style.css">
-    <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/skin_color.css">
-
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-        }
-
-        .split {
-            height: 100%;
-            width: 50%;
-            position: fixed;
-            top: 0;
-            overflow-x: hidden;
-        }
-
-        .right {
-            width: 30%;
-            background-color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            right: 0px;
-
-            
-        }
-
-        .left {
-            background-image: url('./assest/img/fondo.jpg'); /* Imagen de fondo de ejemplo */
-            width: 100%;
-            /*background: red;*/
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-
-           
-        }
-
-
-    </style>
-
+    <link rel="stylesheet" href="assest/css/portal.css">
 </head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <div class="hero__content">
+                <p class="hero__eyebrow">Intranet</p>
+                <h1 class="hero__title">Bienvenido al portal de sistemas</h1>
+                <p class="hero__subtitle">
+                    Accede rápidamente a las vistas internas y de productor con una interfaz ordenada y ligera.
+                </p>
+            </div>
+            <div class="hero__actions">
+                <a class="card card--accent" href="./interno.php">
+                    <div class="card__label">Acceso interno</div>
+                    <h2 class="card__title">Sistemas internos</h2>
+                    <p class="card__text">Fruta, Exportadora, Estadísticas y Materiales.</p>
+                </a>
+                <a class="card" href="./estadistica/">
+                    <div class="card__label">Acceso productor</div>
+                    <h2 class="card__title">Productor</h2>
+                    <p class="card__text">Consulta los indicadores y reportes disponibles.</p>
+                </a>
+            </div>
+        </section>
 
-<body class="hold-transition theme-primary bg-gradient-primary">
-
-
-
-
-    <div class="split left">
-
-
-
-    <div class="split right">
-                        <div class="bg-white-10 rounded5" style="background-color: white; width: 100%;">
-
-                            <div class="content-top-agile p-10 pb-0">
-                                <h2 class="text-primary">SELECCION INTRANET</h2>
-                            </div>
-                            <div class="p-30" style="width: 70%; margin: auto;">
-                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
-                                    <div class="form-group">
-                                        <a href="./interno.php">
-                                            <button type="button" class="btn bg-gradient-primary btn-block" id="ENTRAR" name="ENTRAR">Interno</button>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
-                                    <div class="form-group">
-                                        <a href="./estadistica/">
-                                            <button type="button" class="btn bg-gradient-secondary btn-block " id="ENTRAR" name="ENTRAR">Productor</button>
-                                        </a>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-    </div>
-
-
-    </div>
-
-   
-
+        <section class="grid-section">
+            <header class="grid-section__header">
+                <div>
+                    <p class="hero__eyebrow">Sistemas internos</p>
+                    <h2 class="grid-section__title">Vistas disponibles</h2>
+                </div>
+                <p class="grid-section__text">Explora cada módulo en un solo lugar con colores unificados.</p>
+            </header>
+            <div class="card-grid">
+                <a class="card" href="./fruta/">
+                    <div class="card__label">Módulo</div>
+                    <h3 class="card__title">Fruta</h3>
+                    <p class="card__text">Gestión y seguimiento de fruta.</p>
+                </a>
+                <a class="card" href="./exportadora/">
+                    <div class="card__label">Módulo</div>
+                    <h3 class="card__title">Exportadora</h3>
+                    <p class="card__text">Operaciones de exportación ordenadas.</p>
+                </a>
+                <a class="card" href="./estadistica/">
+                    <div class="card__label">Módulo</div>
+                    <h3 class="card__title">Estadísticas</h3>
+                    <p class="card__text">Indicadores y reportabilidad en línea.</p>
+                </a>
+                <a class="card" href="./material/">
+                    <div class="card__label">Módulo</div>
+                    <h3 class="card__title">Materiales</h3>
+                    <p class="card__text">Control de materiales y recursos.</p>
+                </a>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
