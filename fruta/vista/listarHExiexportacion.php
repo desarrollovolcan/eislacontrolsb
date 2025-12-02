@@ -195,8 +195,24 @@ if ($EMPRESAS  && $TEMPORADAS) {
         }
 
         .detalle-modal .close {
-            color: #0f4a7a;
-            opacity: 0.85;
+            color: #0b2f55;
+            opacity: 0.9;
+            font-weight: 700;
+        }
+
+        .detalle-modal .brand-banner {
+            margin: 6px 0 10px;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e5edf8 100%);
+            border: 1px solid #d7e2f2;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .detalle-modal .brand-banner img {
+            width: 100%;
+            max-height: 120px;
+            object-fit: contain;
+            display: block;
         }
 
         .detalle-modal .modal-body {
@@ -505,20 +521,22 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                             if ($r['TESTADOSAG'] == "5") {
                                                                 $ESTADOSAG =  "Rechazado";
                                                             }
+                                                            $CONDICION = $ESTADOSAG;
 
                                                             if($r['COLOR']=="1"){
                                                                 $TRECHAZOCOLOR="badge badge-danger ";
                                                                 $COLOR="Rechazado";
                                                             }else if($r['COLOR']=="2"){
                                                                 $TRECHAZOCOLOR="badge badge-warning ";
-                                                                $COLOR="Objetado";
+                                                                $COLOR="Levantado";
                                                             }else if($r['COLOR']=="3"){
-                                                                $TRECHAZOCOLOR="badge badge-Success ";
+                                                                $TRECHAZOCOLOR="badge badge-success ";
                                                                 $COLOR="Aprobado";
                                                             }else{
                                                                 $TRECHAZOCOLOR="";
                                                                 $COLOR="Sin Datos";
-                                                            }                                                                                                             
+                                                            }
+                                                            $ESTADOCALIDAD = $COLOR;
                                                             if ($r['ID_ICARGA']) {
                                                                 $ARRAYVERICARGA = obtenerDesdeCache($r['ID_ICARGA'], $ICARGA_CACHE, function ($id) use ($ICARGA_ADO) {
                                                                     return $ICARGA_ADO->verIcarga($id);
@@ -873,7 +891,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
             data-folio="<?php echo htmlspecialchars($r['FOLIO_EXIEXPORTACION'], ENT_QUOTES, 'UTF-8'); ?>"
             data-folio-aux="<?php echo htmlspecialchars($r['FOLIO_AUXILIAR_EXIEXPORTACION'], ENT_QUOTES, 'UTF-8'); ?>"
             data-estado="<?php echo htmlspecialchars($ESTADO, ENT_QUOTES, 'UTF-8'); ?>"
-            data-estado-calidad="<?php echo htmlspecialchars($ESTADOSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-estado-calidad="<?php echo htmlspecialchars($ESTADOCALIDAD, ENT_QUOTES, 'UTF-8'); ?>"
             data-estandar="<?php echo htmlspecialchars($CODIGOESTANDAR . ' - ' . $NOMBREESTANDAR, ENT_QUOTES, 'UTF-8'); ?>"
             data-productor="<?php echo htmlspecialchars($NOMBREPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
             data-csg="<?php echo htmlspecialchars($CSGPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
@@ -890,7 +908,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
             data-gasificado="<?php echo htmlspecialchars($GASIFICADO, ENT_QUOTES, 'UTF-8'); ?>"
             data-embolsado="<?php echo htmlspecialchars($EMBOLSADO, ENT_QUOTES, 'UTF-8'); ?>"
             data-prefrio="<?php echo htmlspecialchars($PREFRIO, ENT_QUOTES, 'UTF-8'); ?>"
-            data-condicion="<?php echo htmlspecialchars($COLOR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-condicion="<?php echo htmlspecialchars($CONDICION, ENT_QUOTES, 'UTF-8'); ?>"
             data-tipo-recepcion="<?php echo htmlspecialchars($TIPORECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
             data-num-recepcion="<?php echo htmlspecialchars($NUMERORECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
             data-fecha-recepcion="<?php echo htmlspecialchars($FECHARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
@@ -915,6 +933,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
             data-num-inspeccion="<?php echo htmlspecialchars($NUMEROINPSAG, ENT_QUOTES, 'UTF-8'); ?>"
             data-fecha-inspeccion="<?php echo htmlspecialchars($FECHAINPSAG, ENT_QUOTES, 'UTF-8'); ?>"
             data-tipo-inspeccion="<?php echo htmlspecialchars($NOMBRETINPSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-inspeccion="<?php echo htmlspecialchars($r['ID_INPSAG'], ENT_QUOTES, 'UTF-8'); ?>"
             data-ingreso="<?php echo htmlspecialchars($r['INGRESO'], ENT_QUOTES, 'UTF-8'); ?>"
             data-modificacion="<?php echo htmlspecialchars($r['MODIFICACION'], ENT_QUOTES, 'UTF-8'); ?>"
             data-referencia="<?php echo htmlspecialchars($NUMEROREFERENCIA, ENT_QUOTES, 'UTF-8'); ?>"
@@ -932,8 +951,8 @@ if ($EMPRESAS  && $TEMPORADAS) {
     </td>
                                                                 <td><?php echo $r['EMBALADO']; ?></td>
                                                                 <td><?php echo $ESTADO; ?></td>
-                                                                <td><?php echo $ESTADOSAG; ?></td>
-                                                                <td><?php echo $COLOR; ?></td>
+                                                                <td><?php echo $CONDICION; ?></td>
+                                                                <td><?php echo $ESTADOCALIDAD; ?></td>
                                                                 <td><?php echo $CODIGOESTANDAR; ?></td>
                                                                 <td><?php echo $NOMBREESTANDAR; ?></td>
                                                                 <td><?php echo $NOMBRETCALIBRE; ?></td>
@@ -1067,6 +1086,11 @@ if ($EMPRESAS  && $TEMPORADAS) {
                         </button>
                     </div>
                     <div class="modal-body">
+                        <?php if ($LOGOEMPRESA) : ?>
+                            <div class="brand-banner">
+                                <img src="<?php echo $LOGOEMPRESA; ?>" alt="Imagen institucional" />
+                            </div>
+                        <?php endif; ?>
                         <div class="detalle-resumen-table">
                             <table class="detalle-table resumen-table">
                                 <thead>
@@ -1207,6 +1231,15 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                 <h5>Fechas</h5>
                                 <table class="detalle-table">
                                     <tr>
+                                        <th>Referencia</th>
+                                        <td data-detail="referencia"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Fechas</h5>
+                                <table class="detalle-table">
+                                    <tr>
                                         <th>Ingreso</th>
                                         <td data-detail="ingreso"></td>
                                     </tr>
@@ -1286,7 +1319,8 @@ if ($EMPRESAS  && $TEMPORADAS) {
                 var despachoUrl = button.data('id-despacho') ? '../../fruta/vista/registroDespachopt.php?op&id=' + encodeURIComponent(button.data('id-despacho')) + '&a=ver' : '';
                 setDetailWithLink(modal, 'despacho', despachoTexto, despachoUrl);
                 var inspeccionTexto = button.data('num-inspeccion') ? '#' + button.data('num-inspeccion') + ' (' + button.data('fecha-inspeccion') + ') ' + button.data('tipo-inspeccion') : 'Sin datos';
-                modal.find('[data-detail="inspeccion"]').text(inspeccionTexto);
+                var inspeccionUrl = button.data('id-inspeccion') ? '../../fruta/vista/registroInpsag.php?op&id=' + encodeURIComponent(button.data('id-inspeccion')) + '&a=ver' : '';
+                setDetailWithLink(modal, 'inspeccion', inspeccionTexto, inspeccionUrl);
                 modal.find('[data-detail="calibre-detalle"]').text(button.data('calibre-detalle'));
                 modal.find('[data-detail="embalaje"]').text(button.data('embalaje'));
                 modal.find('[data-detail="stock"]').text(button.data('stock'));
