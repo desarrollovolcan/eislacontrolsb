@@ -1,7 +1,7 @@
 <?php
-include_once '../../assest/modelo/productor_model.php';
-include_once '../../assest/modelo/documento_model.php';
-include_once '../../assest/modelo/especie_model.php';
+require_once __DIR__ . '/../../assest/modelo/productor_model.php';
+require_once __DIR__ . '/../../assest/modelo/documento_model.php';
+require_once __DIR__ . '/../../assest/modelo/especie_model.php';
 
 class ProductorController {
     private $productorModel;
@@ -35,6 +35,10 @@ class ProductorController {
     public function viewDocumentosEspecie($productorId, $especieId) {
         $documentos = $this->documentoModel->getDocumentosByProductorEspecie($productorId, $especieId);
         return $documentos;
+    }
+
+    public function ultimosDocumentosProductores(array $productorIds, $especieId, $limit = 5) {
+        return $this->documentoModel->getUltimosDocumentosByProductores($productorIds, $especieId, $limit);
     }
 
     public function uploadDocumento() {

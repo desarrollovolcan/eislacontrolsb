@@ -1,5 +1,5 @@
 <?php 
-include_once '../../assest/config/BDCONFIG.php';
+require_once __DIR__ . '/../../assest/config/BDCONFIG.php';
 class DocumentoModel {
     private $db;
 
@@ -19,6 +19,30 @@ class DocumentoModel {
         $query = "SELECT * FROM tb_documento WHERE productor_documento = :productorId AND estado_documento = 1";
         $stmt = $this->db->prepare($query);
         $stmt->execute(['productorId' => $productorId]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getUltimosDocumentosByProductores(array $productores, $especieId = null, $limit = 5) {
+        if (empty($productores)) {
+            return [];
+        }
+
+        $limit = (int) $limit;
+        $placeholders = implode(',', array_fill(0, count($productores), '?'));
+        $params = $productores;
+
+        $query = "SELECT * FROM tb_documento WHERE estado_documento = 1 AND productor_documento IN ($placeholders)";
+
+        if ($especieId) {
+            $query .= " AND especie_documento = ?";
+            $params[] = $especieId;
+        }
+
+        $query .= " ORDER BY create_documento DESC LIMIT $limit";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
