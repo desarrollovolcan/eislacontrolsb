@@ -18,6 +18,10 @@ $KILOSSEMANA = array();
 $DETALLEPRODUCTOR = array();
 $DETALLECSPVARIEDAD = array();
 $DOCUMENTOSPORVENCER = array();
+$TOTALPRODUCTORKILOS = 0;
+$TOTALPRODUCTORECEPCIONES = 0;
+$TOTALCSPVARIEDAD = 0;
+$TOTALDOCUMENTOS = 0;
 
 $KILOSRECEPCIONACUMULADOS = 0;
 $KILOSRECEPCIONHOY = 0;
@@ -44,6 +48,15 @@ if ($PRODUCTORESASOCIADOS) {
     $KILOSPROCESOHOY = $CONSULTA_ADO->kilosProcesadosHoyProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
 
     $DOCUMENTOSPORVENCER = $productorController->documentosPorVencerProductores($PRODUCTORESASOCIADOS, $ESPECIE, 8, 60);
+
+    if ($DETALLEPRODUCTOR) {
+        $TOTALPRODUCTORKILOS = array_sum(array_column($DETALLEPRODUCTOR, 'TOTAL'));
+        $TOTALPRODUCTORECEPCIONES = array_sum(array_column($DETALLEPRODUCTOR, 'RECEPCIONES'));
+    }
+    if ($DETALLECSPVARIEDAD) {
+        $TOTALCSPVARIEDAD = array_sum(array_column($DETALLECSPVARIEDAD, 'TOTAL'));
+    }
+    $TOTALDOCUMENTOS = $DOCUMENTOSPORVENCER ? count($DOCUMENTOSPORVENCER) : 0;
 }
 ?>
 
@@ -70,6 +83,7 @@ if ($PRODUCTORESASOCIADOS) {
                 flex-direction: column;
                 justify-content: center;
                 gap: 6px;
+                box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
             }
 
             .kpi-title {
@@ -116,6 +130,20 @@ if ($PRODUCTORESASOCIADOS) {
                 border: 1px solid #e5e7eb;
                 box-shadow: none;
             }
+
+            .section-shell {
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                padding: 18px;
+                height: 100%;
+                box-shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
+            }
+
+            tfoot tr td {
+                font-weight: 600;
+                background: #f8fafc;
+            }
         </style>
         <!- FUNCIONES BASES ->
         <script type="text/javascript">
@@ -149,44 +177,44 @@ if ($PRODUCTORESASOCIADOS) {
                         </div>
                     </div>
                     <section class="content">
-                        <div class="row mb-20">
+                        <div class="row mb-20 align-items-stretch">
                             <div class="col-12">
-                                <p class="text-muted mb-10">Información basada en productores asociados, temporada y especie seleccionada.</p>
+                                <p class="text-muted mb-5">Información basada en productores asociados, temporada y especie seleccionada. Los acumulados y gráficos consideran datos hasta el día previo; las cifras diarias corresponden al último día cerrado.</p>
                             </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
-                                <div class="kpi-card">
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15 d-flex">
+                                <div class="kpi-card w-100">
                                     <p class="kpi-title">Kilos recepcionados acumulados</p>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSRECEPCIONACUMULADOS, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Materia prima neta recepcionada</p>
                                 </div>
                             </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
-                                <div class="kpi-card">
-                                    <p class="kpi-title">Kilos recepcionados hoy</p>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15 d-flex">
+                                <div class="kpi-card w-100">
+                                    <p class="kpi-title">Kilos recepcionados (día anterior)</p>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSRECEPCIONHOY, 2, ',', '.'); ?> kg</p>
-                                    <p class="kpi-foot">Ingresos del día actual</p>
+                                    <p class="kpi-foot">Ingresos netos del último día cerrado</p>
                                 </div>
                             </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
-                                <div class="kpi-card">
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15 d-flex">
+                                <div class="kpi-card w-100">
                                     <p class="kpi-title">Kilos procesados acumulados</p>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSPROCESOACUMULADOS, 2, ',', '.'); ?> kg</p>
-                                    <p class="kpi-foot">Neto de entrada procesado a la fecha</p>
+                                    <p class="kpi-foot">Neto de entrada procesado al día previo</p>
                                 </div>
                             </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
-                                <div class="kpi-card">
-                                    <p class="kpi-title">Kilos procesados hoy</p>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15 d-flex">
+                                <div class="kpi-card w-100">
+                                    <p class="kpi-title">Kilos procesados (día anterior)</p>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</p>
-                                    <p class="kpi-foot">Procesos registrados en el día</p>
+                                    <p class="kpi-foot">Procesos cerrados el último día</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="row mb-20">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box box-clean">
-                                    <div class="box-body">
+                                <div class="box box-clean section-shell">
+                                    <div class="box-body p-0">
                                         <div class="section-header">
                                             <h4 class="box-title mb-0">Kilos por productor (CSP)</h4>
                                             <p class="helper-text mb-0">Netos de recepciones</p>
@@ -217,14 +245,24 @@ if ($PRODUCTORESASOCIADOS) {
                                                         </tr>
                                                     <?php } ?>
                                                 </tbody>
+                                                <?php if ($DETALLEPRODUCTOR) { ?>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="2">Totales</td>
+                                                            <td class="text-right"><?php echo number_format($TOTALPRODUCTORKILOS, 0, ',', '.'); ?> kg</td>
+                                                            <td class="text-right"><?php echo number_format($TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                <?php } ?>
                                             </table>
                                         </div>
+                                        <div id="chartSemanas" class="chart-container"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box box-clean">
-                                    <div class="box-body">
+                                <div class="box box-clean section-shell">
+                                    <div class="box-body p-0">
                                         <div class="section-header">
                                             <h4 class="box-title mb-0">Kilos por variedad</h4>
                                             <p class="helper-text mb-0">Distribución por especie</p>
@@ -237,8 +275,8 @@ if ($PRODUCTORESASOCIADOS) {
 
                         <div class="row mb-20">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box box-clean">
-                                    <div class="box-body">
+                                <div class="box box-clean section-shell">
+                                    <div class="box-body p-0">
                                         <div class="section-header">
                                             <h4 class="box-title mb-0">Kilos por semana</h4>
                                             <span class="helper-text">Promedia el neto recepcionado semanal</span>
@@ -248,8 +286,8 @@ if ($PRODUCTORESASOCIADOS) {
                                 </div>
                             </div>
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box box-clean">
-                                    <div class="box-body">
+                                <div class="box box-clean section-shell">
+                                    <div class="box-body p-0">
                                         <div class="section-header">
                                             <h4 class="box-title mb-0">Kilos por CSP y variedad</h4>
                                             <span class="helper-text">Detalle neto por productor y variedad</span>
@@ -280,6 +318,14 @@ if ($PRODUCTORESASOCIADOS) {
                                                         </tr>
                                                     <?php } ?>
                                                 </tbody>
+                                                <?php if ($DETALLECSPVARIEDAD) { ?>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="3">Totales</td>
+                                                            <td class="text-right"><?php echo number_format($TOTALCSPVARIEDAD, 0, ',', '.'); ?> kg</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                <?php } ?>
                                             </table>
                                         </div>
                                     </div>
@@ -289,8 +335,8 @@ if ($PRODUCTORESASOCIADOS) {
 
                         <div class="row">
                             <div class="col-12">
-                                <div class="box box-clean">
-                                    <div class="box-body">
+                                <div class="box box-clean section-shell">
+                                    <div class="box-body p-0">
                                         <div class="section-header">
                                             <h4 class="box-title mb-0">Documentos próximos a vencer</h4>
                                             <span class="helper-text">Nombre registrado, vigencia y descarga directa</span>
@@ -330,6 +376,11 @@ if ($PRODUCTORESASOCIADOS) {
                                                         </tr>
                                                     <?php } ?>
                                                 </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="4">Total documentos listados: <?php echo $TOTALDOCUMENTOS; ?></td>
+                                                    </tr>
+                                                </tfoot>
                                             </table>
                                         </div>
                                     </div>

@@ -966,7 +966,7 @@ class CONSULTA_ADO
                                                 AND P.ESTADO = 0
                                                 AND P.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND DATE(P.FECHA_PROCESO) = CURDATE()
+                                                AND DATE(P.FECHA_PROCESO) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
                                                 AND EXI.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
@@ -1022,7 +1022,7 @@ class CONSULTA_ADO
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND DATE(recepcion.FECHA_RECEPCION) = CURDATE()
+                                                AND DATE(recepcion.FECHA_RECEPCION) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
