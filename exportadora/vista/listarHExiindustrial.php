@@ -70,18 +70,6 @@ function obtenerDesdeCache($id, array &$cache, callable $callback)
     return $cache[$id];
 }
 
-//FUNCIONES DE APOYO
-function obtenerDesdeCache($id, array &$cache, callable $callback)
-{
-    if (!$id) {
-        return null;
-    }
-    if (!array_key_exists($id, $cache)) {
-        $cache[$id] = $callback($id) ?: null;
-    }
-    return $cache[$id];
-}
-
 
 //INCIALIZAR VARIBALES A OCUPAR PARA LA FUNCIONALIDAD
 
