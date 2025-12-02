@@ -104,6 +104,22 @@ include_once "../../assest/config/datosUrLP.php";
                 background: linear-gradient(135deg, #f7e2c2, #f0a040);
                 box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
             }
+
+            .low-export-number {
+                color: #b96b00;
+                font-weight: 700;
+            }
+
+            .low-export-btn {
+                background-color: #f5a623;
+                border-color: #ed9d17;
+                color: #fff;
+            }
+            .low-export-btn:hover {
+                background-color: #ed9d17;
+                border-color: #e08e0b;
+                color: #fff;
+            }
         </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
@@ -268,11 +284,19 @@ include_once "../../assest/config/datosUrLP.php";
 
                                                     $esProcesoBajoExportacion = $r['PDEXPORTACION_PROCESO'] < 85;
                                                     ?>
-                                                    <tr class="text-center <?php echo $claseProceso; ?>">
-                                                        <td> <?php echo $r['NUMERO_PROCESO']; ?> </td>
+                                                    <tr class="text-center">
+                                                        <td>
+                                                            <?php if ($esProcesoBajoExportacion) { ?>
+                                                                <span class="low-export-number" title="Bajo 85% de exportación">
+                                                                    <?php echo $r['NUMERO_PROCESO']; ?>
+                                                                </span>
+                                                            <?php } else { ?>
+                                                                <?php echo $r['NUMERO_PROCESO']; ?>
+                                                            <?php } ?>
+                                                        </td>
                                                         <td>
                                                             <?php if ($r['ESTADO'] == "0") { ?>
-                                                                <button type="button" class="btn btn-block btn-danger">Cerrado</button>
+                                                                <button type="button" class="btn btn-block <?php echo $esProcesoBajoExportacion ? 'low-export-btn' : 'btn-danger'; ?>">Cerrado</button>
                                                             <?php  }  ?>
                                                             <?php if ($r['ESTADO'] == "1") { ?>
                                                                 <button type="button" class="btn btn-block btn-success">Abierto</button>
