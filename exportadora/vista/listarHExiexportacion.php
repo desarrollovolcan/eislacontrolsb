@@ -1181,6 +1181,10 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="embolsado"></td>
                                     </tr>
                                     <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
+                                    </tr>
+                                    <tr>
                                         <th>Gasificación</th>
                                         <td data-detail="gasificado"></td>
                                     </tr>
@@ -1242,6 +1246,11 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <th>Stock</th>
                                         <td data-detail="stock"></td>
                                     </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Fechas</h5>
+                                <table class="detalle-table">
                                     <tr>
                                         <th>Referencia</th>
                                         <td data-detail="referencia"></td>

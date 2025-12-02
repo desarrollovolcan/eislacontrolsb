@@ -1186,6 +1186,10 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="embolsado"></td>
                                     </tr>
                                     <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
+                                    </tr>
+                                    <tr>
                                         <th>Gasificación</th>
                                         <td data-detail="gasificado"></td>
                                     </tr>
