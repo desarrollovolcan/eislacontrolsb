@@ -764,6 +764,7 @@ class CONSULTA_ADO
             $productoresIn = implode("','", $PRODUCTORES);
 
             $datos = $this->conexion->prepare("SELECT PR.NOMBRE_PRODUCTOR AS NOMBRE,
+                                                        PR.CSG_PRODUCTOR AS CSP,
                                                         IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL,
                                                         COUNT(DISTINCT recepcion.ID_RECEPCION) AS RECEPCIONES
                                                 FROM fruta_recepcionmp recepcion
@@ -778,6 +779,69 @@ class CONSULTA_ADO
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
                                                 GROUP BY recepcion.ID_PRODUCTOR
                                                 ORDER BY TOTAL DESC;");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function existenciaMateriaPrimaPorVariedadProductor($TEMPORADA, $ESPECIE, $PRODUCTORES)
+    {
+        try {
+            if (empty($PRODUCTORES)) {
+                return [];
+            }
+
+            $productoresIn = implode("','", $PRODUCTORES);
+
+            $datos = $this->conexion->prepare("SELECT V.NOMBRE_VESPECIES AS NOMBRE,
+                                                    IFNULL(SUM(EXI.KILOS_NETO_EXIMATERIAPRIMA),0) AS TOTAL
+                                                FROM fruta_eximateriaprima EXI
+                                                LEFT JOIN fruta_vespecies V ON EXI.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE EXI.ESTADO_REGISTRO = 1
+                                                AND EXI.ESTADO = 2
+                                                AND EXI.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND EXI.ID_PRODUCTOR IN ('".$productoresIn."')
+                                                GROUP BY EXI.ID_VESPECIES
+                                                ORDER BY TOTAL DESC;");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function topExportacionProductor($TEMPORADA, $ESPECIE, $PRODUCTORES, $LIMITE = 5)
+    {
+        try {
+            if (empty($PRODUCTORES)) {
+                return [];
+            }
+
+            $productoresIn = implode("','", $PRODUCTORES);
+            $limiteSeguro = (int) $LIMITE;
+
+            $datos = $this->conexion->prepare("SELECT PR.NOMBRE_PRODUCTOR AS NOMBRE,
+                                                        PR.CSG_PRODUCTOR AS CSP,
+                                                        IFNULL(SUM(EXPEXPORT.KILOS_NETO_EXIEXPORTACION),0) AS TOTAL
+                                                FROM fruta_exiexportacion EXPEXPORT
+                                                LEFT JOIN fruta_productor PR ON EXPEXPORT.ID_PRODUCTOR = PR.ID_PRODUCTOR
+                                                LEFT JOIN fruta_vespecies V ON EXPEXPORT.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE EXPEXPORT.ESTADO_REGISTRO = 1
+                                                AND EXPEXPORT.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND EXPEXPORT.ID_PRODUCTOR IN ('".$productoresIn."')
+                                                GROUP BY EXPEXPORT.ID_PRODUCTOR
+                                                ORDER BY TOTAL DESC
+                                                LIMIT $limiteSeguro;");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
