@@ -1,5 +1,5 @@
 <?php 
-include_once '../../assest/config/BDCONFIG.php';
+require_once __DIR__ . '/../../assest/config/BDCONFIG.php';
 class DocumentoModel {
     private $db;
 
@@ -27,6 +27,7 @@ class DocumentoModel {
             return [];
         }
 
+        $limit = (int) $limit;
         $placeholders = implode(',', array_fill(0, count($productores), '?'));
         $params = $productores;
 
@@ -37,8 +38,7 @@ class DocumentoModel {
             $params[] = $especieId;
         }
 
-        $query .= " ORDER BY create_documento DESC LIMIT ?";
-        $params[] = $limit;
+        $query .= " ORDER BY create_documento DESC LIMIT $limit";
 
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);

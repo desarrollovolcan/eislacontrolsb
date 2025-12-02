@@ -1,10 +1,10 @@
 <?php
-include_once "../../assest/config/validarUsuarioOpera.php";
+require_once __DIR__ . "/../../assest/config/validarUsuarioOpera.php";
 
 //LLAMADA ARCHIVOS NECESARIOS PARA LAS OPERACIONES
-include_once "../../assest/controlador/CONSULTA_ADO.php";
-include_once "../../assest/controlador/EMPRESAPRODUCTOR_ADO.php";
-include_once "../../assest/controlador/productor_controller.php";
+require_once __DIR__ . "/../../assest/controlador/CONSULTA_ADO.php";
+require_once __DIR__ . "/../../assest/controlador/EMPRESAPRODUCTOR_ADO.php";
+require_once __DIR__ . "/../../assest/controlador/productor_controller.php";
 
 //INICIALIZAR CONTROLADOR
 $CONSULTA_ADO =  new CONSULTA_ADO();

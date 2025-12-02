@@ -1,7 +1,7 @@
 <?php
-include_once '../../assest/modelo/productor_model.php';
-include_once '../../assest/modelo/documento_model.php';
-include_once '../../assest/modelo/especie_model.php';
+require_once __DIR__ . '/../../assest/modelo/productor_model.php';
+require_once __DIR__ . '/../../assest/modelo/documento_model.php';
+require_once __DIR__ . '/../../assest/modelo/especie_model.php';
 
 class ProductorController {
     private $productorModel;
