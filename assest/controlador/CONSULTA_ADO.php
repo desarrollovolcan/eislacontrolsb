@@ -830,13 +830,16 @@ class CONSULTA_ADO
 
             $productoresIn = implode("','", $PRODUCTORES);
 
-            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(EXI.KILOS_NETO_EXIMATERIAPRIMA),0) AS TOTAL
-                                                FROM fruta_eximateriaprima EXI
-                                                LEFT JOIN fruta_vespecies V ON EXI.ID_VESPECIES = V.ID_VESPECIES
-                                                WHERE EXI.ESTADO_REGISTRO = 1
-                                                AND EXI.ID_TEMPORADA = '".$TEMPORADA."'
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
+                                                FROM fruta_recepcionmp recepcion
+                                                LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE recepcion.ESTADO_REGISTRO = 1
+                                                AND recepcion.ESTADO = 0
+                                                AND detalle.ESTADO_REGISTRO = 1
+                                                AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND EXI.ID_PRODUCTOR IN ('".$productoresIn."');");
+                                                AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
@@ -864,6 +867,32 @@ class CONSULTA_ADO
                                                 AND P.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
                                                 AND P.ID_PRODUCTOR IN ('".$productoresIn."');");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado ? $resultado[0]['TOTAL'] : 0;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function kilosExportadosProductor($TEMPORADA, $ESPECIE, $PRODUCTORES)
+    {
+        try {
+            if (empty($PRODUCTORES)) {
+                return 0;
+            }
+
+            $productoresIn = implode("','", $PRODUCTORES);
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(EXPEXPORT.KILOS_NETO_EXIEXPORTACION),0) AS TOTAL
+                                                FROM fruta_exiexportacion EXPEXPORT
+                                                LEFT JOIN fruta_vespecies V ON EXPEXPORT.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE EXPEXPORT.ESTADO_REGISTRO = 1
+                                                AND EXPEXPORT.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND EXPEXPORT.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;

@@ -15,12 +15,15 @@ $productorController = new ProductorController();
 $PRODUCTORESASOCIADOS = array();
 $KILOSVARIEDAD = array();
 $KILOSSEMANA = array();
-$KILOSPRODUCTOR = array();
-$RESUMENRECEPCION = array();
+$DETALLEPRODUCTOR = array();
 $ULTIMOSDOCUMENTOS = array();
-$TOTALMATERIAPRIMA = 0;
+
+$TOTALKILOSNETOS = 0;
+$TOTALRECEPCIONES = 0;
+$PROMEDIORECEPCION = 0;
+$KILOSNETOPROCESO = 0;
+$KILOSEXPORTADOS = 0;
 $PORCENTAJEEXPORTACION = 0;
-$KILOSPROCESADOS = 0;
 $EXISTENCIAMATERIAPRIMA = 0;
 
 $ARRAYEMPRESAPRODUCTOR = $EMPRESAPRODUCTOR_ADO->buscarEmpresaProductorPorUsuarioCBX($IDUSUARIOS);
@@ -34,19 +37,20 @@ if ($ARRAYEMPRESAPRODUCTOR) {
 if ($PRODUCTORESASOCIADOS) {
     $KILOSVARIEDAD = $CONSULTA_ADO->kilosPorVariedadProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $KILOSSEMANA = $CONSULTA_ADO->kilosPorSemanaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $KILOSPRODUCTOR = $CONSULTA_ADO->kilosPorProductorAsociado($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $RESUMENRECEPCION = $CONSULTA_ADO->resumenRecepcionesProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $ULTIMOSDOCUMENTOS = $productorController->ultimosDocumentosProductores($PRODUCTORESASOCIADOS, $ESPECIE, 6);
-    $TOTALMATERIAPRIMA = $CONSULTA_ADO->kilosMateriaPrimaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $PORCENTAJEEXPORTACION = $CONSULTA_ADO->porcentajeExportacionProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $KILOSPROCESADOS = $CONSULTA_ADO->kilosProcesadosProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $EXISTENCIAMATERIAPRIMA = $CONSULTA_ADO->existenciaMateriaPrimaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-}
+    $DETALLEPRODUCTOR = $CONSULTA_ADO->kilosPorProductorAsociado($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
 
-$TOTALKILOS = $RESUMENRECEPCION ? $RESUMENRECEPCION[0]["KILOS"] : 0;
-$TOTALRECEPCIONES = $RESUMENRECEPCION ? $RESUMENRECEPCION[0]["RECEPCIONES"] : 0;
-$TOTALPRODUCTORES = $RESUMENRECEPCION ? $RESUMENRECEPCION[0]["PRODUCTORES"] : 0;
-$PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
+    $RESUMENRECEPCION = $CONSULTA_ADO->resumenRecepcionesProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $TOTALKILOSNETOS = $RESUMENRECEPCION ? $RESUMENRECEPCION[0]["KILOS"] : 0;
+    $TOTALRECEPCIONES = $RESUMENRECEPCION ? $RESUMENRECEPCION[0]["RECEPCIONES"] : 0;
+    $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOSNETOS / $TOTALRECEPCIONES) : 0;
+
+    $KILOSNETOPROCESO = $CONSULTA_ADO->kilosProcesadosProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $KILOSEXPORTADOS = $CONSULTA_ADO->kilosExportadosProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $PORCENTAJEEXPORTACION = $CONSULTA_ADO->porcentajeExportacionProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $EXISTENCIAMATERIAPRIMA = $CONSULTA_ADO->existenciaMateriaPrimaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+
+    $ULTIMOSDOCUMENTOS = $productorController->ultimosDocumentosProductores($PRODUCTORESASOCIADOS, $ESPECIE, 6);
+}
 ?>
 
 <!DOCTYPE html>
@@ -112,76 +116,76 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                     <section class="content">
                         <div class="row">
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-sky">
-                                    <div class="box-body">
-                                        <h5 class="text-uppercase">Kilos recepcionados</h5>
-                                        <h2 class="font-weight-600"><?php echo number_format($TOTALKILOS, 0, ',', '.'); ?> kg</h2>
-                                        <span class="helper-text">Temporada actual / especie seleccionada</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-dusk">
-                                    <div class="box-body">
-                                        <h5 class="text-uppercase">Recepciones registradas</h5>
-                                        <h2 class="font-weight-600"><?php echo number_format($TOTALRECEPCIONES, 0, ',', '.'); ?></h2>
-                                        <span class="helper-text">Guías cerradas del productor asociado</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-teal">
-                                    <div class="box-body">
-                                        <h5 class="text-uppercase">Promedio por recepción</h5>
-                                        <h2 class="font-weight-600"><?php echo number_format($PROMEDIORECEPCION, 0, ',', '.'); ?> kg</h2>
-                                        <span class="helper-text">Distribución de los kilos totales</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-amber">
-                                    <div class="box-body">
-                                        <h5 class="text-uppercase">Productores asociados</h5>
-                                        <h2 class="font-weight-600"><?php echo number_format($TOTALPRODUCTORES ? $TOTALPRODUCTORES : count($PRODUCTORESASOCIADOS), 0, ',', '.'); ?></h2>
-                                        <span class="helper-text">Accesos según usuario</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                 <div class="box stat-card bg-gradient-primary">
                                     <div class="box-body">
-                                        <h5 class="text-uppercase">Kilos materia prima acumulados</h5>
-                                        <h2 class="font-weight-600"><?php echo number_format($TOTALMATERIAPRIMA, 0, ',', '.'); ?> kg</h2>
-                                        <span class="helper-text">Incluye todas las guías asociadas al productor</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-success">
-                                    <div class="box-body">
-                                        <h5 class="text-uppercase">% exportación actual</h5>
-                                        <h2 class="font-weight-600"><?php echo number_format($PORCENTAJEEXPORTACION, 2, ',', '.'); ?>%</h2>
-                                        <span class="helper-text">Relación kilos exportados / kilos recepcionados</span>
+                                        <h5 class="text-uppercase mb-10">Kg acumulados materia prima</h5>
+                                        <h2 class="font-weight-600 mb-5"><?php echo number_format($TOTALKILOSNETOS, 0, ',', '.'); ?> kg</h2>
+                                        <span class="helper-text">Total kilos netos de recepciones</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                 <div class="box stat-card bg-gradient-info">
                                     <div class="box-body">
-                                        <h5 class="text-uppercase">Kilos procesados</h5>
-                                        <h2 class="font-weight-600"><?php echo number_format($KILOSPROCESADOS, 0, ',', '.'); ?> kg</h2>
-                                        <span class="helper-text">Procesos cerrados en la temporada</span>
+                                        <h5 class="text-uppercase mb-10">Kilos neto entrada</h5>
+                                        <h2 class="font-weight-600 mb-5"><?php echo number_format($KILOSNETOPROCESO, 0, ',', '.'); ?> kg</h2>
+                                        <span class="helper-text">Kilos procesados a la fecha</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="box stat-card bg-gradient-success">
+                                    <div class="box-body">
+                                        <h5 class="text-uppercase mb-10">Kilos exportados</h5>
+                                        <h2 class="font-weight-600 mb-5"><?php echo number_format($KILOSEXPORTADOS, 0, ',', '.'); ?> kg</h2>
+                                        <span class="helper-text">% Exportación: <?php echo number_format($PORCENTAJEEXPORTACION, 2, ',', '.'); ?>%</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                 <div class="box stat-card bg-gradient-secondary">
                                     <div class="box-body">
-                                        <h5 class="text-uppercase">Existencia materia prima</h5>
-                                        <h2 class="font-weight-600"><?php echo number_format($EXISTENCIAMATERIAPRIMA, 0, ',', '.'); ?> kg</h2>
-                                        <span class="helper-text">Stock disponible a la fecha</span>
+                                        <h5 class="text-uppercase mb-10">Existencia materia prima</h5>
+                                        <h2 class="font-weight-600 mb-5"><?php echo number_format($EXISTENCIAMATERIAPRIMA, 0, ',', '.'); ?> kg</h2>
+                                        <span class="helper-text">Stock disponible según existencias</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="box stat-card bg-gradient-sky">
+                                    <div class="box-body">
+                                        <h5 class="text-uppercase mb-10">Recepciones registradas</h5>
+                                        <h2 class="font-weight-600 mb-5"><?php echo number_format($TOTALRECEPCIONES, 0, ',', '.'); ?></h2>
+                                        <span class="helper-text">Guías cerradas de productores asociados</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="box stat-card bg-gradient-amber">
+                                    <div class="box-body">
+                                        <h5 class="text-uppercase mb-10">Promedio por recepción</h5>
+                                        <h2 class="font-weight-600 mb-5"><?php echo number_format($PROMEDIORECEPCION, 0, ',', '.'); ?> kg</h2>
+                                        <span class="helper-text">Basado en kilos netos recepcionados</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="box stat-card bg-gradient-dusk">
+                                    <div class="box-body">
+                                        <h5 class="text-uppercase mb-10">Productores visibles</h5>
+                                        <h2 class="font-weight-600 mb-5"><?php echo number_format(count($PRODUCTORESASOCIADOS), 0, ',', '.'); ?></h2>
+                                        <span class="helper-text">Según permisos del usuario</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="box stat-card bg-gradient-teal">
+                                    <div class="box-body">
+                                        <h5 class="text-uppercase mb-10">Detalle descargable</h5>
+                                        <button class="btn btn-light" onclick="irPagina('listarProductorRecepcionmp.php');"><i class="fa fa-tag"></i> Recepciones</button>
+                                        <button class="btn btn-light mt-5" onclick="irPagina('listarProductorProceso.php');"><i class="fa fa-tag"></i> Procesos</button>
                                     </div>
                                 </div>
                             </div>
@@ -190,24 +194,24 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                             <div class="col-xl-6 col-lg-12">
                                 <div class="box">
                                     <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Kilos por variedad</h4>
+                                        <h4 class="box-title mb-0">Kilos netos por variedad</h4>
                                         <button class="btn btn-primary btn-sm" onclick="exportVariedadExcel()"><i class="fa fa-tag"></i> Exportar Excel</button>
                                     </div>
                                     <div class="box-body">
                                         <div id="graficoVariedad" class="chart-container"></div>
-                                        <div id="graficoVariedadVacio" class="text-center text-muted <?php echo $KILOSVARIEDAD ? 'd-none' : ''; ?>">Sin información disponible</div>
+                                        <div id="graficoVariedadVacio" class="text-center text-muted <?php echo $KILOSVARIEDAD ? '' : 'd-none'; ?>">Sin información disponible</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xl-6 col-lg-12">
                                 <div class="box">
                                     <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Kilos por semana</h4>
+                                        <h4 class="box-title mb-0">Kilos netos por semana</h4>
                                         <button class="btn btn-primary btn-sm" onclick="exportSemanasExcel()"><i class="fa fa-tag"></i> Exportar Excel</button>
                                     </div>
                                     <div class="box-body">
                                         <div id="graficoSemanas" class="chart-container"></div>
-                                        <div id="graficoSemanasVacio" class="text-center text-muted <?php echo $KILOSSEMANA ? 'd-none' : ''; ?>">Sin información disponible</div>
+                                        <div id="graficoSemanasVacio" class="text-center text-muted <?php echo $KILOSSEMANA ? '' : 'd-none'; ?>">Sin información disponible</div>
                                     </div>
                                 </div>
                             </div>
@@ -217,7 +221,7 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                                 <div class="box">
                                     <div class="box-header with-border d-flex justify-content-between align-items-center">
                                         <h4 class="box-title mb-0">Detalle por productor</h4>
-                                        <span class="helper-text mb-0">Solo productores asociados al usuario</span>
+                                        <button class="btn btn-primary btn-sm" onclick="exportProductorExcel()"><i class="fa fa-tag"></i> Exportar Excel</button>
                                     </div>
                                     <div class="box-body">
                                         <div class="table-responsive">
@@ -226,12 +230,12 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                                                     <tr>
                                                         <th>Productor</th>
                                                         <th class="text-right">Recepciones</th>
-                                                        <th class="text-right">Kilos</th>
+                                                        <th class="text-right">Kilos netos</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php if ($KILOSPRODUCTOR) { ?>
-                                                        <?php foreach ($KILOSPRODUCTOR as $detalleProductor) { ?>
+                                                    <?php if ($DETALLEPRODUCTOR) { ?>
+                                                        <?php foreach ($DETALLEPRODUCTOR as $detalleProductor) { ?>
                                                             <tr>
                                                                 <td><?php echo $detalleProductor["NOMBRE"]; ?></td>
                                                                 <td class="text-right"><?php echo number_format($detalleProductor["RECEPCIONES"], 0, ',', '.'); ?></td>
@@ -253,29 +257,29 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                                 <div class="box">
                                     <div class="box-header with-border d-flex justify-content-between align-items-center">
                                         <h4 class="box-title mb-0">Últimos documentos subidos</h4>
-                                        <span class="helper-text mb-0">Documentos asociados a los productores del usuario</span>
+                                        <span class="helper-text mb-0">Nombre registrado y fecha de vencimiento</span>
                                     </div>
                                     <div class="box-body">
                                         <div class="table-responsive">
                                             <table class="table table-hover">
                                                 <thead>
                                                     <tr>
-                                                        <th>Archivo</th>
-                                                        <th>Nombre</th>
+                                                        <th>Documento</th>
                                                         <th>Vigencia</th>
+                                                        <th>Descargar</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <?php if ($ULTIMOSDOCUMENTOS) { ?>
                                                         <?php foreach ($ULTIMOSDOCUMENTOS as $documento) { ?>
                                                             <tr>
-                                                                <td>
-                                                                    <a href="../../data/data_productor/<?php echo $documento->archivo_documento; ?>" target="_blank" class="btn btn-info btn-sm">
-                                                                        <i class="ti-file"></i>
-                                                                    </a>
-                                                                </td>
                                                                 <td><?php echo htmlspecialchars($documento->nombre_documento); ?></td>
                                                                 <td><?php echo $documento->vigencia_documento; ?></td>
+                                                                <td>
+                                                                    <a href="../../data/data_productor/<?php echo $documento->archivo_documento; ?>" target="_blank" class="btn btn-info btn-sm">
+                                                                        <i class="ti-download"></i>
+                                                                    </a>
+                                                                </td>
                                                             </tr>
                                                         <?php } ?>
                                                     <?php } else { ?>
@@ -302,6 +306,7 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
         <script>
             const datosVariedad = <?php echo json_encode($KILOSVARIEDAD); ?>;
             const datosSemanas = <?php echo json_encode($KILOSSEMANA); ?>;
+            const datosProductor = <?php echo json_encode($DETALLEPRODUCTOR); ?>;
 
             function exportToExcel(filename, headers, rows) {
                 let csv = headers.join(';') + "\n";
@@ -323,7 +328,7 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                     return;
                 }
                 const filas = datosVariedad.map((item) => [item.NOMBRE, item.TOTAL]);
-                exportToExcel('kilos_por_variedad.xls', ['Variedad', 'Kilos'], filas);
+                exportToExcel('kilos_por_variedad.xls', ['Variedad', 'Kilos netos'], filas);
             }
 
             function exportSemanasExcel() {
@@ -331,11 +336,19 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                     return;
                 }
                 const filas = datosSemanas.map((item) => [item.SEMANA, item.TOTAL]);
-                exportToExcel('kilos_por_semana.xls', ['Semana', 'Kilos'], filas);
+                exportToExcel('kilos_por_semana.xls', ['Semana', 'Kilos netos'], filas);
+            }
+
+            function exportProductorExcel() {
+                if (!datosProductor || !datosProductor.length) {
+                    return;
+                }
+                const filas = datosProductor.map((item) => [item.NOMBRE, item.RECEPCIONES, item.TOTAL]);
+                exportToExcel('kilos_por_productor.xls', ['Productor', 'Recepciones', 'Kilos netos'], filas);
             }
 
             if (datosVariedad && datosVariedad.length) {
-                const chartVariedad = c3.generate({
+                c3.generate({
                     bindto: '#graficoVariedad',
                     data: {
                         json: datosVariedad.map((item) => ({
@@ -351,7 +364,7 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                             TOTAL: '#00BCD4'
                         },
                         names: {
-                            TOTAL: 'Kilos'
+                            TOTAL: 'Kilos netos'
                         }
                     },
                     axis: {
@@ -359,7 +372,7 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                             type: 'category'
                         },
                         y: {
-                            label: 'Kilos'
+                            label: 'Kilos netos'
                         }
                     },
                     legend: {
@@ -373,7 +386,7 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
             }
 
             if (datosSemanas && datosSemanas.length) {
-                const chartSemanas = c3.generate({
+                c3.generate({
                     bindto: '#graficoSemanas',
                     data: {
                         json: datosSemanas.map((item) => ({
@@ -389,7 +402,7 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                             TOTAL: '#8BC34A'
                         },
                         names: {
-                            TOTAL: 'Kilos'
+                            TOTAL: 'Kilos netos'
                         }
                     },
                     axis: {
@@ -397,7 +410,7 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                             type: 'category'
                         },
                         y: {
-                            label: 'Kilos'
+                            label: 'Kilos netos'
                         }
                     },
                     legend: {
