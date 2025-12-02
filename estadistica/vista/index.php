@@ -18,6 +18,10 @@ $KILOSSEMANA = array();
 $KILOSPRODUCTOR = array();
 $RESUMENRECEPCION = array();
 $ULTIMOSDOCUMENTOS = array();
+$TOTALMATERIAPRIMA = 0;
+$PORCENTAJEEXPORTACION = 0;
+$KILOSPROCESADOS = 0;
+$EXISTENCIAMATERIAPRIMA = 0;
 
 $ARRAYEMPRESAPRODUCTOR = $EMPRESAPRODUCTOR_ADO->buscarEmpresaProductorPorUsuarioCBX($IDUSUARIOS);
 if ($ARRAYEMPRESAPRODUCTOR) {
@@ -33,6 +37,10 @@ if ($PRODUCTORESASOCIADOS) {
     $KILOSPRODUCTOR = $CONSULTA_ADO->kilosPorProductorAsociado($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $RESUMENRECEPCION = $CONSULTA_ADO->resumenRecepcionesProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $ULTIMOSDOCUMENTOS = $productorController->ultimosDocumentosProductores($PRODUCTORESASOCIADOS, $ESPECIE, 6);
+    $TOTALMATERIAPRIMA = $CONSULTA_ADO->kilosMateriaPrimaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $PORCENTAJEEXPORTACION = $CONSULTA_ADO->porcentajeExportacionProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $KILOSPROCESADOS = $CONSULTA_ADO->kilosProcesadosProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $EXISTENCIAMATERIAPRIMA = $CONSULTA_ADO->existenciaMateriaPrimaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
 }
 
 $TOTALKILOS = $RESUMENRECEPCION ? $RESUMENRECEPCION[0]["KILOS"] : 0;
@@ -136,6 +144,44 @@ $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOS / $TOTALRECEPCIONES) : 0;
                                         <h5 class="text-uppercase">Productores asociados</h5>
                                         <h2 class="font-weight-600"><?php echo number_format($TOTALPRODUCTORES ? $TOTALPRODUCTORES : count($PRODUCTORESASOCIADOS), 0, ',', '.'); ?></h2>
                                         <span class="helper-text">Accesos según usuario</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="box stat-card bg-gradient-primary">
+                                    <div class="box-body">
+                                        <h5 class="text-uppercase">Kilos materia prima acumulados</h5>
+                                        <h2 class="font-weight-600"><?php echo number_format($TOTALMATERIAPRIMA, 0, ',', '.'); ?> kg</h2>
+                                        <span class="helper-text">Incluye todas las guías asociadas al productor</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="box stat-card bg-gradient-success">
+                                    <div class="box-body">
+                                        <h5 class="text-uppercase">% exportación actual</h5>
+                                        <h2 class="font-weight-600"><?php echo number_format($PORCENTAJEEXPORTACION, 2, ',', '.'); ?>%</h2>
+                                        <span class="helper-text">Relación kilos exportados / kilos recepcionados</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="box stat-card bg-gradient-info">
+                                    <div class="box-body">
+                                        <h5 class="text-uppercase">Kilos procesados</h5>
+                                        <h2 class="font-weight-600"><?php echo number_format($KILOSPROCESADOS, 0, ',', '.'); ?> kg</h2>
+                                        <span class="helper-text">Procesos cerrados en la temporada</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="box stat-card bg-gradient-secondary">
+                                    <div class="box-body">
+                                        <h5 class="text-uppercase">Existencia materia prima</h5>
+                                        <h2 class="font-weight-600"><?php echo number_format($EXISTENCIAMATERIAPRIMA, 0, ',', '.'); ?> kg</h2>
+                                        <span class="helper-text">Stock disponible a la fecha</span>
                                     </div>
                                 </div>
                             </div>
