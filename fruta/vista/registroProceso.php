@@ -10,6 +10,11 @@ include_once '../../assest/controlador/ESPECIES_ADO.php';
 include_once '../../assest/controlador/VESPECIES_ADO.php';
 include_once '../../assest/controlador/PROCESO_ADO.php';
 include_once '../../assest/controlador/PCDESPACHOMP_ADO.php';
+include_once '../../assest/controlador/REPALETIZAJEEX_ADO.php';
+include_once '../../assest/controlador/REEMBALAJE_ADO.php';
+include_once '../../assest/controlador/DESPACHOEX_ADO.php';
+include_once '../../assest/controlador/DESPACHOPT_ADO.php';
+include_once '../../assest/controlador/INPSAG_ADO.php';
 
 include_once '../../assest/controlador/ERECEPCION_ADO.php';
 include_once '../../assest/controlador/EEXPORTACION_ADO.php';
@@ -50,6 +55,11 @@ $PCDESPACHOMP_ADO =  new PCDESPACHOMP_ADO();
 
 $EXIEXPORTACION_ADO =  new EXIEXPORTACION_ADO();
 $EXIINDUSTRIAL_ADO =  new EXIINDUSTRIAL_ADO();
+$REPALETIZAJEEX_ADO =  new REPALETIZAJEEX_ADO();
+$REEMBALAJE_ADO =  new REEMBALAJE_ADO();
+$DESPACHOEX_ADO =  new DESPACHOEX_ADO();
+$DESPACHOPT_ADO =  new DESPACHOPT_ADO();
+$INPSAG_ADO =  new INPSAG_ADO();
 
 
 $DPINDUSTRIAL_ADO =  new DPINDUSTRIAL_ADO();
@@ -1168,6 +1178,35 @@ if (isset($_POST)) {
                                                             $idDespacho = $detalleExistencia[0]['ID_DESPACHOEX'] ? $detalleExistencia[0]['ID_DESPACHOEX'] : $detalleExistencia[0]['ID_DESPACHO'];
                                                             $idInpsag = $detalleExistencia[0]['ID_INPSAG'];
 
+                                                            $numeroRepaletizaje = null;
+                                                            if ($idRepaletizaje) {
+                                                                $repaletizaje = $REPALETIZAJEEX_ADO->verRepaletizaje2($idRepaletizaje);
+                                                                $numeroRepaletizaje = $repaletizaje ? $repaletizaje[0]['NUMERO_REPALETIZAJE'] : null;
+                                                            }
+
+                                                            $numeroReembalaje = null;
+                                                            if ($idReembalaje) {
+                                                                $reembalaje = $REEMBALAJE_ADO->verReembalaje2($idReembalaje);
+                                                                $numeroReembalaje = $reembalaje ? $reembalaje[0]['NUMERO_REEMBALAJE'] : null;
+                                                            }
+
+                                                            $numeroDespacho = null;
+                                                            if ($idDespacho) {
+                                                                if ($detalleExistencia[0]['ID_DESPACHOEX']) {
+                                                                    $despacho = $DESPACHOEX_ADO->verDespachoex($idDespacho);
+                                                                    $numeroDespacho = $despacho ? $despacho[0]['NUMERO_DESPACHOEX'] : null;
+                                                                } else {
+                                                                    $despacho = $DESPACHOPT_ADO->verDespachopt($idDespacho);
+                                                                    $numeroDespacho = $despacho ? $despacho[0]['NUMERO_DESPACHO'] : null;
+                                                                }
+                                                            }
+
+                                                            $numeroInpsag = null;
+                                                            if ($idInpsag) {
+                                                                $inpsag = $INPSAG_ADO->verInpsag3($idInpsag);
+                                                                $numeroInpsag = $inpsag ? $inpsag[0]['NUMERO_INPSAG'] . ($inpsag[0]['CORRELATIVO_INPSAG'] ? '-' . $inpsag[0]['CORRELATIVO_INPSAG'] : '') : null;
+                                                            }
+
                                                             $esRepaletizado = in_array($estadoExistencia, [3, 4], true) || $idRepaletizaje;
                                                             $esReembalado = in_array($estadoExistencia, [5, 6], true) || $idReembalaje;
                                                             $esDespachado = in_array($estadoExistencia, [7, 8], true) || $idDespacho;
@@ -1175,28 +1214,28 @@ if (isset($_POST)) {
 
                                                             if ($esRepaletizado) {
                                                                 $etiquetasFolio[] = [
-                                                                    'texto' => $idRepaletizaje ? "Repaletizaje #{$idRepaletizaje}" : 'Repaletizado',
+                                                                    'texto' => $idRepaletizaje && $numeroRepaletizaje ? "Repaletizaje #{$numeroRepaletizaje}" : 'Repaletizado',
                                                                     'clase' => 'badge-info',
                                                                     'url' => $idRepaletizaje ? "registroRepaletizajePTFrigorifico.php?op&id={$idRepaletizaje}&a=ver" : ''
                                                                 ];
                                                             }
                                                             if ($esReembalado) {
                                                                 $etiquetasFolio[] = [
-                                                                    'texto' => $idReembalaje ? "Reembalaje #{$idReembalaje}" : 'Reembalado',
+                                                                    'texto' => $idReembalaje && $numeroReembalaje ? "Reembalaje #{$numeroReembalaje}" : 'Reembalado',
                                                                     'clase' => 'badge-secondary',
                                                                     'url' => $idReembalaje ? "registroReembalajeEx.php?op&id={$idReembalaje}&a=ver" : ''
                                                                 ];
                                                             }
                                                             if ($esDespachado) {
                                                                 $etiquetasFolio[] = [
-                                                                    'texto' => $idDespacho ? "Despacho #{$idDespacho}" : 'Despachado',
+                                                                    'texto' => $idDespacho && $numeroDespacho ? "Despacho #{$numeroDespacho}" : 'Despachado',
                                                                     'clase' => 'badge-danger',
                                                                     'url' => $idDespacho ? "registroDespachoEX.php?op&id={$idDespacho}&a=ver" : ''
                                                                 ];
                                                             }
                                                             if ($esInspeccionado) {
                                                                 $etiquetasFolio[] = [
-                                                                    'texto' => $idInpsag ? "Inspección #{$idInpsag}" : 'Inspeccionado',
+                                                                    'texto' => $idInpsag && $numeroInpsag ? "Inspección #{$numeroInpsag}" : 'Inspeccionado',
                                                                     'clase' => 'badge-primary',
                                                                     'url' => $idInpsag ? "registroInpsag.php?op&id={$idInpsag}&a=ver" : ''
                                                                 ];
