@@ -154,6 +154,167 @@ if ($EMPRESAS  && $TEMPORADAS) {
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
+    <style>
+        .detalle-modal .modal-content {
+            border: 1px solid #d0d7e3;
+            box-shadow: 0 8px 22px rgba(0, 54, 94, 0.08);
+            border-radius: 10px;
+        }
+
+        .detalle-modal .modal-header {
+            background: #fff;
+            color: #0f4a7a;
+            border-bottom: 1px solid #d0d7e3;
+            padding: 10px 12px;
+        }
+
+        .detalle-modal .modal-title {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            margin: 0;
+            color: #0f4a7a;
+        }
+
+        .detalle-modal .modal-subtitle {
+            font-size: 11px;
+            letter-spacing: 0.4px;
+            color: #5a6f86;
+            margin-bottom: 2px;
+            opacity: 0.9;
+        }
+
+        .detalle-modal .close {
+            color: #0f4a7a;
+            opacity: 0.85;
+        }
+
+        .detalle-modal .modal-body {
+            background: #fff;
+            padding: 10px;
+        }
+
+        .detalle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 6px;
+            align-items: stretch;
+            grid-auto-rows: 1fr;
+        }
+
+        .detalle-resumen-table {
+            margin-bottom: 8px;
+        }
+
+        .detalle-resumen-table .detalle-table {
+            table-layout: fixed;
+        }
+
+        .detalle-resumen-table thead th {
+            background: #f2f6fb;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.4px;
+            font-weight: 700;
+        }
+
+        .detalle-resumen-table tbody td {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .detalle-card {
+            background: #fff;
+            border: 1px solid #dce4ef;
+            border-radius: 8px;
+            padding: 0;
+            box-shadow: 0 1px 4px rgba(15, 62, 91, 0.05);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .detalle-card h5 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0f2d4a;
+            margin: 0;
+            letter-spacing: 0.3px;
+            padding: 8px 10px;
+            background: #f2f6fb;
+            border-bottom: 1px solid #e3ebf5;
+        }
+
+        .detalle-card table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            color: #1f3a56;
+        }
+
+        .detalle-card th,
+        .detalle-card td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #eef2f7;
+            vertical-align: top;
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        .detalle-card th {
+            background: #fafbfc;
+            color: #556b85;
+            width: 38%;
+            font-weight: 600;
+        }
+
+        .detalle-card td {
+            font-weight: 600;
+        }
+
+        .detalle-table.resumen-table th,
+        .detalle-table.resumen-table td {
+            text-align: center;
+        }
+
+        .detalle-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 72px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: #e8f0fb;
+            color: #0f4a7a;
+            font-weight: 700;
+        }
+
+        .detalle-modal .modal-footer {
+            padding: 10px;
+            border-top: 1px solid #dce4ef;
+            background: #f7f9fc;
+        }
+
+        .detalle-modal .btn-primary {
+            background: #1565c0;
+            border-color: #1565c0;
+        }
+
+        .detalle-modal .btn-secondary {
+            background: #e2e8f0;
+            color: #0f2d4a;
+            border-color: #d7deea;
+        }
+
+        .detalle-modal .btn {
+            min-width: 160px;
+        }
+
+        .mov-link {
+            color: #0f4a7a;
+            text-decoration: underline;
+        }
+    </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
                 //REDIRECCIONAR A LA PAGINA SELECIONADA
@@ -216,6 +377,8 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                             <table id="hexistencia" class="table-hover table-bordered" style="width: 300%;">
                                                 <thead>
                                                     <tr class="text-center">
+                                                        <th>Detalle</th>
+                                                        <th>Detalle</th>
                                                         <th>Folio Original</th>
                                                         <th>Folio Nuevo</th>
                                                         <th>Fecha Embalado </th>
@@ -871,11 +1034,265 @@ if ($EMPRESAS  && $TEMPORADAS) {
             </div>
 
             <!- LLAMADA ARCHIVO DEL DISEÑO DEL FOOTER Y MENU USUARIO -!>
-                <?php include_once "../../assest/config/footer.php"; ?>
+            <div class="modal fade detalle-modal" id="detalleExistenciaModal" tabindex="-1" role="dialog" aria-labelledby="detalleExistenciaModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content detalle-modal">
+                    <div class="modal-header">
+                        <div>
+                            <div class="modal-subtitle">Detalle de existencia</div>
+                            <h4 class="modal-title" id="detalleExistenciaModalLabel">Historial</h4>
+                        </div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="detalle-resumen-table">
+                            <table class="detalle-table resumen-table">
+                                <thead>
+                                    <tr>
+                                        <th>Folio original</th>
+                                        <th>Folio nuevo</th>
+                                        <th>Estado</th>
+                                        <th>Calidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td data-detail="folio"></td>
+                                        <td data-detail="folio-aux"></td>
+                                        <td><span class="detalle-badge" data-detail="estado"></span></td>
+                                        <td><span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="detalle-grid mb-1">
+                            <div class="detalle-card">
+                                <h5>Identificación</h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Estandar</th>
+                                        <td data-detail="estandar"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Especie / Variedad</th>
+                                        <td data-detail="especie"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Productor y manejo</h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Productor</th>
+                                        <td data-detail="productor"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Cantidad</th>
+                                        <td data-detail="envases"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Kilos</th>
+                                        <td data-detail="kilos"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Manejo</th>
+                                        <td data-detail="tmanejo"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Gasificación</th>
+                                        <td data-detail="gasificado"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Movimientos</h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Recepción</th>
+                                        <td data-detail="recepcion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Guía recepción</th>
+                                        <td data-detail="guia-recepcion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Proceso</th>
+                                        <td data-detail="proceso"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Despacho</th>
+                                        <td data-detail="despacho"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Ubicación y fechas</h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Empresa</th>
+                                        <td data-detail="empresa"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Planta</th>
+                                        <td data-detail="planta"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Temporada</th>
+                                        <td data-detail="temporada"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Ingreso</th>
+                                        <td data-detail="ingreso"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Modificación</th>
+                                        <td data-detail="modificacion"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="exportDetallePdf()">Imprimir Trazabilidad</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                    <?php include_once "../../assest/config/footer.php"; ?>
                 <?php include_once "../../assest/config/menuExtraExpo.php"; ?>
     </div>
     <!- LLAMADA URL DE ARCHIVOS DE DISEÑO Y JQUERY E OTROS -!>
         <?php include_once "../../assest/config/urlBase.php"; ?>
+    <script type="text/javascript">
+        const LOGO_EMPRESA = "";
+        const NOMBRE_EMPRESA = "";
+
+        document.addEventListener('DOMContentLoaded', function() {
+            function setDetailWithLink(modal, key, text, url) {
+                var container = modal.find('[data-detail="' + key + '"]');
+                if (!container.length) {
+                    return;
+                }
+                if (url) {
+                    var link = $('<a/>', {
+                        class: 'mov-link',
+                        href: url,
+                        target: '_blank',
+                        text: text
+                    });
+                    container.empty().append(link);
+                } else {
+                    container.text(text);
+                }
+            }
+
+            $('#detalleExistenciaModal').on('show.bs.modal', function(event) {
+                var button = $(event.relatedTarget);
+                var modal = $(this);
+                modal.find('[data-detail="folio"]').text(button.data('folio'));
+                modal.find('[data-detail="folio-aux"]').text(button.data('folio-aux'));
+                modal.find('[data-detail="estado"]').text(button.data('estado'));
+                modal.find('[data-detail="estado-calidad"]').text(button.data('estado-calidad'));
+                modal.find('[data-detail="estandar"]').text(button.data('estandar'));
+                modal.find('[data-detail="productor"]').text(button.data('productor') + ' (' + button.data('csg') + ')');
+                modal.find('[data-detail="especie"]').text(button.data('especie') + ' / ' + button.data('variedad'));
+                modal.find('[data-detail="envases"]').text(button.data('envases'));
+                modal.find('[data-detail="kilos"]').text('Neto: ' + button.data('neto') + ' | Promedio: ' + button.data('promedio') + ' | Bruto: ' + button.data('bruto'));
+                modal.find('[data-detail="tmanejo"]').text(button.data('tmanejo'));
+                modal.find('[data-detail="gasificado"]').text(button.data('gasificado'));
+                var recepcionTexto = button.data('tipo-recepcion') + ' #' + button.data('num-recepcion') + ' (' + button.data('fecha-recepcion') + ') ' + button.data('origen') + ' [' + button.data('csg-origen') + ']';
+                var recepcionUrl = button.data('id-recepcion') ? '../../fruta/vista/registroRecepcionpt.php?op&id=' + encodeURIComponent(button.data('id-recepcion')) + '&a=ver' : '';
+                setDetailWithLink(modal, 'recepcion', recepcionTexto, recepcionUrl);
+                modal.find('[data-detail="guia-recepcion"]').text(button.data('num-guia-recepcion') + (button.data('fecha-guia-recepcion') ? ' (' + button.data('fecha-guia-recepcion') + ')' : ''));
+                var procesoTexto = button.data('tipo-proceso') + ' #' + button.data('num-proceso') + ' (' + button.data('fecha-proceso') + ')';
+                var procesoUrl = button.data('id-proceso') ? '../../fruta/vista/registroProceso.php?op&id=' + encodeURIComponent(button.data('id-proceso')) + '&a=ver' : '';
+                setDetailWithLink(modal, 'proceso', procesoTexto, procesoUrl);
+                var despachoTexto = button.data('tipo-despacho') + ' #' + button.data('num-despacho') + ' (' + button.data('fecha-despacho') + ') ' + button.data('destino') + ' [' + button.data('csg-destino') + ']';
+                var despachoUrl = button.data('id-despacho') ? '../../fruta/vista/registroDespachopt.php?op&id=' + encodeURIComponent(button.data('id-despacho')) + '&a=ver' : '';
+                setDetailWithLink(modal, 'despacho', despachoTexto, despachoUrl);
+                modal.find('[data-detail="empresa"]').text(button.data('empresa'));
+                modal.find('[data-detail="planta"]').text(button.data('planta'));
+                modal.find('[data-detail="temporada"]').text(button.data('temporada'));
+                modal.find('[data-detail="ingreso"]').text(button.data('ingreso'));
+                modal.find('[data-detail="modificacion"]').text(button.data('modificacion'));
+            });
+        });
+
+        function imprimirTarja() {
+            exportDetallePdf();
+        }
+
+        function exportDetallePdf() {
+            var modal = document.getElementById('detalleExistenciaModal');
+            if (!modal) {
+                return;
+            }
+
+            var getDetail = function(key) {
+                var node = modal.querySelector('[data-detail="' + key + '"]');
+                return node ? node.textContent || '' : '';
+            };
+
+            var docDefinition = document.createElement('div');
+            docDefinition.id = 'detalle-pdf-temp';
+            docDefinition.style.padding = '20px';
+            docDefinition.style.fontFamily = 'Arial, sans-serif';
+            var buildCard = function(title, rows) {
+                var rowsHtml = rows.map(function(r) {
+                    return `<tr><th style="text-align:left;padding:6px;border:1px solid #eef2f7;background:#fafbfc;width:40%;">${r[0]}</th><td style="padding:6px;border:1px solid #eef2f7;">${getDetail(r[1])}</td></tr>`;
+                }).join('');
+                return `<div style="border:1px solid #dce4ef;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(15,62,91,0.05);"><div style="background:#f2f6fb;color:#0f2d4a;padding:6px 8px;font-weight:700;font-size:12px;">${title}</div><table style="width:100%;border-collapse:collapse;font-size:12px;">${rowsHtml}</table></div>`;
+            };
+            docDefinition.innerHTML = `
+                <div style="display:flex;align-items:center;gap:12px;border-bottom:1px solid #dce4ef;padding-bottom:10px;margin-bottom:14px;">
+                    ${LOGO_EMPRESA ? `<div style="flex-shrink:0;"><img src="${LOGO_EMPRESA}" style="height:50px;object-fit:contain;" /></div>` : ''}
+                    <div style="display:flex;flex-direction:column;">
+                        <div style="font-size:18px;font-weight:bold;color:#0f2d4a;">${NOMBRE_EMPRESA || 'Detalle de existencia'}</div>
+                        <div style="font-size:12px;color:#556b85;">${new Date().toLocaleString()}</div>
+                    </div>
+                </div>
+                <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;">
+                    <thead>
+                        <tr style="background:#f2f6fb;color:#0f2d4a;">
+                            <th style="padding:6px;border:1px solid #e4e9f1;">Folio original</th>
+                            <th style="padding:6px;border:1px solid #e4e9f1;">Folio nuevo</th>
+                            <th style="padding:6px;border:1px solid #e4e9f1;">Estado</th>
+                            <th style="padding:6px;border:1px solid #e4e9f1;">Calidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio')}</td>
+                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio-aux')}</td>
+                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado')}</td>
+                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado-calidad')}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px;">
+                    ${buildCard('Identificación', [['Estandar', 'estandar'], ['Especie / Variedad', 'especie']])}
+                    ${buildCard('Productor y manejo', [['Productor', 'productor'], ['Cantidad', 'envases'], ['Kilos', 'kilos'], ['Manejo', 'tmanejo'], ['Gasificación', 'gasificado']])}
+                    ${buildCard('Movimientos', [['Recepción', 'recepcion'], ['Guía recepción', 'guia-recepcion'], ['Proceso', 'proceso'], ['Despacho', 'despacho']])}
+                    ${buildCard('Ubicación y fechas', [['Empresa', 'empresa'], ['Planta', 'planta'], ['Temporada', 'temporada'], ['Ingreso', 'ingreso'], ['Modificación', 'modificacion']])}
+                </div>
+            `;
+
+            document.body.appendChild(docDefinition);
+            html2pdf().set({
+                margin: 10,
+                filename: 'detalle-existencia.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+            }).from(docDefinition).save().then(function() {
+                document.body.removeChild(docDefinition);
+            });
+        }
+    </script>
 </body>
 
 </html>
