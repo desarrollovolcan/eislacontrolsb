@@ -932,6 +932,7 @@ class CONSULTA_ADO
                                                 AND P.ESTADO = 0
                                                 AND P.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND P.FECHA_PROCESO < CURRENT_DATE
                                                 AND EXI.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
