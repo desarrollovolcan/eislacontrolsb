@@ -14824,8 +14824,24 @@ $(function () {
         'info': true,
         'autoWidth': false,
         'responsive': false,
+        'dom': 'Bfrtip',
+        'buttons': [
+            {
+                extend: 'excelHtml5',
+                text: 'Excel',
+                exportOptions: {
+                    columns: ':not(.no-export)',
+                    format: {
+                        body: function (data, row, column, node) {
+                            return $(node).text().trim();
+                        }
+                    }
+                }
+            },
+            'searchBuilder'
+        ],
         'order': [
-            [0, 'asc'], //desc ->descente asc -> ascedente
+            [1, 'asc'], //desc ->descente asc -> ascedente
         ],
         "pagingType": "full_numbers",
         "language": {
