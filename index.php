@@ -1,70 +1,102 @@
-<!DOCTYPE html>
-<html lang="es">
+<html lang="es-Ep">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistemas</title>
-    <link rel="icon" href="assest/img/favicon.png">
-    <link rel="stylesheet" type="text/css" href="assest/css/reset.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link rel="stylesheet" type="text/css" href="assest/css/style.css" />
-    <link rel="stylesheet" href="api/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" HREF="assest/css/reset.css" />
+    <link rel="icon" href="assest/img/favicon.png">
+
+    <!-- Plantilla Estilo-->
+    <!-- Vendors Style-->
+
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/vendors_css.css">
+    <!-- Style-->
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/style.css">
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/skin_color.css">
+
     <style>
-        body,
-        html {
+        body, html {
             height: 100%;
+            margin: 0;
         }
 
-        .portal-wrapper {
-            min-height: 100vh;
+        .split {
+            height: 100%;
+            width: 50%;
+            position: fixed;
+            top: 0;
+            overflow-x: hidden;
         }
 
-        .portal-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
-            padding: 28px 26px 26px;
+        .right {
+            width: 30%;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            right: 0px;
+
+            
         }
 
-        .portal-card h2 {
-            color: #1f2d3d;
-            margin-bottom: 8px;
-            font-weight: 700;
+        .left {
+            background-image: url('./assest/img/fondo.jpg'); /* Imagen de fondo de ejemplo */
+            width: 100%;
+            /*background: red;*/
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+
+           
         }
 
-        .portal-card p {
-            color: #4b5563;
-            margin-bottom: 18px;
-        }
 
-        .portal-actions .btn {
-            padding: 12px 14px;
-            font-weight: 600;
-        }
     </style>
+
 </head>
+
 <body class="hold-transition theme-primary bg-gradient-primary">
-    <div class="container portal-wrapper d-flex align-items-center justify-content-center">
-        <div class="row w-100 justify-content-center">
-            <div class="col-lg-6 col-md-8 col-sm-11">
-                <div class="portal-card">
-                    <div class="text-center mb-3">
-                        <h2 class="text-primary">Selección Intranet</h2>
-                        <p class="mb-0">Accede rápidamente al panel interno o al portal de productor.</p>
-                    </div>
-                    <div class="row g-3 portal-actions">
-                        <div class="col-12 col-md-6">
-                            <a class="btn bg-gradient-primary btn-block w-100" href="./interno.php">Interno</a>
+
+
+
+
+    <div class="split left">
+
+
+
+    <div class="split right">
+                        <div class="bg-white-10 rounded5" style="background-color: white; width: 100%;">
+
+                            <div class="content-top-agile p-10 pb-0">
+                                <h2 class="text-primary">SELECCION INTRANET</h2>
+                            </div>
+                            <div class="p-30" style="width: 70%; margin: auto;">
+                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
+                                    <div class="form-group">
+                                        <a href="./interno.php">
+                                            <button type="button" class="btn bg-gradient-primary btn-block" id="ENTRAR" name="ENTRAR">Interno</button>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
+                                    <div class="form-group">
+                                        <a href="./estadistica/">
+                                            <button type="button" class="btn bg-gradient-secondary btn-block " id="ENTRAR" name="ENTRAR">Productor</button>
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
-                        <div class="col-12 col-md-6">
-                            <a class="btn bg-gradient-secondary btn-block w-100" href="./estadistica/">Productor</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+
+
+    </div>
+
+   
+
 </body>
 </html>
