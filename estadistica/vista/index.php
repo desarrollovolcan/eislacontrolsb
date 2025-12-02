@@ -16,19 +16,13 @@ $PRODUCTORESASOCIADOS = array();
 $KILOSVARIEDAD = array();
 $KILOSSEMANA = array();
 $DETALLEPRODUCTOR = array();
-$EXISTENCIAPORVARIEDAD = array();
-$TOPEXPORTADORES = array();
+$DETALLECSPVARIEDAD = array();
 $ULTIMOSDOCUMENTOS = array();
 
-$TOTALKILOSNETOS = 0;
-$TOTALRECEPCIONES = 0;
-$PROMEDIORECEPCION = 0;
-$KILOSNETOPROCESO = 0;
-$KILOSEXPORTADOS = 0;
-$PORCENTAJEEXPORTACION = 0;
-$EXISTENCIAMATERIAPRIMA = 0;
-$EXISTENCIATIEMPORREAL = 0;
-$EXISTENCIAREAL = 0;
+$KILOSRECEPCIONACUMULADOS = 0;
+$KILOSRECEPCIONHOY = 0;
+$KILOSPROCESOACUMULADOS = 0;
+$KILOSPROCESOHOY = 0;
 
 $ARRAYEMPRESAPRODUCTOR = $EMPRESAPRODUCTOR_ADO->buscarEmpresaProductorPorUsuarioCBX($IDUSUARIOS);
 if ($ARRAYEMPRESAPRODUCTOR) {
@@ -42,34 +36,14 @@ if ($PRODUCTORESASOCIADOS) {
     $KILOSVARIEDAD = $CONSULTA_ADO->kilosPorVariedadProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $KILOSSEMANA = $CONSULTA_ADO->kilosPorSemanaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $DETALLEPRODUCTOR = $CONSULTA_ADO->kilosPorProductorAsociado($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $DETALLECSPVARIEDAD = $CONSULTA_ADO->kilosPorCspYVariedadProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
 
-    $RESUMENRECEPCION = $CONSULTA_ADO->resumenRecepcionesProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $TOTALKILOSNETOS = $RESUMENRECEPCION ? $RESUMENRECEPCION[0]["KILOS"] : 0;
-    $TOTALRECEPCIONES = $RESUMENRECEPCION ? $RESUMENRECEPCION[0]["RECEPCIONES"] : 0;
-    $PROMEDIORECEPCION = $TOTALRECEPCIONES ? ($TOTALKILOSNETOS / $TOTALRECEPCIONES) : 0;
+    $KILOSRECEPCIONACUMULADOS = $CONSULTA_ADO->kilosMateriaPrimaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $KILOSRECEPCIONHOY = $CONSULTA_ADO->kilosRecepcionadosHoyProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $KILOSPROCESOACUMULADOS = $CONSULTA_ADO->kilosProcesadosProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $KILOSPROCESOHOY = $CONSULTA_ADO->kilosProcesadosHoyProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
 
-    $KILOSNETOPROCESO = $CONSULTA_ADO->kilosProcesadosProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $KILOSEXPORTADOS = $CONSULTA_ADO->kilosExportadosProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $PORCENTAJEEXPORTACION = $CONSULTA_ADO->porcentajeExportacionProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $EXISTENCIAMATERIAPRIMA = $CONSULTA_ADO->existenciaMateriaPrimaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-
-    $EXISTENCIAPORVARIEDAD = $CONSULTA_ADO->existenciaMateriaPrimaPorVariedadProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
-    $TOPEXPORTADORES = $CONSULTA_ADO->topExportacionProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS, 5);
-
-    $EXISTENCIAREAL = $EXISTENCIAMATERIAPRIMA;
-    $EXISTENCIATIEMPORREAL = max(($TOTALKILOSNETOS - $KILOSNETOPROCESO), 0);
-
-    $ULTIMOSDOCUMENTOS = $productorController->ultimosDocumentosProductores($PRODUCTORESASOCIADOS, $ESPECIE, 6);
-}
-
-$maxExistenciaVariedad = 0;
-if ($EXISTENCIAPORVARIEDAD) {
-    $maxExistenciaVariedad = max(array_column($EXISTENCIAPORVARIEDAD, 'TOTAL'));
-}
-
-$maxExportadores = 0;
-if ($TOPEXPORTADORES) {
-    $maxExportadores = max(array_column($TOPEXPORTADORES, 'TOTAL'));
+    $ULTIMOSDOCUMENTOS = $productorController->ultimosDocumentosProductores($PRODUCTORESASOCIADOS, $ESPECIE, 8);
 }
 ?>
 
@@ -86,43 +60,31 @@ if ($TOPEXPORTADORES) {
         <?php include_once "../../assest/config/urlHead.php"; ?>
         <link rel="stylesheet" href="../../api/cryptioadmin10/html/assets/vendor_components/c3/c3.min.css">
         <style>
-            .stat-card {
-                color: #fff;
-                border: 0;
-                box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+            .kpi-card {
+                border: 1px solid #e5e5e5;
                 border-radius: 12px;
+                background: #fff;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+                padding: 18px 20px;
+                height: 100%;
             }
 
-            .stat-card .box-body {
-                padding: 18px 20px;
+            .kpi-title {
+                font-size: 0.95rem;
+                color: #6c757d;
+                margin-bottom: 6px;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+            }
+
+            .kpi-value {
+                font-size: 1.9rem;
+                font-weight: 600;
+                margin: 0;
             }
 
             .chart-container {
                 min-height: 320px;
-            }
-
-            .helper-text {
-                color: #6c757d;
-                font-size: 0.9rem;
-            }
-
-            .subtle-badge {
-                padding: 4px 10px;
-                border-radius: 20px;
-                font-size: 0.8rem;
-                background: rgba(255, 255, 255, 0.18);
-                color: #fff;
-                display: inline-block;
-            }
-
-            .list-indicator .media {
-                padding: 12px 0;
-                border-bottom: 1px dashed #e4e9f2;
-            }
-
-            .progress {
-                height: 8px;
-                border-radius: 10px;
             }
 
             .table-compact th,
@@ -130,9 +92,22 @@ if ($TOPEXPORTADORES) {
                 padding: 10px 8px;
             }
 
-            .muted-label {
-                color: #98a6ad;
-                font-size: 0.9rem;
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .section-header .helper-text {
+                margin: 0;
+                color: #6c757d;
+            }
+
+            .btn-export {
+                border: 1px solid #007bff;
+                color: #007bff;
+                background: #fff;
             }
         </style>
         <!- FUNCIONES BASES ->
@@ -143,7 +118,7 @@ if ($TOPEXPORTADORES) {
         </script>
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
+<body class="hold-transition light-skin fixed sidebar-mini" >
     <div class="wrapper">
         <!- LLAMADA AL MENU PRINCIPAL DE LA PAGINA->
             <?php include_once "../../assest/config/menuOpera.php"; ?>
@@ -167,234 +142,71 @@ if ($TOPEXPORTADORES) {
                         </div>
                     </div>
                     <section class="content">
-                        <div class="row mb-15">
+                        <div class="row mb-20">
                             <div class="col-12">
-                                <p class="text-muted mb-10">Datos filtrados por empresa, temporada activa y productores asociados al usuario.</p>
+                                <p class="text-muted mb-10">Información basada en productores asociados, temporada y especie seleccionada.</p>
                             </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-primary">
-                                    <div class="box-body">
-                                        <span class="subtle-badge">Materia prima</span>
-                                        <h5 class="mt-15 mb-5">Kilos neto materia prima</h5>
-                                        <h2 class="font-weight-600 mb-0"><?php echo number_format($TOTALKILOSNETOS, 0, ',', '.'); ?> kg</h2>
-                                        <small class="helper-text">Total kilos netos recepcionados</small>
-                                    </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
+                                <div class="kpi-card">
+                                    <div class="kpi-title">Kilos recepcionados acumulados</div>
+                                    <p class="kpi-value text-primary"><?php echo number_format($KILOSRECEPCIONACUMULADOS, 0, ',', '.'); ?> kg</p>
+                                    <p class="mb-0 text-muted">Materia prima neta recepcionada</p>
                                 </div>
                             </div>
-                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-info">
-                                    <div class="box-body">
-                                        <span class="subtle-badge">Proceso</span>
-                                        <h5 class="mt-15 mb-5">Kilos neto entrada proceso</h5>
-                                        <h2 class="font-weight-600 mb-0"><?php echo number_format($KILOSNETOPROCESO, 0, ',', '.'); ?> kg</h2>
-                                        <small class="helper-text">Procesos cerrados a la fecha</small>
-                                    </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
+                                <div class="kpi-card">
+                                    <div class="kpi-title">Kilos recepcionados hoy</div>
+                                    <p class="kpi-value text-primary"><?php echo number_format($KILOSRECEPCIONHOY, 0, ',', '.'); ?> kg</p>
+                                    <p class="mb-0 text-muted">Ingresos del día actual</p>
                                 </div>
                             </div>
-                            <div class="col-xl-2 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-success">
-                                    <div class="box-body">
-                                        <span class="subtle-badge">Existencia</span>
-                                        <h5 class="mt-15 mb-5">Existencia neta real</h5>
-                                        <h2 class="font-weight-600 mb-0"><?php echo number_format($EXISTENCIAREAL, 0, ',', '.'); ?> kg</h2>
-                                        <small class="helper-text">Inventario disponible</small>
-                                    </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
+                                <div class="kpi-card">
+                                    <div class="kpi-title">Kilos procesados acumulados</div>
+                                    <p class="kpi-value text-primary"><?php echo number_format($KILOSPROCESOACUMULADOS, 0, ',', '.'); ?> kg</p>
+                                    <p class="mb-0 text-muted">Procesos cerrados a la fecha</p>
                                 </div>
                             </div>
-                            <div class="col-xl-2 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-warning">
-                                    <div class="box-body">
-                                        <span class="subtle-badge">Tiempo real</span>
-                                        <h5 class="mt-15 mb-5">Existencia neta en tiempo real</h5>
-                                        <h2 class="font-weight-600 mb-0"><?php echo number_format($EXISTENCIATIEMPORREAL, 0, ',', '.'); ?> kg</h2>
-                                        <small class="helper-text">Recepcionado menos proceso</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-2 col-lg-6 col-md-6 col-sm-12">
-                                <div class="box stat-card bg-gradient-orange">
-                                    <div class="box-body">
-                                        <span class="subtle-badge">Exportación</span>
-                                        <h5 class="mt-15 mb-5">Kilos exportados</h5>
-                                        <h2 class="font-weight-600 mb-0"><?php echo number_format($KILOSEXPORTADOS, 0, ',', '.'); ?> kg</h2>
-                                        <small class="helper-text">Avance: <?php echo number_format($PORCENTAJEEXPORTACION, 2, ',', '.'); ?>%</small>
-                                    </div>
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
+                                <div class="kpi-card">
+                                    <div class="kpi-title">Kilos procesados hoy</div>
+                                    <p class="kpi-value text-primary"><?php echo number_format($KILOSPROCESOHOY, 0, ',', '.'); ?> kg</p>
+                                    <p class="mb-0 text-muted">Procesos registrados en el día</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-xl-7 col-lg-12">
+
+                        <div class="row mb-20">
+                            <div class="col-lg-6 col-12 mb-15">
                                 <div class="box">
-                                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h4 class="box-title mb-0">Indicadores operacionales</h4>
-                                            <p class="muted-label mb-0">Recepciones y procesos basados en kilos netos</p>
-                                        </div>
-                                        <div>
-                                            <button class="btn btn-sm btn-outline-secondary" onclick="irPagina('listarProductorRecepcionmp.php');"><i class="fa fa-tag"></i> Recepciones</button>
-                                            <button class="btn btn-sm btn-outline-secondary" onclick="irPagina('listarProductorProceso.php');"><i class="fa fa-tag"></i> Procesos</button>
-                                        </div>
-                                    </div>
-                                    <div class="box-body list-indicator">
-                                        <div class="media align-items-center">
-                                            <div class="media-body">
-                                                <h5 class="mb-5">Recepciones cerradas</h5>
-                                                <p class="mb-5 text-muted">Guías de productores asociados</p>
-                                                <div class="progress mb-0">
-                                                    <div class="progress-bar bg-info" role="progressbar" style="width: 100%"></div>
-                                                </div>
-                                            </div>
-                                            <div class="text-right" style="min-width: 140px;">
-                                                <h4 class="mb-0"><?php echo number_format($TOTALRECEPCIONES, 0, ',', '.'); ?></h4>
-                                                <small class="helper-text">Promedio: <?php echo number_format($PROMEDIORECEPCION, 0, ',', '.'); ?> kg</small>
-                                            </div>
-                                        </div>
-                                        <div class="media align-items-center">
-                                            <div class="media-body">
-                                                <h5 class="mb-5">Procesos cerrados</h5>
-                                                <p class="mb-5 text-muted">Kilos netos ingresados a proceso</p>
-                                                <div class="progress mb-0">
-                                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
-                                                </div>
-                                            </div>
-                                            <div class="text-right" style="min-width: 140px;">
-                                                <h4 class="mb-0"><?php echo number_format($KILOSNETOPROCESO, 0, ',', '.'); ?> kg</h4>
-                                                <small class="helper-text">Productores: <?php echo number_format(count($PRODUCTORESASOCIADOS), 0, ',', '.'); ?></small>
-                                            </div>
-                                        </div>
-                                        <div class="media align-items-center">
-                                            <div class="media-body">
-                                                <h5 class="mb-5">Exportación</h5>
-                                                <p class="mb-5 text-muted">Kilos netos exportados de productores visibles</p>
-                                                <div class="progress mb-0">
-                                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $PORCENTAJEEXPORTACION; ?>%"></div>
-                                                </div>
-                                            </div>
-                                            <div class="text-right" style="min-width: 140px;">
-                                                <h4 class="mb-0"><?php echo number_format($KILOSEXPORTADOS, 0, ',', '.'); ?> kg</h4>
-                                                <small class="helper-text"><?php echo number_format($PORCENTAJEEXPORTACION, 2, ',', '.'); ?>% del total</small>
-                                            </div>
-                                        </div>
-                                        <div class="media align-items-center">
-                                            <div class="media-body">
-                                                <h5 class="mb-5">Existencia materia prima</h5>
-                                                <p class="mb-5 text-muted">Inventario vigente en bodegas</p>
-                                                <div class="progress mb-0">
-                                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 100%"></div>
-                                                </div>
-                                            </div>
-                                            <div class="text-right" style="min-width: 140px;">
-                                                <h4 class="mb-0"><?php echo number_format($EXISTENCIAMATERIAPRIMA, 0, ',', '.'); ?> kg</h4>
-                                                <small class="helper-text">Tiempo real: <?php echo number_format($EXISTENCIATIEMPORREAL, 0, ',', '.'); ?> kg</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-5 col-lg-12">
-                                <div class="box">
-                                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h4 class="box-title mb-0">Existencia de materia prima por variedad</h4>
-                                            <p class="muted-label mb-0">Solo productores autorizados</p>
-                                        </div>
-                                        <button class="btn btn-primary btn-sm" onclick="exportExistenciaExcel()"><i class="fa fa-tag"></i> Exportar Excel</button>
-                                    </div>
                                     <div class="box-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover table-compact mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Variedad</th>
-                                                        <th class="text-right">Kilos</th>
-                                                        <th style="width: 40%">Avance</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php if ($EXISTENCIAPORVARIEDAD) { ?>
-                                                        <?php foreach ($EXISTENCIAPORVARIEDAD as $variedad) { 
-                                                            $porcentajeVariedad = $maxExistenciaVariedad > 0 ? round(($variedad['TOTAL'] / $maxExistenciaVariedad) * 100, 2) : 0;
-                                                        ?>
-                                                            <tr>
-                                                                <td><?php echo $variedad['NOMBRE']; ?></td>
-                                                                <td class="text-right"><?php echo number_format($variedad['TOTAL'], 0, ',', '.'); ?> kg</td>
-                                                                <td>
-                                                                    <div class="progress">
-                                                                        <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $porcentajeVariedad; ?>%"></div>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        <?php } ?>
-                                                    <?php } else { ?>
-                                                        <tr>
-                                                            <td colspan="3" class="text-center text-muted">Sin existencias registradas.</td>
-                                                        </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                            </table>
+                                        <div class="section-header">
+                                            <h4 class="box-title mb-0">Kilos por productor (CSP)</h4>
+                                            <button class="btn btn-sm btn-export" onclick="exportProductores()">Descargar Excel</button>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xl-6 col-lg-12">
-                                <div class="box">
-                                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Kilos netos por variedad</h4>
-                                        <button class="btn btn-primary btn-sm" onclick="exportVariedadExcel()"><i class="fa fa-tag"></i> Exportar Excel</button>
-                                    </div>
-                                    <div class="box-body">
-                                        <div id="graficoVariedad" class="chart-container"></div>
-                                        <div id="graficoVariedadVacio" class="text-center text-muted <?php echo $KILOSVARIEDAD ? '' : 'd-none'; ?>">Sin información disponible</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-6 col-lg-12">
-                                <div class="box">
-                                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Kilos netos por semana</h4>
-                                        <button class="btn btn-primary btn-sm" onclick="exportSemanasExcel()"><i class="fa fa-tag"></i> Exportar Excel</button>
-                                    </div>
-                                    <div class="box-body">
-                                        <div id="graficoSemanas" class="chart-container"></div>
-                                        <div id="graficoSemanasVacio" class="text-center text-muted <?php echo $KILOSSEMANA ? '' : 'd-none'; ?>">Sin información disponible</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xl-6 col-lg-12">
-                                <div class="box">
-                                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Detalle por productor</h4>
-                                        <button class="btn btn-primary btn-sm" onclick="exportProductorExcel()"><i class="fa fa-tag"></i> Exportar Excel</button>
-                                    </div>
-                                    <div class="box-body">
                                         <div class="table-responsive">
                                             <table class="table table-hover table-compact">
                                                 <thead>
                                                     <tr>
-                                                        <th>Productor / CSP</th>
-                                                        <th class="text-right">Recepciones</th>
+                                                        <th>Productor</th>
+                                                        <th>CSP</th>
                                                         <th class="text-right">Kilos netos</th>
+                                                        <th class="text-right">Recepciones</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <?php if ($DETALLEPRODUCTOR) { ?>
-                                                        <?php foreach ($DETALLEPRODUCTOR as $detalleProductor) { ?>
+                                                        <?php foreach ($DETALLEPRODUCTOR as $productor) { ?>
                                                             <tr>
-                                                                <td>
-                                                                    <?php echo $detalleProductor["NOMBRE"]; ?><br>
-                                                                    <small class="helper-text">CSP: <?php echo $detalleProductor["CSP"] ? $detalleProductor["CSP"] : 'Sin dato'; ?></small>
-                                                                </td>
-                                                                <td class="text-right"><?php echo number_format($detalleProductor["RECEPCIONES"], 0, ',', '.'); ?></td>
-                                                                <td class="text-right"><?php echo number_format($detalleProductor["TOTAL"], 0, ',', '.'); ?> kg</td>
+                                                                <td><?php echo htmlspecialchars($productor['NOMBRE']); ?></td>
+                                                                <td><?php echo $productor['CSP'] ? $productor['CSP'] : 'Sin dato'; ?></td>
+                                                                <td class="text-right"><?php echo number_format($productor['TOTAL'], 0, ',', '.'); ?> kg</td>
+                                                                <td class="text-right"><?php echo number_format($productor['RECEPCIONES'], 0, ',', '.'); ?></td>
                                                             </tr>
                                                         <?php } ?>
                                                     <?php } else { ?>
                                                         <tr>
-                                                            <td colspan="3" class="text-center text-muted">Sin registros para mostrar.</td>
+                                                            <td colspan="4" class="text-center text-muted">Sin información disponible.</td>
                                                         </tr>
                                                     <?php } ?>
                                                 </tbody>
@@ -403,43 +215,61 @@ if ($TOPEXPORTADORES) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xl-6 col-lg-12">
+                            <div class="col-lg-6 col-12 mb-15">
                                 <div class="box">
-                                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Top 5 exportación por productor</h4>
-                                        <button class="btn btn-primary btn-sm" onclick="exportTopExportadorExcel()"><i class="fa fa-tag"></i> Exportar Excel</button>
-                                    </div>
                                     <div class="box-body">
+                                        <div class="section-header">
+                                            <h4 class="box-title mb-0">Kilos por variedad</h4>
+                                            <button class="btn btn-sm btn-export" onclick="exportVariedades()">Descargar Excel</button>
+                                        </div>
+                                        <div id="chartVariedad" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-20">
+                            <div class="col-lg-6 col-12 mb-15">
+                                <div class="box">
+                                    <div class="box-body">
+                                        <div class="section-header">
+                                            <h4 class="box-title mb-0">Kilos por semana</h4>
+                                            <span class="helper-text">Promedia el neto recepcionado semanal</span>
+                                        </div>
+                                        <div id="chartSemanas" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-12 mb-15">
+                                <div class="box">
+                                    <div class="box-body">
+                                        <div class="section-header">
+                                            <h4 class="box-title mb-0">Kilos por CSP y variedad</h4>
+                                            <button class="btn btn-sm btn-export" onclick="exportCspVariedad()">Descargar Excel</button>
+                                        </div>
                                         <div class="table-responsive">
-                                            <table class="table table-hover table-compact">
+                                            <table class="table table-striped table-compact">
                                                 <thead>
                                                     <tr>
-                                                        <th>Productor / CSP</th>
-                                                        <th class="text-right">Kilos</th>
-                                                        <th style="width: 40%">Avance</th>
+                                                        <th>Productor</th>
+                                                        <th>CSP</th>
+                                                        <th>Variedad</th>
+                                                        <th class="text-right">Kilos netos</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php if ($TOPEXPORTADORES) { ?>
-                                                        <?php foreach ($TOPEXPORTADORES as $exportador) { 
-                                                            $porcentajeExportador = $maxExportadores > 0 ? round(($exportador['TOTAL'] / $maxExportadores) * 100, 2) : 0;
-                                                        ?>
+                                                    <?php if ($DETALLECSPVARIEDAD) { ?>
+                                                        <?php foreach ($DETALLECSPVARIEDAD as $fila) { ?>
                                                             <tr>
-                                                                <td>
-                                                                    <?php echo $exportador['NOMBRE']; ?><br>
-                                                                    <small class="helper-text">CSP: <?php echo $exportador['CSP'] ? $exportador['CSP'] : 'Sin dato'; ?></small>
-                                                                </td>
-                                                                <td class="text-right"><?php echo number_format($exportador['TOTAL'], 0, ',', '.'); ?> kg</td>
-                                                                <td>
-                                                                    <div class="progress">
-                                                                        <div class="progress-bar bg-info" role="progressbar" style="width: <?php echo $porcentajeExportador; ?>%"></div>
-                                                                    </div>
-                                                                </td>
+                                                                <td><?php echo htmlspecialchars($fila['PRODUCTOR']); ?></td>
+                                                                <td><?php echo $fila['CSP'] ? $fila['CSP'] : 'Sin dato'; ?></td>
+                                                                <td><?php echo htmlspecialchars($fila['VARIEDAD']); ?></td>
+                                                                <td class="text-right"><?php echo number_format($fila['TOTAL'], 0, ',', '.'); ?> kg</td>
                                                             </tr>
                                                         <?php } ?>
                                                     <?php } else { ?>
                                                         <tr>
-                                                            <td colspan="3" class="text-center text-muted">Sin exportaciones registradas.</td>
+                                                            <td colspan="4" class="text-center text-muted">Sin registros por variedad.</td>
                                                         </tr>
                                                     <?php } ?>
                                                 </tbody>
@@ -449,19 +279,20 @@ if ($TOPEXPORTADORES) {
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-12">
                                 <div class="box">
-                                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Últimos documentos subidos</h4>
-                                        <span class="helper-text mb-0">Nombre registrado, vigencia y descarga directa</span>
-                                    </div>
                                     <div class="box-body">
+                                        <div class="section-header">
+                                            <h4 class="box-title mb-0">Últimos documentos subidos</h4>
+                                            <span class="helper-text">Nombre registrado, vigencia y descarga directa</span>
+                                        </div>
                                         <div class="table-responsive">
                                             <table class="table table-hover table-compact">
                                                 <thead>
                                                     <tr>
-                                                        <th>Documento</th>
+                                                        <th>Nombre registrado</th>
                                                         <th>Vigencia</th>
                                                         <th>Descargar</th>
                                                     </tr>
@@ -500,12 +331,13 @@ if ($TOPEXPORTADORES) {
     </div>
     <!- LLAMADA URL DE ARCHIVOS DE DISEÑO Y JQUERY E OTROS ->
         <?php include_once "../../assest/config/urlBase.php"; ?>
+        <script src="../../api/cryptioadmin10/html/assets/vendor_components/d3/d3.min.js"></script>
+        <script src="../../api/cryptioadmin10/html/assets/vendor_components/c3/c3.min.js"></script>
         <script>
             const datosVariedad = <?php echo json_encode($KILOSVARIEDAD); ?>;
             const datosSemanas = <?php echo json_encode($KILOSSEMANA); ?>;
             const datosProductor = <?php echo json_encode($DETALLEPRODUCTOR); ?>;
-            const datosExistencia = <?php echo json_encode($EXISTENCIAPORVARIEDAD); ?>;
-            const datosTopExportadores = <?php echo json_encode($TOPEXPORTADORES); ?>;
+            const datosCspVariedad = <?php echo json_encode($DETALLECSPVARIEDAD); ?>;
 
             function exportToExcel(filename, headers, rows) {
                 let csv = headers.join(';') + "\n";
@@ -519,124 +351,80 @@ if ($TOPEXPORTADORES) {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
             }
 
-            function exportVariedadExcel() {
-                if (!datosVariedad || !datosVariedad.length) {
-                    return;
-                }
-                const filas = datosVariedad.map((item) => [item.NOMBRE, item.TOTAL]);
-                exportToExcel('kilos_por_variedad.xls', ['Variedad', 'Kilos netos'], filas);
+            function exportProductores() {
+                const headers = ['Productor', 'CSP', 'Kilos netos', 'Recepciones'];
+                const rows = datosProductor.map((p) => [p.NOMBRE, p.CSP || 'Sin dato', p.TOTAL, p.RECEPCIONES]);
+                exportToExcel('kilos_por_productor.csv', headers, rows);
             }
 
-            function exportSemanasExcel() {
-                if (!datosSemanas || !datosSemanas.length) {
-                    return;
-                }
-                const filas = datosSemanas.map((item) => [item.SEMANA, item.TOTAL]);
-                exportToExcel('kilos_por_semana.xls', ['Semana', 'Kilos netos'], filas);
+            function exportVariedades() {
+                const headers = ['Variedad', 'Kilos netos'];
+                const rows = datosVariedad.map((v) => [v.NOMBRE, v.TOTAL]);
+                exportToExcel('kilos_por_variedad.csv', headers, rows);
             }
 
-            function exportProductorExcel() {
-                if (!datosProductor || !datosProductor.length) {
-                    return;
-                }
-                const filas = datosProductor.map((item) => [item.NOMBRE, item.CSP, item.RECEPCIONES, item.TOTAL]);
-                exportToExcel('kilos_por_productor.xls', ['Productor', 'CSP', 'Recepciones', 'Kilos netos'], filas);
+            function exportCspVariedad() {
+                const headers = ['Productor', 'CSP', 'Variedad', 'Kilos netos'];
+                const rows = datosCspVariedad.map((v) => [v.PRODUCTOR, v.CSP || 'Sin dato', v.VARIEDAD, v.TOTAL]);
+                exportToExcel('kilos_por_csp_variedad.csv', headers, rows);
             }
 
-            function exportExistenciaExcel() {
-                if (!datosExistencia || !datosExistencia.length) {
-                    return;
-                }
-                const filas = datosExistencia.map((item) => [item.NOMBRE, item.TOTAL]);
-                exportToExcel('existencia_por_variedad.xls', ['Variedad', 'Kilos'], filas);
-            }
+            (function generarCharts() {
+                const variedadColumns = [['Variedad', ...datosVariedad.map((v) => v.TOTAL)]];
+                const variedadCategories = datosVariedad.map((v) => v.NOMBRE);
 
-            function exportTopExportadorExcel() {
-                if (!datosTopExportadores || !datosTopExportadores.length) {
-                    return;
-                }
-                const filas = datosTopExportadores.map((item) => [item.NOMBRE, item.CSP, item.TOTAL]);
-                exportToExcel('top_exportacion_productor.xls', ['Productor', 'CSP', 'Kilos exportados'], filas);
-            }
-
-            if (datosVariedad && datosVariedad.length) {
                 c3.generate({
-                    bindto: '#graficoVariedad',
+                    bindto: '#chartVariedad',
                     data: {
-                        json: datosVariedad.map((item) => ({
-                            NOMBRE: item.NOMBRE,
-                            TOTAL: parseFloat(item.TOTAL)
-                        })),
-                        keys: {
-                            x: 'NOMBRE',
-                            value: ['TOTAL']
-                        },
+                        columns: variedadColumns,
                         type: 'bar',
                         colors: {
-                            TOTAL: '#00BCD4'
-                        },
-                        names: {
-                            TOTAL: 'Kilos netos'
+                            Variedad: '#0d6efd'
                         }
                     },
                     axis: {
                         x: {
-                            type: 'category'
+                            type: 'category',
+                            categories: variedadCategories
                         },
                         y: {
                             label: 'Kilos netos'
                         }
                     },
-                    legend: {
-                        show: false
-                    },
-                    padding: {
-                        right: 20,
-                        left: 40
+                    bar: {
+                        width: {
+                            ratio: 0.6
+                        }
                     }
                 });
-            }
 
-            if (datosSemanas && datosSemanas.length) {
+                const semanasColumns = [
+                    ['Kilos netos', ...datosSemanas.map((s) => s.TOTAL)]
+                ];
+                const semanasCategories = datosSemanas.map((s) => 'Semana ' + s.SEMANA);
+
                 c3.generate({
-                    bindto: '#graficoSemanas',
+                    bindto: '#chartSemanas',
                     data: {
-                        json: datosSemanas.map((item) => ({
-                            SEMANA: 'Semana ' + item.SEMANA,
-                            TOTAL: parseFloat(item.TOTAL)
-                        })),
-                        keys: {
-                            x: 'SEMANA',
-                            value: ['TOTAL']
-                        },
-                        type: 'area-spline',
+                        columns: semanasColumns,
+                        type: 'line',
                         colors: {
-                            TOTAL: '#8BC34A'
-                        },
-                        names: {
-                            TOTAL: 'Kilos netos'
+                            'Kilos netos': '#198754'
                         }
                     },
                     axis: {
                         x: {
-                            type: 'category'
+                            type: 'category',
+                            categories: semanasCategories
                         },
                         y: {
                             label: 'Kilos netos'
                         }
-                    },
-                    legend: {
-                        show: false
-                    },
-                    padding: {
-                        right: 20,
-                        left: 40
                     }
                 });
-            }
+            })();
         </script>
 </body>
 

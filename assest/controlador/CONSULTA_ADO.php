@@ -941,6 +941,34 @@ class CONSULTA_ADO
         }
     }
 
+    public function kilosProcesadosHoyProductor($TEMPORADA, $ESPECIE, $PRODUCTORES)
+    {
+        try {
+            if (empty($PRODUCTORES)) {
+                return 0;
+            }
+
+            $productoresIn = implode("','", $PRODUCTORES);
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(P.KILOS_NETO_ENTRADA),0) AS TOTAL
+                                                FROM fruta_proceso P
+                                                LEFT JOIN fruta_vespecies V ON P.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE P.ESTADO_REGISTRO = 1
+                                                AND P.ESTADO = 1
+                                                AND P.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND DATE(P.FECHA_PROCESO) = CURDATE()
+                                                AND P.ID_PRODUCTOR IN ('".$productoresIn."');");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado ? $resultado[0]['TOTAL'] : 0;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
     public function kilosExportadosProductor($TEMPORADA, $ESPECIE, $PRODUCTORES)
     {
         try {
@@ -962,6 +990,71 @@ class CONSULTA_ADO
             $datos=null;
 
             return $resultado ? $resultado[0]['TOTAL'] : 0;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function kilosRecepcionadosHoyProductor($TEMPORADA, $ESPECIE, $PRODUCTORES)
+    {
+        try {
+            if (empty($PRODUCTORES)) {
+                return 0;
+            }
+
+            $productoresIn = implode("','", $PRODUCTORES);
+
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
+                                                FROM fruta_recepcionmp recepcion
+                                                LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE recepcion.ESTADO_REGISTRO = 1
+                                                AND recepcion.ESTADO = 0
+                                                AND detalle.ESTADO_REGISTRO = 1
+                                                AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND DATE(recepcion.FECHA_RECEPCION) = CURDATE()
+                                                AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."');");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado ? $resultado[0]['TOTAL'] : 0;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function kilosPorCspYVariedadProductor($TEMPORADA, $ESPECIE, $PRODUCTORES)
+    {
+        try {
+            if (empty($PRODUCTORES)) {
+                return [];
+            }
+
+            $productoresIn = implode("','", $PRODUCTORES);
+
+            $datos = $this->conexion->prepare("SELECT PR.NOMBRE_PRODUCTOR AS PRODUCTOR,
+                                                        PR.CSG_PRODUCTOR AS CSP,
+                                                        V.NOMBRE_VESPECIES AS VARIEDAD,
+                                                        IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
+                                                FROM fruta_recepcionmp recepcion
+                                                LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                LEFT JOIN fruta_productor PR ON recepcion.ID_PRODUCTOR = PR.ID_PRODUCTOR
+                                                LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE recepcion.ESTADO_REGISTRO = 1
+                                                AND recepcion.ESTADO = 0
+                                                AND detalle.ESTADO_REGISTRO = 1
+                                                AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
+                                                GROUP BY recepcion.ID_PRODUCTOR, detalle.ID_VESPECIES
+                                                ORDER BY PRODUCTOR ASC, VARIEDAD ASC;");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
         } catch (Exception $e) {
             die($e->getMessage());
         }
