@@ -476,6 +476,36 @@ if (isset($_POST)) {
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
+        <style>
+            .table-minimal thead th,
+            .table-minimal tbody td {
+                padding: 0.35rem 0.5rem;
+                vertical-align: middle;
+            }
+
+            .table-minimal tbody tr:hover {
+                background-color: #f7f8fa;
+            }
+
+            .estado-folio-col .badge-estado-folio {
+                display: block;
+                width: 100%;
+                padding: 0.4rem 0.5rem;
+                margin-bottom: 0.25rem;
+                color: #fff;
+                transition: background-color 0.2s ease, filter 0.2s ease;
+            }
+
+            .estado-folio-col .badge-estado-folio:last-child {
+                margin-bottom: 0;
+            }
+
+            .estado-folio-col .badge-estado-folio:hover {
+                filter: brightness(0.9);
+                text-decoration: none;
+                color: #fff;
+            }
+        </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
                 //VALIDACION DE FORMULARIO
@@ -841,7 +871,7 @@ if (isset($_POST)) {
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table id="ingreso" class="table-hover " style="width: 100%;">
+                                        <table id="ingreso" class="table table-sm table-hover table-striped table-minimal" style="width: 100%;">
                                             <thead>
                                                 <tr class="text-center">
                                                     <th>Folio </th>
@@ -1043,7 +1073,7 @@ if (isset($_POST)) {
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table id="salida" class="table-hover " style="width: 100%;">
+                                        <table id="salida" class="table table-sm table-hover table-striped table-minimal" style="width: 100%;">
                                             <thead>
                                                 <tr class="text-center">
                                                     <th>Estado</th>
@@ -1145,28 +1175,28 @@ if (isset($_POST)) {
 
                                                             if ($esRepaletizado) {
                                                                 $etiquetasFolio[] = [
-                                                                    'texto' => 'Repaletizado',
+                                                                    'texto' => $idRepaletizaje ? "Repaletizaje #{$idRepaletizaje}" : 'Repaletizado',
                                                                     'clase' => 'badge-info',
                                                                     'url' => $idRepaletizaje ? "registroRepaletizajePTFrigorifico.php?op&id={$idRepaletizaje}&a=ver" : ''
                                                                 ];
                                                             }
                                                             if ($esReembalado) {
                                                                 $etiquetasFolio[] = [
-                                                                    'texto' => 'Reembalado',
+                                                                    'texto' => $idReembalaje ? "Reembalaje #{$idReembalaje}" : 'Reembalado',
                                                                     'clase' => 'badge-secondary',
                                                                     'url' => $idReembalaje ? "registroReembalajeEx.php?op&id={$idReembalaje}&a=ver" : ''
                                                                 ];
                                                             }
                                                             if ($esDespachado) {
                                                                 $etiquetasFolio[] = [
-                                                                    'texto' => 'Despachado',
+                                                                    'texto' => $idDespacho ? "Despacho #{$idDespacho}" : 'Despachado',
                                                                     'clase' => 'badge-danger',
                                                                     'url' => $idDespacho ? "registroDespachoEX.php?op&id={$idDespacho}&a=ver" : ''
                                                                 ];
                                                             }
                                                             if ($esInspeccionado) {
                                                                 $etiquetasFolio[] = [
-                                                                    'texto' => 'Inspeccionado',
+                                                                    'texto' => $idInpsag ? "Inspección #{$idInpsag}" : 'Inspeccionado',
                                                                     'clase' => 'badge-primary',
                                                                     'url' => $idInpsag ? "registroInpsag.php?op&id={$idInpsag}&a=ver" : ''
                                                                 ];
@@ -1181,17 +1211,17 @@ if (isset($_POST)) {
                                                             <td class="font-weight-bold"><?php echo $r['FOLIO_DPEXPORTACION']; ?></td>
                                                             <td>
                                                                 <?php if ($etiquetasFolio) { ?>
-                                                                    <div class="d-flex flex-wrap justify-content-center">
+                                                                    <div class="estado-folio-col">
                                                                         <?php foreach ($etiquetasFolio as $etiqueta) : ?>
                                                                             <?php if (!empty($etiqueta['url'])) { ?>
-                                                                                <a href="<?php echo $etiqueta['url']; ?>" class="badge <?php echo $etiqueta['clase']; ?> mr-1 mb-1" target="_blank"><?php echo $etiqueta['texto']; ?></a>
+                                                                                <a href="<?php echo $etiqueta['url']; ?>" class="badge badge-estado-folio <?php echo $etiqueta['clase']; ?>" target="_blank"><?php echo $etiqueta['texto']; ?></a>
                                                                             <?php } else { ?>
-                                                                                <span class="badge <?php echo $etiqueta['clase']; ?> mr-1 mb-1"><?php echo $etiqueta['texto']; ?></span>
+                                                                                <span class="badge badge-estado-folio <?php echo $etiqueta['clase']; ?>"><?php echo $etiqueta['texto']; ?></span>
                                                                             <?php } ?>
                                                                         <?php endforeach; ?>
                                                                     </div>
                                                                 <?php } else { ?>
-                                                                    <span class="text-muted">Sin proceso</span>
+                                                                    <span class="text-muted">Sin operacion</span>
                                                                 <?php } ?>
                                                             </td>
                                                             <td class="text-center">
