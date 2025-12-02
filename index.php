@@ -5,63 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistemas</title>
     <link rel="icon" href="assest/img/favicon.png">
-    <link rel="stylesheet" href="assest/css/portal.css">
-</head>
-<body>
-    <main class="page">
-        <section class="hero">
-            <div class="hero__content">
-                <p class="hero__eyebrow">Intranet</p>
-                <h1 class="hero__title">Bienvenido al portal de sistemas</h1>
-                <p class="hero__subtitle">
-                    Accede rápidamente a las vistas internas y de productor con una interfaz ordenada y ligera.
-                </p>
-            </div>
-            <div class="hero__actions">
-                <a class="card card--accent" href="./interno.php">
-                    <div class="card__label">Acceso interno</div>
-                    <h2 class="card__title">Sistemas internos</h2>
-                    <p class="card__text">Fruta, Exportadora, Estadísticas y Materiales.</p>
-                </a>
-                <a class="card" href="./estadistica/">
-                    <div class="card__label">Acceso productor</div>
-                    <h2 class="card__title">Productor</h2>
-                    <p class="card__text">Consulta los indicadores y reportes disponibles.</p>
-                </a>
-            </div>
-        </section>
+    <link rel="stylesheet" type="text/css" href="assest/css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="assest/css/style.css" />
+    <link rel="stylesheet" href="api/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/vendors_css.css">
+    <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/style.css">
+    <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/skin_color.css">
+    <style>
+        body,
+        html {
+            height: 100%;
+        }
 
-        <section class="grid-section">
-            <header class="grid-section__header">
-                <div>
-                    <p class="hero__eyebrow">Sistemas internos</p>
-                    <h2 class="grid-section__title">Vistas disponibles</h2>
+        .portal-wrapper {
+            min-height: 100vh;
+        }
+
+        .portal-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+            padding: 28px 26px 26px;
+        }
+
+        .portal-card h2 {
+            color: #1f2d3d;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .portal-card p {
+            color: #4b5563;
+            margin-bottom: 18px;
+        }
+
+        .portal-actions .btn {
+            padding: 12px 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="hold-transition theme-primary bg-gradient-primary">
+    <div class="container portal-wrapper d-flex align-items-center justify-content-center">
+        <div class="row w-100 justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-11">
+                <div class="portal-card">
+                    <div class="text-center mb-3">
+                        <h2 class="text-primary">Selección Intranet</h2>
+                        <p class="mb-0">Accede rápidamente al panel interno o al portal de productor.</p>
+                    </div>
+                    <div class="row g-3 portal-actions">
+                        <div class="col-12 col-md-6">
+                            <a class="btn bg-gradient-primary btn-block w-100" href="./interno.php">Interno</a>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <a class="btn bg-gradient-secondary btn-block w-100" href="./estadistica/">Productor</a>
+                        </div>
+                    </div>
                 </div>
-                <p class="grid-section__text">Explora cada módulo en un solo lugar con colores unificados.</p>
-            </header>
-            <div class="card-grid">
-                <a class="card" href="./fruta/">
-                    <div class="card__label">Módulo</div>
-                    <h3 class="card__title">Fruta</h3>
-                    <p class="card__text">Gestión y seguimiento de fruta.</p>
-                </a>
-                <a class="card" href="./exportadora/">
-                    <div class="card__label">Módulo</div>
-                    <h3 class="card__title">Exportadora</h3>
-                    <p class="card__text">Operaciones de exportación ordenadas.</p>
-                </a>
-                <a class="card" href="./estadistica/">
-                    <div class="card__label">Módulo</div>
-                    <h3 class="card__title">Estadísticas</h3>
-                    <p class="card__text">Indicadores y reportabilidad en línea.</p>
-                </a>
-                <a class="card" href="./material/">
-                    <div class="card__label">Módulo</div>
-                    <h3 class="card__title">Materiales</h3>
-                    <p class="card__text">Control de materiales y recursos.</p>
-                </a>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 </body>
 </html>
