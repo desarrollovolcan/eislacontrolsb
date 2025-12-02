@@ -707,6 +707,7 @@ class CONSULTA_ADO
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
                                                 GROUP BY detalle.ID_VESPECIES
                                                 ORDER BY TOTAL DESC;");
@@ -740,6 +741,7 @@ class CONSULTA_ADO
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
                                                 GROUP BY SEMANA
                                                 ORDER BY SEMANA;");
@@ -776,6 +778,7 @@ class CONSULTA_ADO
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
                                                 GROUP BY recepcion.ID_PRODUCTOR
                                                 ORDER BY TOTAL DESC;");
@@ -873,6 +876,7 @@ class CONSULTA_ADO
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
@@ -1052,6 +1056,7 @@ class CONSULTA_ADO
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
                                                 GROUP BY recepcion.ID_PRODUCTOR, detalle.ID_VESPECIES
                                                 ORDER BY PRODUCTOR ASC, VARIEDAD ASC;");
@@ -1085,6 +1090,7 @@ class CONSULTA_ADO
                                                      AND detalle.ESTADO_REGISTRO = 1
                                                      AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                      AND V2.ID_ESPECIES = '".$ESPECIE."'
+                                                     AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                      AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')) AS KILOS_TOTALES
                                                 FROM fruta_exiexportacion EXPEXPORT
                                                 LEFT JOIN fruta_vespecies V ON EXPEXPORT.ID_VESPECIES = V.ID_VESPECIES
