@@ -1169,8 +1169,20 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="csg"></td>
                                     </tr>
                                     <tr>
-                                        <th>Manejo</th>
-                                        <td data-detail="tmanejo"></td>
+                                        <th>Estado calidad</th>
+                                        <td data-detail="estado-calidad"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Inspección</th>
+                                        <td data-detail="inspeccion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
                                     </tr>
                                     <tr>
                                         <th>Condición</th>
@@ -1274,6 +1286,27 @@ if ($EMPRESAS  && $TEMPORADAS) {
     <script type="text/javascript">
         const LOGO_EMPRESA = "<?php echo htmlspecialchars($LOGOEMPRESA ?? '', ENT_QUOTES, 'UTF-8'); ?>";
         const NOMBRE_EMPRESA = "<?php echo htmlspecialchars($NOMBREEMPRESA ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+        let html2PdfLoader;
+
+        function ensureHtml2Pdf() {
+            if (window.html2pdf) {
+                return Promise.resolve();
+            }
+            if (html2PdfLoader) {
+                return html2PdfLoader;
+            }
+            html2PdfLoader = new Promise(function(resolve, reject) {
+                var script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                script.onload = resolve;
+                script.onerror = function() {
+                    console.error('No se pudo cargar html2pdf');
+                    reject();
+                };
+                document.head.appendChild(script);
+            });
+            return html2PdfLoader;
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             function setDetailWithLink(modal, key, text, url) {

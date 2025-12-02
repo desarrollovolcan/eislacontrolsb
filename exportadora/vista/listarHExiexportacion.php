@@ -1164,8 +1164,20 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="csg"></td>
                                     </tr>
                                     <tr>
-                                        <th>Manejo</th>
-                                        <td data-detail="tmanejo"></td>
+                                        <th>Estado calidad</th>
+                                        <td data-detail="estado-calidad"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Inspección</th>
+                                        <td data-detail="inspeccion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
                                     </tr>
                                     <tr>
                                         <th>Condición</th>
