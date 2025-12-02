@@ -296,14 +296,16 @@ if ($EMPRESAS  && $TEMPORADAS) {
         }
 
         .detalle-modal .btn-primary {
-            background: #1565c0;
-            border-color: #1565c0;
+            background: #0d6efd;
+            border-color: #0b5ed7;
+            font-weight: 700;
         }
 
         .detalle-modal .btn-secondary {
-            background: #e2e8f0;
-            color: #0f2d4a;
-            border-color: #d7deea;
+            background: #e7eef7;
+            color: #0a2f57;
+            border-color: #c5d3e6;
+            font-weight: 700;
         }
 
         .detalle-modal .btn {

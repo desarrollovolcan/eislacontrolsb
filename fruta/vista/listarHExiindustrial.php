@@ -281,14 +281,16 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
             }
 
             .detalle-modal .btn-primary {
-                background: #0f4a7a;
-                border-color: #0f4a7a;
+                background: #0d6efd;
+                border-color: #0b5ed7;
+                font-weight: 700;
             }
 
             .detalle-modal .btn-secondary {
-                background: #eef2f7;
-                color: #0f2d4a;
-                border: 1px solid #d0d7e3;
+                background: #e7eef7;
+                color: #0a2f57;
+                border: 1px solid #c5d3e6;
+                font-weight: 700;
             }
 
             .detalle-modal .btn {
