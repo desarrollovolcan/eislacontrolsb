@@ -18,8 +18,6 @@ include_once '../../assest/controlador/TPROCESO_ADO.php';
 include_once '../../assest/controlador/TREEMBALAJE_ADO.php';
 include_once '../../assest/controlador/COMPRADOR_ADO.php';
 include_once '../../assest/controlador/DFINAL_ADO.php';
-include_once '../../assest/controlador/TCOLOR_ADO.php';
-include_once '../../assest/controlador/TCATEGORIA_ADO.php';
 include_once '../../assest/controlador/ICARGA_ADO.php';
 include_once '../../assest/controlador/EMPRESA_ADO.php';
 include_once '../../assest/controlador/PLANTA_ADO.php';
@@ -55,8 +53,6 @@ $TPROCESO_ADO =  new TPROCESO_ADO();
 $TREEMBALAJE_ADO =  new TREEMBALAJE_ADO();
 $COMPRADOR_ADO =  new COMPRADOR_ADO();
 $DFINAL_ADO =  new DFINAL_ADO();
-$TCOLOR_ADO =  new TCOLOR_ADO();
-$TCATEGORIA_ADO =  new TCATEGORIA_ADO();
 $ICARGA_ADO =  new ICARGA_ADO();
 $EMPRESA_ADO = new EMPRESA_ADO();
 $PLANTA_ADO = new PLANTA_ADO();
@@ -134,8 +130,6 @@ $TREEMBALAJE_CACHE = [];
 $REEMBALAJE_CACHE = [];
 $REPALETIZAJE_CACHE = [];
 $INPSAG_CACHE = [];
-$TCATEGORIA_CACHE = [];
-$TCOLOR_CACHE = [];
 $TINPSAG_CACHE = [];
 $DFINAL_CACHE = [];
 $COMPRADOR_CACHE = [];
@@ -394,13 +388,11 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                     <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
                                         <div class="table-responsive">
                                             <table id="hexistencia" class="table-hover table-bordered" style="width: 300%;">
-                                                <thead>
+                                                                                                <thead>
                                                     <tr class="text-center">
-                                                        <th>Detalle</th>
-                                                        <th>Detalle</th>
+                                                        <th>Trazabilidad</th>
                                                         <th>Folio Original</th>
-                                                        <th>Folio Nuevo</th>
-                                                        <th>Fecha Embalado </th>
+                                                        <th>Fecha Embalado</th>
                                                         <th>Estado </th>
                                                         <th>Estado Calidad</th>
                                                         <th>Condición </th>
@@ -409,7 +401,6 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Calibre </th>
                                                         <th>CSG</th>
                                                         <th>Productor</th>
-                                                        <th>Especies</th>
                                                         <th>Variedad</th>
                                                         <th>Cantidad Envase</th>
                                                         <th>Kilos Neto</th>
@@ -422,7 +413,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Recepción</th>
                                                         <th>Origen Recepción </th>
                                                         <th>Número Guía Recepción </th>
-                                                        <th>Fecha Guía Recepción
+                                                        <th>Fecha Guía Recepción</th>
                                                         <th>Número Repaletizaje </th>
                                                         <th>Fecha Repaletizaje </th>
                                                         <th>Número Proceso </th>
@@ -430,7 +421,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Proceso </th>
                                                         <th>Número Reembalaje </th>
                                                         <th>Fecha Reembalaje </th>
-                                                        <th>Tipo Reembalaje </th>                                              
+                                                        <th>Tipo Reembalaje </th>
                                                         <th>Número Inspección </th>
                                                         <th>Fecha Inspección </th>
                                                         <th>Tipo Inspección </th>
@@ -441,20 +432,15 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Despacho</th>
                                                         <th>Destino Despacho</th>
                                                         <th>Tipo Manejo</th>
-                                                        <th>Tipo Calibre </th>
+                                                        <th>Tipo Calibre (Detalle)</th>
                                                         <th>Tipo Embalaje </th>
                                                         <th>Stock</th>
                                                         <th>Embolsado</th>
                                                         <th>Gasificacion</th>
                                                         <th>Prefrío</th>
-                                                        <th>Tipo Categoria </th>
-                                                        <th>Tipo Color </th>      
                                                         <th>Días</th>
                                                         <th>Ingreso</th>
                                                         <th>Modificación</th>
-                                                        <th>Empresa</th>
-                                                        <th>Planta</th>
-                                                        <th>Temporada</th>
                                                         <th>Numero Referencia</th>
                                                     </tr>
                                                 </thead>
@@ -827,30 +813,6 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                             } else {
                                                                 $NOMBRETEMBALAJE = "Sin Datos";
                                                             }
-                                                            $ARRAYTEMBALAJE = obtenerDesdeCache($r['ID_TEMBALAJE'], $TEMBALAJE_CACHE, function ($id) use ($TEMBALAJE_ADO) {
-                                                                return $TEMBALAJE_ADO->verEmbalaje($id);
-                                                            });
-                                                            if ($ARRAYTEMBALAJE) {
-                                                                $NOMBRETEMBALAJE = $ARRAYTEMBALAJE[0]['NOMBRE_TEMBALAJE'];
-                                                            } else {
-                                                                $NOMBRETEMBALAJE = "Sin Datos";
-                                                            }
-                                                            $ARRAYTCATEGORIA = obtenerDesdeCache($r['ID_TCATEGORIA'], $TCATEGORIA_CACHE, function ($id) use ($TCATEGORIA_ADO) {
-                                                                return $TCATEGORIA_ADO->verTcategoria($id);
-                                                            });
-                                                            if($ARRAYTCATEGORIA){
-                                                            $NOMBRETCATEGORIA= $ARRAYTCATEGORIA[0]["NOMBRE_TCATEGORIA"];
-                                                            }else{
-                                                                $NOMBRETCATEGORIA = "Sin Datos";
-                                                            }   
-                                                            $ARRAYTCOLOR = obtenerDesdeCache($r['ID_TCOLOR'], $TCOLOR_CACHE, function ($id) use ($TCOLOR_ADO) {
-                                                                return $TCOLOR_ADO->verTcolor($id);
-                                                            });
-                                                            if($ARRAYTCOLOR){
-                                                                $NOMBRETCOLOR= $ARRAYTCOLOR[0]["NOMBRE_TCOLOR"];
-                                                            }else{
-                                                                $NOMBRETCOLOR = "Sin Datos";
-                                                            } 
                                                             $ARRAYEMPRESA = obtenerDesdeCache($r['ID_EMPRESA'], $EMPRESA_CACHE, function ($id) use ($EMPRESA_ADO) {
                                                                 return $EMPRESA_ADO->verEmpresa($id);
                                                             });
@@ -903,31 +865,81 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                             } else {
                                                                 $PREFRIO = "Sin Datos";
                                                             }
+                                                            $PROMEDIO = ($r['ENVASE'] > 0) ? round($r['NETO'] / $r['ENVASE'], 2) : 0;
                                                             ?>
                                                             <tr class="text-center">
-                                                                <td>                                                                    
-                                                                    <span class="<?php echo $TRECHAZOCOLOR; ?>">
-                                                                        <?php echo $r['FOLIO_EXIEXPORTACION']; ?> 
-                                                                    </span>
-                                                                </td>
-                                                                <td>                   
-                                                                    <span class="<?php echo $TRECHAZOCOLOR; ?>">
-                                                                        <a Onclick="abrirPestana('../../assest/documento/informeTarjasPT.php?parametro=<?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>&&parametro1=<?php echo $r['ID_EMPRESA']; ?>&&parametro2=<?php echo $r['ID_PLANTA']; ?>&&tipo=3');">                                                                        
-                                                                            <?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>                                                                                                                                        
-                                                                        </a>
-                                                                    </span>
-                                                                </td>
+    <td>
+        <button type="button" class="btn btn-sm btn-outline-info btn-block" data-toggle="modal" data-target="#detalleExistenciaModal"
+            data-folio="<?php echo htmlspecialchars($r['FOLIO_EXIEXPORTACION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-folio-aux="<?php echo htmlspecialchars($r['FOLIO_AUXILIAR_EXIEXPORTACION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-estado="<?php echo htmlspecialchars($ESTADO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-estado-calidad="<?php echo htmlspecialchars($ESTADOSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-estandar="<?php echo htmlspecialchars($CODIGOESTANDAR . ' - ' . $NOMBREESTANDAR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-productor="<?php echo htmlspecialchars($NOMBREPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-csg="<?php echo htmlspecialchars($CSGPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-especie="<?php echo htmlspecialchars($NOMBRESPECIES, ENT_QUOTES, 'UTF-8'); ?>"
+            data-variedad="<?php echo htmlspecialchars($NOMBREVESPECIES, ENT_QUOTES, 'UTF-8'); ?>"
+            data-envases="<?php echo htmlspecialchars($r['ENVASE'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-neto="<?php echo htmlspecialchars($r['NETO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-promedio="<?php echo htmlspecialchars($PROMEDIO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-bruto="<?php echo htmlspecialchars($r['BRUTO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-tmanejo="<?php echo htmlspecialchars($NOMBRETMANEJO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-calibre-detalle="<?php echo htmlspecialchars($NOMBRETCALIBRE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-embalaje="<?php echo htmlspecialchars($NOMBRETEMBALAJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-stock="<?php echo htmlspecialchars($STOCK, ENT_QUOTES, 'UTF-8'); ?>"
+            data-gasificado="<?php echo htmlspecialchars($GASIFICADO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-embolsado="<?php echo htmlspecialchars($EMBOLSADO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-prefrio="<?php echo htmlspecialchars($PREFRIO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-condicion="<?php echo htmlspecialchars($COLOR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-recepcion="<?php echo htmlspecialchars($TIPORECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-recepcion="<?php echo htmlspecialchars($NUMERORECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-recepcion="<?php echo htmlspecialchars($FECHARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-origen="<?php echo htmlspecialchars($ORIGEN, ENT_QUOTES, 'UTF-8'); ?>"
+            data-csg-origen="<?php echo htmlspecialchars($CSGCSPORIGEN, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-guia-recepcion="<?php echo htmlspecialchars($NUMEROGUIARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-guia-recepcion="<?php echo htmlspecialchars($FECHAGUIARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-proceso="<?php echo htmlspecialchars($TPROCESO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-proceso="<?php echo htmlspecialchars($NUMEROPROCESO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-proceso="<?php echo htmlspecialchars($FECHAPROCESO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-proceso="<?php echo htmlspecialchars($r['ID_PROCESO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-repaletizaje="<?php echo htmlspecialchars($NUMEROREPALETIZAJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-repaletizaje="<?php echo htmlspecialchars($FECHAREPALETIZAJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-reembalaje="<?php echo htmlspecialchars($NUMEROREEMBALEJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-reembalaje="<?php echo htmlspecialchars($FECHAREEMBALEJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-reembalaje="<?php echo htmlspecialchars($TREEMBALAJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-despacho="<?php echo htmlspecialchars($TDESPACHO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-despacho="<?php echo htmlspecialchars($NUMERODESPACHO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-despacho="<?php echo htmlspecialchars($FECHADESPACHO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-destino="<?php echo htmlspecialchars($DESTINO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-csg-destino="<?php echo htmlspecialchars($CSGCSPDESTINO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-inspeccion="<?php echo htmlspecialchars($NUMEROINPSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-inspeccion="<?php echo htmlspecialchars($FECHAINPSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-inspeccion="<?php echo htmlspecialchars($NOMBRETINPSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-ingreso="<?php echo htmlspecialchars($r['INGRESO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-modificacion="<?php echo htmlspecialchars($r['MODIFICACION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-referencia="<?php echo htmlspecialchars($NUMEROREFERENCIA, ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-recepcion="<?php echo htmlspecialchars($r['ID_RECEPCION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-despacho="<?php echo htmlspecialchars($r['ID_DESPACHO2'] ? $r['ID_DESPACHO2'] : $r['ID_DESPACHOEX'], ENT_QUOTES, 'UTF-8'); ?>">
+            <i class="mdi mdi-eye"></i> Trazabilidad
+        </button>
+    </td>
+    <td>
+        <span class="<?php echo $TRECHAZOCOLOR; ?>">
+            <a Onclick="abrirPestana('../../assest/documento/informeTarjasPT.php?parametro=<?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>&&parametro1=<?php echo $r['ID_EMPRESA']; ?>&&parametro2=<?php echo $r['ID_PLANTA']; ?>&&tipo=3');">
+                <?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>
+            </a>
+        </span>
+    </td>
                                                                 <td><?php echo $r['EMBALADO']; ?></td>
                                                                 <td><?php echo $ESTADO; ?></td>
-                                                                <td><?php echo $COLOR; ?></td>
                                                                 <td><?php echo $ESTADOSAG; ?></td>
+                                                                <td><?php echo $COLOR; ?></td>
                                                                 <td><?php echo $CODIGOESTANDAR; ?></td>
                                                                 <td><?php echo $NOMBREESTANDAR; ?></td>
                                                                 <td><?php echo $NOMBRETCALIBRE; ?></td>
                                                                 <td><?php echo $CSGPRODUCTOR; ?></td>
                                                                 <td><?php echo $NOMBREPRODUCTOR; ?></td>
-                                                                <td><?php echo $NOMBRESPECIES; ?></td>
-                                                                <td><?php echo $NOMBREVESPECIES; ?></td>
+                                                                <td><?php echo $NOMBREVESPECIES . ' (' . $NOMBRESPECIES . ')'; ?></td>
                                                                 <td><?php echo $r['ENVASE']; ?></td>
                                                                 <td><?php echo $r['NETO']; ?></td>
                                                                 <td><?php echo $r['PORCENTAJE']; ?></td>
@@ -964,23 +976,18 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                                 <td><?php echo $EMBOLSADO; ?></td>
                                                                 <td><?php echo $GASIFICADO; ?></td>
                                                                 <td><?php echo $PREFRIO; ?></td>
-                                                                <td><?php echo $NOMBRETCATEGORIA; ?></td>
-                                                                <td><?php echo $NOMBRETCOLOR; ?></td>
                                                                 <td><?php echo $r['DIAS']; ?></td>
                                                                 <td><?php echo $r['INGRESO']; ?></td>
                                                                 <td><?php echo $r['MODIFICACION']; ?></td>
-                                                                <td><?php echo $NOMBREEMPRESA; ?></td>
-                                                                <td><?php echo $NOMBREPLANTA; ?></td>
-                                                                <td><?php echo $NOMBRETEMPORADA; ?></td>
                                                                 <td><?php echo $NUMEROREFERENCIA; ?></td>
                                                             </tr>                                                       
                                                         <?php endforeach; ?>        
                                                     <?php endforeach; ?>
                                                 </tbody>
-                                                <tfoot>
+                                                                                                <tfoot>
                                                     <tr class="text-center" id="filtro">
+                                                        <th>Trazabilidad</th>
                                                         <th>Folio Original</th>
-                                                        <th>Folio Nuevo</th>
                                                         <th>Fecha Embalado </th>
                                                         <th>Estado </th>
                                                         <th>Estado Calidad</th>
@@ -990,7 +997,6 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Calibre </th>
                                                         <th>CSG</th>
                                                         <th>Productor</th>
-                                                        <th>Especies</th>
                                                         <th>Variedad</th>
                                                         <th>Cantidad Envase</th>
                                                         <th>Kilos Neto</th>
@@ -1003,7 +1009,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Recepción</th>
                                                         <th>Origen Recepción </th>
                                                         <th>Número Guía Recepción </th>
-                                                        <th>Fecha Guía Recepción
+                                                        <th>Fecha Guía Recepción</th>
                                                         <th>Número Repaletizaje </th>
                                                         <th>Fecha Repaletizaje </th>
                                                         <th>Número Proceso </th>
@@ -1011,7 +1017,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Proceso </th>
                                                         <th>Número Reembalaje </th>
                                                         <th>Fecha Reembalaje </th>
-                                                        <th>Tipo Reembalaje </th>                                       
+                                                        <th>Tipo Reembalaje </th>
                                                         <th>Número Inspección </th>
                                                         <th>Fecha Inspección </th>
                                                         <th>Tipo Inspección </th>
@@ -1022,20 +1028,15 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Despacho</th>
                                                         <th>Destino Despacho</th>
                                                         <th>Tipo Manejo</th>
-                                                        <th>Tipo Calibre </th>
+                                                        <th>Tipo Calibre (Detalle)</th>
                                                         <th>Tipo Embalaje </th>
                                                         <th>Stock</th>
                                                         <th>Embolsado</th>
                                                         <th>Gasificacion</th>
                                                         <th>Prefrío</th>
-                                                        <th>Tipo Categoria </th>
-                                                        <th>Tipo Color </th>      
                                                         <th>Días</th>
                                                         <th>Ingreso</th>
                                                         <th>Modificación</th>
-                                                        <th>Empresa</th>
-                                                        <th>Planta</th>
-                                                        <th>Temporada</th>
                                                         <th>Numero Referencia</th>
                                                     </tr>
                                                 </tfoot>
@@ -1073,6 +1074,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <th>Folio original</th>
                                         <th>Folio nuevo</th>
                                         <th>Estado</th>
+                                        <th>Condición</th>
                                         <th>Calidad</th>
                                     </tr>
                                 </thead>
@@ -1081,6 +1083,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="folio"></td>
                                         <td data-detail="folio-aux"></td>
                                         <td><span class="detalle-badge" data-detail="estado"></span></td>
+                                        <td><span class="detalle-badge" data-detail="condicion"></span></td>
                                         <td><span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span></td>
                                     </tr>
                                 </tbody>
@@ -1098,6 +1101,14 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <th>Especie / Variedad</th>
                                         <td data-detail="especie"></td>
                                     </tr>
+                                    <tr>
+                                        <th>Envases</th>
+                                        <td data-detail="envases"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Kilos</th>
+                                        <td data-detail="kilos"></td>
+                                    </tr>
                                 </table>
                             </div>
                             <div class="detalle-card">
@@ -1108,20 +1119,37 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="productor"></td>
                                     </tr>
                                     <tr>
-                                        <th>Cantidad</th>
-                                        <td data-detail="envases"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Kilos</th>
-                                        <td data-detail="kilos"></td>
-                                    </tr>
-                                    <tr>
                                         <th>Manejo</th>
                                         <td data-detail="tmanejo"></td>
                                     </tr>
                                     <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
+                                    </tr>
+                                    <tr>
                                         <th>Gasificación</th>
                                         <td data-detail="gasificado"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Prefrío</th>
+                                        <td data-detail="prefrio"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Calidad e inspección</h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Condición</th>
+                                        <td data-detail="condicion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Estado calidad</th>
+                                        <td data-detail="estado-calidad"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Inspección</th>
+                                        <td data-detail="inspeccion"></td>
                                     </tr>
                                 </table>
                             </div>
@@ -1137,8 +1165,16 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="guia-recepcion"></td>
                                     </tr>
                                     <tr>
+                                        <th>Repaletizaje</th>
+                                        <td data-detail="repaletizaje"></td>
+                                    </tr>
+                                    <tr>
                                         <th>Proceso</th>
                                         <td data-detail="proceso"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Reembalaje</th>
+                                        <td data-detail="reembalaje"></td>
                                     </tr>
                                     <tr>
                                         <th>Despacho</th>
@@ -1147,20 +1183,29 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Ubicación y fechas</h5>
+                                <h5>Calibre y embalaje</h5>
                                 <table class="detalle-table">
                                     <tr>
-                                        <th>Empresa</th>
-                                        <td data-detail="empresa"></td>
+                                        <th>Tipo calibre</th>
+                                        <td data-detail="calibre-detalle"></td>
                                     </tr>
                                     <tr>
-                                        <th>Planta</th>
-                                        <td data-detail="planta"></td>
+                                        <th>Embalaje</th>
+                                        <td data-detail="embalaje"></td>
                                     </tr>
                                     <tr>
-                                        <th>Temporada</th>
-                                        <td data-detail="temporada"></td>
+                                        <th>Stock</th>
+                                        <td data-detail="stock"></td>
                                     </tr>
+                                    <tr>
+                                        <th>Referencia</th>
+                                        <td data-detail="referencia"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Fechas</h5>
+                                <table class="detalle-table">
                                     <tr>
                                         <th>Ingreso</th>
                                         <td data-detail="ingreso"></td>
@@ -1215,6 +1260,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                 modal.find('[data-detail="folio"]').text(button.data('folio'));
                 modal.find('[data-detail="folio-aux"]').text(button.data('folio-aux'));
                 modal.find('[data-detail="estado"]').text(button.data('estado'));
+                modal.find('[data-detail="condicion"]').text(button.data('condicion'));
                 modal.find('[data-detail="estado-calidad"]').text(button.data('estado-calidad'));
                 modal.find('[data-detail="estandar"]').text(button.data('estandar'));
                 modal.find('[data-detail="productor"]').text(button.data('productor') + ' (' + button.data('csg') + ')');
@@ -1222,20 +1268,29 @@ if ($EMPRESAS  && $TEMPORADAS) {
                 modal.find('[data-detail="envases"]').text(button.data('envases'));
                 modal.find('[data-detail="kilos"]').text('Neto: ' + button.data('neto') + ' | Promedio: ' + button.data('promedio') + ' | Bruto: ' + button.data('bruto'));
                 modal.find('[data-detail="tmanejo"]').text(button.data('tmanejo'));
+                modal.find('[data-detail="embolsado"]').text(button.data('embolsado'));
                 modal.find('[data-detail="gasificado"]').text(button.data('gasificado'));
+                modal.find('[data-detail="prefrio"]').text(button.data('prefrio'));
                 var recepcionTexto = button.data('tipo-recepcion') + ' #' + button.data('num-recepcion') + ' (' + button.data('fecha-recepcion') + ') ' + button.data('origen') + ' [' + button.data('csg-origen') + ']';
                 var recepcionUrl = button.data('id-recepcion') ? '../../fruta/vista/registroRecepcionpt.php?op&id=' + encodeURIComponent(button.data('id-recepcion')) + '&a=ver' : '';
                 setDetailWithLink(modal, 'recepcion', recepcionTexto, recepcionUrl);
                 modal.find('[data-detail="guia-recepcion"]').text(button.data('num-guia-recepcion') + (button.data('fecha-guia-recepcion') ? ' (' + button.data('fecha-guia-recepcion') + ')' : ''));
+                var repaletizajeTexto = button.data('num-repaletizaje') ? '#' + button.data('num-repaletizaje') + (button.data('fecha-repaletizaje') ? ' (' + button.data('fecha-repaletizaje') + ')' : '') : 'Sin datos';
+                modal.find('[data-detail="repaletizaje"]').text(repaletizajeTexto);
                 var procesoTexto = button.data('tipo-proceso') + ' #' + button.data('num-proceso') + ' (' + button.data('fecha-proceso') + ')';
                 var procesoUrl = button.data('id-proceso') ? '../../fruta/vista/registroProceso.php?op&id=' + encodeURIComponent(button.data('id-proceso')) + '&a=ver' : '';
                 setDetailWithLink(modal, 'proceso', procesoTexto, procesoUrl);
+                var reembalajeTexto = button.data('num-reembalaje') ? button.data('tipo-reembalaje') + ' #' + button.data('num-reembalaje') + (button.data('fecha-reembalaje') ? ' (' + button.data('fecha-reembalaje') + ')' : '') : 'Sin datos';
+                modal.find('[data-detail="reembalaje"]').text(reembalajeTexto);
                 var despachoTexto = button.data('tipo-despacho') + ' #' + button.data('num-despacho') + ' (' + button.data('fecha-despacho') + ') ' + button.data('destino') + ' [' + button.data('csg-destino') + ']';
                 var despachoUrl = button.data('id-despacho') ? '../../fruta/vista/registroDespachopt.php?op&id=' + encodeURIComponent(button.data('id-despacho')) + '&a=ver' : '';
                 setDetailWithLink(modal, 'despacho', despachoTexto, despachoUrl);
-                modal.find('[data-detail="empresa"]').text(button.data('empresa'));
-                modal.find('[data-detail="planta"]').text(button.data('planta'));
-                modal.find('[data-detail="temporada"]').text(button.data('temporada'));
+                var inspeccionTexto = button.data('num-inspeccion') ? '#' + button.data('num-inspeccion') + ' (' + button.data('fecha-inspeccion') + ') ' + button.data('tipo-inspeccion') : 'Sin datos';
+                modal.find('[data-detail="inspeccion"]').text(inspeccionTexto);
+                modal.find('[data-detail="calibre-detalle"]').text(button.data('calibre-detalle'));
+                modal.find('[data-detail="embalaje"]').text(button.data('embalaje'));
+                modal.find('[data-detail="stock"]').text(button.data('stock'));
+                modal.find('[data-detail="referencia"]').text(button.data('referencia'));
                 modal.find('[data-detail="ingreso"]').text(button.data('ingreso'));
                 modal.find('[data-detail="modificacion"]').text(button.data('modificacion'));
             });
@@ -1280,6 +1335,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                             <th style="padding:6px;border:1px solid #e4e9f1;">Folio original</th>
                             <th style="padding:6px;border:1px solid #e4e9f1;">Folio nuevo</th>
                             <th style="padding:6px;border:1px solid #e4e9f1;">Estado</th>
+                            <th style="padding:6px;border:1px solid #e4e9f1;">Condición</th>
                             <th style="padding:6px;border:1px solid #e4e9f1;">Calidad</th>
                         </tr>
                     </thead>
@@ -1288,15 +1344,18 @@ if ($EMPRESAS  && $TEMPORADAS) {
                             <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio')}</td>
                             <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio-aux')}</td>
                             <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado')}</td>
+                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('condicion')}</td>
                             <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado-calidad')}</td>
                         </tr>
                     </tbody>
                 </table>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px;">
-                    ${buildCard('Identificación', [['Estandar', 'estandar'], ['Especie / Variedad', 'especie']])}
-                    ${buildCard('Productor y manejo', [['Productor', 'productor'], ['Cantidad', 'envases'], ['Kilos', 'kilos'], ['Manejo', 'tmanejo'], ['Gasificación', 'gasificado']])}
-                    ${buildCard('Movimientos', [['Recepción', 'recepcion'], ['Guía recepción', 'guia-recepcion'], ['Proceso', 'proceso'], ['Despacho', 'despacho']])}
-                    ${buildCard('Ubicación y fechas', [['Empresa', 'empresa'], ['Planta', 'planta'], ['Temporada', 'temporada'], ['Ingreso', 'ingreso'], ['Modificación', 'modificacion']])}
+                    ${buildCard('Identificación', [['Estandar', 'estandar'], ['Especie / Variedad', 'especie'], ['Envases', 'envases'], ['Kilos', 'kilos']])}
+                    ${buildCard('Productor y manejo', [['Productor', 'productor'], ['Manejo', 'tmanejo'], ['Embolsado', 'embolsado'], ['Gasificación', 'gasificado'], ['Prefrío', 'prefrio']])}
+                    ${buildCard('Calidad e inspección', [['Condición', 'condicion'], ['Estado calidad', 'estado-calidad'], ['Inspección', 'inspeccion']])}
+                    ${buildCard('Movimientos', [['Recepción', 'recepcion'], ['Guía recepción', 'guia-recepcion'], ['Repaletizaje', 'repaletizaje'], ['Proceso', 'proceso'], ['Reembalaje', 'reembalaje'], ['Despacho', 'despacho']])}
+                    ${buildCard('Calibre y embalaje', [['Tipo calibre', 'calibre-detalle'], ['Embalaje', 'embalaje'], ['Stock', 'stock'], ['Referencia', 'referencia']])}
+                    ${buildCard('Fechas', [['Ingreso', 'ingreso'], ['Modificación', 'modificacion']])}
                 </div>
             `;
 
