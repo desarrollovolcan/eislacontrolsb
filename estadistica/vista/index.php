@@ -156,28 +156,28 @@ if ($PRODUCTORESASOCIADOS) {
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
                                 <div class="kpi-card">
                                     <p class="kpi-title">Kilos recepcionados acumulados</p>
-                                    <p class="kpi-value"><?php echo number_format($KILOSRECEPCIONACUMULADOS, 0, ',', '.'); ?> kg</p>
+                                    <p class="kpi-value"><?php echo number_format((float)$KILOSRECEPCIONACUMULADOS, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Materia prima neta recepcionada</p>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
                                 <div class="kpi-card">
                                     <p class="kpi-title">Kilos recepcionados hoy</p>
-                                    <p class="kpi-value"><?php echo number_format($KILOSRECEPCIONHOY, 0, ',', '.'); ?> kg</p>
+                                    <p class="kpi-value"><?php echo number_format((float)$KILOSRECEPCIONHOY, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Ingresos del día actual</p>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
                                 <div class="kpi-card">
                                     <p class="kpi-title">Kilos procesados acumulados</p>
-                                    <p class="kpi-value"><?php echo number_format($KILOSPROCESOACUMULADOS, 0, ',', '.'); ?> kg</p>
+                                    <p class="kpi-value"><?php echo number_format((float)$KILOSPROCESOACUMULADOS, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Neto de entrada procesado a la fecha</p>
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-15">
                                 <div class="kpi-card">
                                     <p class="kpi-title">Kilos procesados hoy</p>
-                                    <p class="kpi-value"><?php echo number_format($KILOSPROCESOHOY, 0, ',', '.'); ?> kg</p>
+                                    <p class="kpi-value"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Procesos registrados en el día</p>
                                 </div>
                             </div>
