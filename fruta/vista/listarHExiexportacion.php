@@ -167,65 +167,63 @@ if ($EMPRESAS  && $TEMPORADAS) {
         <?php include_once "../../assest/config/urlHead.php"; ?>
     <style>
         .detalle-modal .modal-content {
-            border: 1px solid #cfd9ec;
-            box-shadow: 0 10px 26px rgba(7, 33, 71, 0.12);
-            border-radius: 14px;
+            border: 1px solid #c7d6eb;
+            box-shadow: 0 12px 30px rgba(5, 43, 92, 0.15);
+            border-radius: 12px;
             overflow: hidden;
         }
 
         .detalle-modal .modal-header {
-            background: linear-gradient(120deg, #0b3058 0%, #0f4a7a 100%);
-            color: #f0f5ff;
+            background: linear-gradient(120deg, #0b559f 0%, #0c3972 100%);
+            color: #f6f9ff;
             border: none;
-            padding: 12px 16px;
+            padding: 14px 18px;
         }
 
         .detalle-modal .modal-title {
             font-weight: 800;
             letter-spacing: 0.25px;
             margin: 0;
-            color: #f8fbff;
+            color: #f6f9ff;
         }
 
         .detalle-modal .modal-subtitle {
             font-size: 11px;
             letter-spacing: 0.5px;
-            color: #c7d6ef;
+            color: #d6e4f9;
             margin-bottom: 2px;
             opacity: 0.95;
         }
 
         .detalle-modal .close {
-            color: #d9e6ff;
+            color: #f2f6fb;
             opacity: 1;
             font-weight: 800;
         }
 
         .detalle-hero {
-            margin: 0 -10px 12px;
-            background: linear-gradient(135deg, #f4f7fb 0%, #e8f0fb 100%);
-            border-bottom: 1px solid #d7e2f2;
-            padding: 12px 12px 10px;
+            margin: 0 -12px 14px;
+            background: #e8f0fb;
+            border-bottom: 1px solid #d7e4f5;
+            padding: 0;
         }
 
         .detalle-hero .brand-banner {
             width: 100%;
-            border-radius: 10px;
             overflow: hidden;
-            border: 1px solid #d7e2f2;
-            background: #fff;
+            border-bottom: 1px solid #d7e4f5;
         }
 
         .detalle-hero .brand-banner img {
             width: 100%;
-            height: 160px;
+            height: 180px;
             object-fit: cover;
             display: block;
         }
 
         .detalle-modal .modal-body {
-            background: #fff;
-            padding: 10px 12px 6px;
+            background: linear-gradient(180deg, #f8fbff 0%, #f2f6fb 28%, #ffffff 100%);
+            padding: 12px 14px 8px;
         }
 
         .detalle-grid {
@@ -245,7 +243,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
         }
 
         .detalle-resumen-table thead th {
-            background: #0f4a7a;
+            background: #0c3972;
             color: #f2f6fb;
             text-transform: uppercase;
             font-size: 11px;
@@ -261,10 +259,10 @@ if ($EMPRESAS  && $TEMPORADAS) {
 
         .detalle-card {
             background: #fff;
-            border: 1px solid #dce4ef;
+            border: 1px solid #d3deef;
             border-radius: 10px;
             padding: 0;
-            box-shadow: 0 8px 16px rgba(15, 62, 91, 0.06);
+            box-shadow: 0 10px 18px rgba(12, 57, 114, 0.08);
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -273,12 +271,12 @@ if ($EMPRESAS  && $TEMPORADAS) {
         .detalle-card h5 {
             font-size: 12px;
             font-weight: 700;
-            color: #0f2d4a;
+            color: #0c3972;
             margin: 0;
             letter-spacing: 0.3px;
             padding: 10px 12px;
-            background: linear-gradient(90deg, #f1f5fb 0%, #e8f0fb 100%);
-            border-bottom: 1px solid #e3ebf5;
+            background: linear-gradient(90deg, #eef3fb 0%, #dfe9f7 100%);
+            border-bottom: 1px solid #d6e1f3;
         }
 
         .detalle-card table {
@@ -321,33 +319,34 @@ if ($EMPRESAS  && $TEMPORADAS) {
             min-width: 90px;
             padding: 6px 10px;
             border-radius: 10px;
-            background: #e6efff;
-            color: #0b3058;
+            background: #d8e8ff;
+            color: #0b2f57;
             font-weight: 800;
-            border: 1px solid #c8d8f2;
+            border: 1px solid #b7c9e6;
         }
 
         .detalle-modal .modal-footer {
             padding: 12px 14px;
-            border-top: 1px solid #dce4ef;
-            background: #f2f6fb;
+            border-top: 1px solid #d3deef;
+            background: #e8f0fb;
         }
 
         .detalle-modal .btn-primary {
-            background: #0f4a7a;
-            border-color: #0b3058;
+            background: #0b559f;
+            border-color: #0b559f;
+            color: #ffffff;
             font-weight: 800;
         }
 
         .detalle-modal .btn-secondary {
-            background: #e7eef7;
-            color: #0b2f57;
-            border-color: #c5d3e6;
+            background: #ffffff;
+            color: #0c3972;
+            border-color: #0c3972;
             font-weight: 800;
         }
 
         .detalle-modal .btn {
-            min-width: 160px;
+            min-width: 170px;
             border-radius: 10px;
         }
 
@@ -1166,12 +1165,8 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="productor"></td>
                                     </tr>
                                     <tr>
-                                        <th>Manejo</th>
-                                        <td data-detail="tmanejo"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Condición</th>
-                                        <td data-detail="condicion"></td>
+                                        <th>CSG/CSP</th>
+                                        <td data-detail="csg"></td>
                                     </tr>
                                     <tr>
                                         <th>Estado calidad</th>
@@ -1184,6 +1179,22 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                     <tr>
                                         <th>Embolsado</th>
                                         <td data-detail="embolsado"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Condición</th>
+                                        <td data-detail="condicion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Estado calidad</th>
+                                        <td data-detail="estado-calidad"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Inspección</th>
+                                        <td data-detail="inspeccion"></td>
                                     </tr>
                                     <tr>
                                         <th>Embolsado</th>
@@ -1325,7 +1336,8 @@ if ($EMPRESAS  && $TEMPORADAS) {
                 modal.find('[data-detail="condicion"]').text(button.data('condicion'));
                 modal.find('[data-detail="estado-calidad"]').text(button.data('estado-calidad'));
                 modal.find('[data-detail="estandar"]').text(button.data('estandar'));
-                modal.find('[data-detail="productor"]').text(button.data('productor') + ' (' + button.data('csg') + ')');
+                modal.find('[data-detail="productor"]').text(button.data('productor'));
+                modal.find('[data-detail="csg"]').text(button.data('csg'));
                 modal.find('[data-detail="especie"]').text(button.data('especie') + ' / ' + button.data('variedad'));
                 modal.find('[data-detail="envases"]').text(button.data('envases'));
                 modal.find('[data-detail="kilos"]').text('Neto: ' + button.data('neto') + ' | Promedio: ' + button.data('promedio') + ' | Bruto: ' + button.data('bruto'));
@@ -1369,66 +1381,129 @@ if ($EMPRESAS  && $TEMPORADAS) {
                 return;
             }
 
-            ensureHtml2Pdf().then(function() {
-                var getDetail = function(key) {
-                    var node = modal.querySelector('[data-detail="' + key + '"]');
-                    return node ? node.textContent || '' : '';
-                };
+            var getDetail = function(key) {
+                var node = modal.querySelector('[data-detail="' + key + '"]');
+                return node ? node.textContent || '' : '';
+            };
 
-                var docDefinition = document.createElement('div');
-                docDefinition.id = 'detalle-pdf-temp';
-                docDefinition.style.padding = '18px';
-                docDefinition.style.fontFamily = 'Arial, sans-serif';
-                var buildCard = function(title, rows) {
-                    var rowsHtml = rows.map(function(r) {
-                        return `<tr><th style="text-align:left;padding:6px;border:1px solid #eef2f7;background:#fafbfc;width:42%;">${r[0]}</th><td style="padding:6px;border:1px solid #eef2f7;">${getDetail(r[1])}</td></tr>`;
-                    }).join('');
-                    return `<div style=\"border:1px solid #dce4ef;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(15,62,91,0.08);\"><div style=\"background:#f1f5fb;color:#0f2d4a;padding:8px 10px;font-weight:800;font-size:12px;\">${title}</div><table style=\"width:100%;border-collapse:collapse;font-size:12px;\">${rowsHtml}</table></div>`;
-                };
-                docDefinition.innerHTML = `
-                    ${LOGO_EMPRESA ? `<div style="width:100%;border:1px solid #d7e2f2;border-radius:10px;overflow:hidden;background:#fff;margin-bottom:12px;"><img src="${LOGO_EMPRESA}" style="width:100%;height:140px;object-fit:cover;" /></div>` : ''}
-                    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;">
-                        <thead>
-                            <tr style="background:#0f4a7a;color:#f2f6fb;">
-                                <th style="padding:6px;border:1px solid #e4e9f1;">Folio original</th>
-                                <th style="padding:6px;border:1px solid #e4e9f1;">Folio nuevo</th>
-                                <th style="padding:6px;border:1px solid #e4e9f1;">Estado</th>
-                                <th style="padding:6px;border:1px solid #e4e9f1;">Condición</th>
-                                <th style="padding:6px;border:1px solid #e4e9f1;">Calidad</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio')}</td>
-                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio-aux')}</td>
-                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado')}</td>
-                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('condicion')}</td>
-                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado-calidad')}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;">
-                        ${buildCard('Identificación', [['Estandar', 'estandar'], ['Especie / Variedad', 'especie'], ['Envases', 'envases'], ['Kilos', 'kilos'], ['Tipo calibre', 'calibre-detalle'], ['Embalaje', 'embalaje']])}
-                        ${buildCard('Productor y condición', [['Productor', 'productor'], ['Manejo', 'tmanejo'], ['Condición', 'condicion'], ['Estado calidad', 'estado-calidad'], ['Inspección', 'inspeccion'], ['Embolsado', 'embolsado'], ['Gasificación', 'gasificado'], ['Prefrío', 'prefrio']])}
-                        ${buildCard('Movimientos y fechas', [['Recepción', 'recepcion'], ['Guía recepción', 'guia-recepcion'], ['Repaletizaje', 'repaletizaje'], ['Proceso', 'proceso'], ['Reembalaje', 'reembalaje'], ['Despacho', 'despacho'], ['Ingreso', 'ingreso'], ['Modificación', 'modificacion']])}
-                        ${buildCard('Calibre y stock', [['Tipo calibre', 'calibre-detalle'], ['Embalaje', 'embalaje'], ['Stock', 'stock'], ['Referencia', 'referencia']])}
+            var now = new Date();
+            var fecha = now.toLocaleDateString();
+            var hora = now.toLocaleTimeString();
+            var hero = LOGO_EMPRESA ? `<div class="hero"><img src="${LOGO_EMPRESA}" alt="Marca" /></div>` : '';
+
+            var buildRow = function(label, value) {
+                return `<tr><th>${label}</th><td>${value || 'Sin Datos'}</td></tr>`;
+            };
+
+            var html = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8" />
+                    <title>Informe trazabilidad</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 18px; color: #0c3972; }
+                        .report { border: 1px solid #d2ddec; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 28px rgba(12,57,114,0.08); }
+                        .hero { width: 100%; background: #e8f0fb; }
+                        .hero img { width: 100%; height: 220px; object-fit: cover; display: block; }
+                        .header { padding: 14px 16px; border-bottom: 1px solid #d2ddec; background: #f6f9ff; display:flex; justify-content: space-between; align-items: flex-start; }
+                        .header h2 { margin: 0; color: #0b559f; }
+                        .header .subtitle { font-size: 13px; color: #4f6483; }
+                        .meta { text-align: right; font-size: 12px; color: #4f6483; }
+                        .section { padding: 0 16px 10px; }
+                        .section h3 { margin: 16px 0 6px; color: #0b559f; border-bottom: 1px solid #c7d6eb; padding-bottom: 6px; font-size: 14px; }
+                        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+                        th { width: 32%; text-align: left; padding: 7px 8px; background: #f2f6fb; color: #0c3972; border: 1px solid #dfe6f2; }
+                        td { padding: 7px 8px; border: 1px solid #dfe6f2; color: #213955; font-weight: 700; }
+                        .pill-table th, .pill-table td { text-align: center; }
+                        .footer { padding: 10px 16px 16px; text-align: right; color: #4f6483; font-size: 11px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="report">
+                        ${hero}
+                        <div class="header">
+                            <div>
+                                <div class="subtitle">Historial de existencias de producto terminado</div>
+                                <h2>${NOMBRE_EMPRESA || 'Empresa'}</h2>
+                                <div class="subtitle">Detalle de trazabilidad</div>
+                            </div>
+                            <div class="meta">
+                                <div>Fecha: ${fecha}</div>
+                                <div>Hora: ${hora}</div>
+                            </div>
+                        </div>
+                        <div class="section">
+                            <h3>Identificación</h3>
+                            <table class="pill-table">
+                                <tr>
+                                    <th>Folio original</th>
+                                    <th>Folio nuevo</th>
+                                    <th>Estado</th>
+                                    <th>Condición</th>
+                                    <th>Estado calidad</th>
+                                </tr>
+                                <tr>
+                                    <td>${getDetail('folio')}</td>
+                                    <td>${getDetail('folio-aux')}</td>
+                                    <td>${getDetail('estado')}</td>
+                                    <td>${getDetail('condicion')}</td>
+                                    <td>${getDetail('estado-calidad')}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="section">
+                            <h3>Producto y manejo</h3>
+                            <table>
+                                ${buildRow('Productor', getDetail('productor') + ' (' + getDetail('csg') + ')')}
+                                ${buildRow('Variedad', getDetail('especie'))}
+                                ${buildRow('Estandar', getDetail('estandar'))}
+                                ${buildRow('Manejo', getDetail('tmanejo'))}
+                                ${buildRow('Envases', getDetail('envases'))}
+                                ${buildRow('Kilos', getDetail('kilos'))}
+                                ${buildRow('Calibre', getDetail('calibre-detalle'))}
+                                ${buildRow('Embalaje', getDetail('embalaje'))}
+                                ${buildRow('Condición', getDetail('condicion'))}
+                                ${buildRow('Inspección', getDetail('inspeccion'))}
+                                ${buildRow('Estado calidad', getDetail('estado-calidad'))}
+                            </table>
+                        </div>
+                        <div class="section">
+                            <h3>Movimientos</h3>
+                            <table>
+                                ${buildRow('Recepción', getDetail('recepcion'))}
+                                ${buildRow('Guía recepción', getDetail('guia-recepcion'))}
+                                ${buildRow('Proceso', getDetail('proceso'))}
+                                ${buildRow('Repaletizaje', getDetail('repaletizaje'))}
+                                ${buildRow('Reembalaje', getDetail('reembalaje'))}
+                                ${buildRow('Despacho', getDetail('despacho'))}
+                            </table>
+                        </div>
+                        <div class="section">
+                            <h3>Ubicación y fechas</h3>
+                            <table>
+                                ${buildRow('Stock', getDetail('stock'))}
+                                ${buildRow('Referencia', getDetail('referencia'))}
+                                ${buildRow('Embolsado', getDetail('embolsado'))}
+                                ${buildRow('Gasificación', getDetail('gasificado'))}
+                                ${buildRow('Prefrío', getDetail('prefrio'))}
+                                ${buildRow('Ingreso', getDetail('ingreso'))}
+                                ${buildRow('Modificación', getDetail('modificacion'))}
+                            </table>
+                        </div>
+                        <div class="footer">Informe generado desde historial de existencias</div>
                     </div>
-                `;
+                    <script>
+                        window.onload = function(){ window.print(); };
+                    <\/script>
+                </body>
+                </html>
+            `;
 
-                document.body.appendChild(docDefinition);
-                html2pdf().set({
-                    margin: [10, 10, 10, 10],
-                    pagebreak: { mode: ['avoid-all'] },
-                    filename: 'detalle-existencia.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-                }).from(docDefinition).save().then(function() {
-                    document.body.removeChild(docDefinition);
-                }).catch(function() {
-                    document.body.removeChild(docDefinition);
-                });
-            });
+            var printWindow = window.open('', '_blank');
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
         }
     </script>
 </body>
