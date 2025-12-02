@@ -394,13 +394,11 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                     <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
                                         <div class="table-responsive">
                                             <table id="hexistencia" class="table-hover table-bordered" style="width: 300%;">
-                                                <thead>
+                                                                                                <thead>
                                                     <tr class="text-center">
-                                                        <th>Detalle</th>
-                                                        <th>Detalle</th>
+                                                        <th>Trazabilidad</th>
                                                         <th>Folio Original</th>
-                                                        <th>Folio Nuevo</th>
-                                                        <th>Fecha Embalado </th>
+                                                        <th>Fecha Embalado</th>
                                                         <th>Estado </th>
                                                         <th>Estado Calidad</th>
                                                         <th>Condición </th>
@@ -422,7 +420,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Recepción</th>
                                                         <th>Origen Recepción </th>
                                                         <th>Número Guía Recepción </th>
-                                                        <th>Fecha Guía Recepción
+                                                        <th>Fecha Guía Recepción</th>
                                                         <th>Número Repaletizaje </th>
                                                         <th>Fecha Repaletizaje </th>
                                                         <th>Número Proceso </th>
@@ -430,7 +428,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Proceso </th>
                                                         <th>Número Reembalaje </th>
                                                         <th>Fecha Reembalaje </th>
-                                                        <th>Tipo Reembalaje </th>                                              
+                                                        <th>Tipo Reembalaje </th>
                                                         <th>Número Inspección </th>
                                                         <th>Fecha Inspección </th>
                                                         <th>Tipo Inspección </th>
@@ -441,14 +439,14 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Despacho</th>
                                                         <th>Destino Despacho</th>
                                                         <th>Tipo Manejo</th>
-                                                        <th>Tipo Calibre </th>
+                                                        <th>Tipo Calibre (Detalle)</th>
                                                         <th>Tipo Embalaje </th>
                                                         <th>Stock</th>
                                                         <th>Embolsado</th>
                                                         <th>Gasificacion</th>
                                                         <th>Prefrío</th>
                                                         <th>Tipo Categoria </th>
-                                                        <th>Tipo Color </th>      
+                                                        <th>Tipo Color </th>
                                                         <th>Días</th>
                                                         <th>Ingreso</th>
                                                         <th>Modificación</th>
@@ -827,14 +825,6 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                             } else {
                                                                 $NOMBRETEMBALAJE = "Sin Datos";
                                                             }
-                                                            $ARRAYTEMBALAJE = obtenerDesdeCache($r['ID_TEMBALAJE'], $TEMBALAJE_CACHE, function ($id) use ($TEMBALAJE_ADO) {
-                                                                return $TEMBALAJE_ADO->verEmbalaje($id);
-                                                            });
-                                                            if ($ARRAYTEMBALAJE) {
-                                                                $NOMBRETEMBALAJE = $ARRAYTEMBALAJE[0]['NOMBRE_TEMBALAJE'];
-                                                            } else {
-                                                                $NOMBRETEMBALAJE = "Sin Datos";
-                                                            }
                                                             $ARRAYTCATEGORIA = obtenerDesdeCache($r['ID_TCATEGORIA'], $TCATEGORIA_CACHE, function ($id) use ($TCATEGORIA_ADO) {
                                                                 return $TCATEGORIA_ADO->verTcategoria($id);
                                                             });
@@ -903,20 +893,59 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                             } else {
                                                                 $PREFRIO = "Sin Datos";
                                                             }
+                                                            $PROMEDIO = ($r['ENVASE'] > 0) ? round($r['NETO'] / $r['ENVASE'], 2) : 0;
                                                             ?>
                                                             <tr class="text-center">
-                                                                <td>                                                                    
-                                                                    <span class="<?php echo $TRECHAZOCOLOR; ?>">
-                                                                        <?php echo $r['FOLIO_EXIEXPORTACION']; ?> 
-                                                                    </span>
-                                                                </td>
-                                                                <td>                   
-                                                                    <span class="<?php echo $TRECHAZOCOLOR; ?>">
-                                                                        <a Onclick="abrirPestana('../../assest/documento/informeTarjasPT.php?parametro=<?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>&&parametro1=<?php echo $r['ID_EMPRESA']; ?>&&parametro2=<?php echo $r['ID_PLANTA']; ?>&&tipo=3');">                                                                        
-                                                                            <?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>                                                                                                                                        
-                                                                        </a>
-                                                                    </span>
-                                                                </td>
+    <td>
+        <button type="button" class="btn btn-sm btn-outline-info btn-block" data-toggle="modal" data-target="#detalleExistenciaModal"
+            data-folio="<?php echo htmlspecialchars($r['FOLIO_EXIEXPORTACION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-folio-aux="<?php echo htmlspecialchars($r['FOLIO_AUXILIAR_EXIEXPORTACION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-estado="<?php echo htmlspecialchars($ESTADO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-estado-calidad="<?php echo htmlspecialchars($ESTADOSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-estandar="<?php echo htmlspecialchars($CODIGOESTANDAR . ' - ' . $NOMBREESTANDAR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-productor="<?php echo htmlspecialchars($NOMBREPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-csg="<?php echo htmlspecialchars($CSGPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-especie="<?php echo htmlspecialchars($NOMBRESPECIES, ENT_QUOTES, 'UTF-8'); ?>"
+            data-variedad="<?php echo htmlspecialchars($NOMBREVESPECIES, ENT_QUOTES, 'UTF-8'); ?>"
+            data-envases="<?php echo htmlspecialchars($r['ENVASE'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-neto="<?php echo htmlspecialchars($r['NETO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-promedio="<?php echo htmlspecialchars($PROMEDIO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-bruto="<?php echo htmlspecialchars($r['BRUTO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-tmanejo="<?php echo htmlspecialchars($NOMBRETMANEJO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-gasificado="<?php echo htmlspecialchars($GASIFICADO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-recepcion="<?php echo htmlspecialchars($TIPORECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-recepcion="<?php echo htmlspecialchars($NUMERORECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-recepcion="<?php echo htmlspecialchars($FECHARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-origen="<?php echo htmlspecialchars($ORIGEN, ENT_QUOTES, 'UTF-8'); ?>"
+            data-csg-origen="<?php echo htmlspecialchars($CSGCSPORIGEN, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-guia-recepcion="<?php echo htmlspecialchars($NUMEROGUIARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-guia-recepcion="<?php echo htmlspecialchars($FECHAGUIARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-proceso="<?php echo htmlspecialchars($TPROCESO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-proceso="<?php echo htmlspecialchars($NUMEROPROCESO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-proceso="<?php echo htmlspecialchars($FECHAPROCESO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-proceso="<?php echo htmlspecialchars($r['ID_PROCESO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-despacho="<?php echo htmlspecialchars($TDESPACHO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-despacho="<?php echo htmlspecialchars($NUMERODESPACHO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-despacho="<?php echo htmlspecialchars($FECHADESPACHO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-destino="<?php echo htmlspecialchars($DESTINO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-csg-destino="<?php echo htmlspecialchars($CSGCSPDESTINO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-empresa="<?php echo htmlspecialchars($NOMBREEMPRESA, ENT_QUOTES, 'UTF-8'); ?>"
+            data-planta="<?php echo htmlspecialchars($NOMBREPLANTA, ENT_QUOTES, 'UTF-8'); ?>"
+            data-temporada="<?php echo htmlspecialchars($NOMBRETEMPORADA, ENT_QUOTES, 'UTF-8'); ?>"
+            data-ingreso="<?php echo htmlspecialchars($r['INGRESO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-modificacion="<?php echo htmlspecialchars($r['MODIFICACION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-recepcion="<?php echo htmlspecialchars($r['ID_RECEPCION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-despacho="<?php echo htmlspecialchars($r['ID_DESPACHO2'] ? $r['ID_DESPACHO2'] : $r['ID_DESPACHOEX'], ENT_QUOTES, 'UTF-8'); ?>">
+            <i class="mdi mdi-eye"></i> Trazabilidad
+        </button>
+    </td>
+    <td>
+        <span class="<?php echo $TRECHAZOCOLOR; ?>">
+            <a Onclick="abrirPestana('../../assest/documento/informeTarjasPT.php?parametro=<?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>&&parametro1=<?php echo $r['ID_EMPRESA']; ?>&&parametro2=<?php echo $r['ID_PLANTA']; ?>&&tipo=3');">
+                <?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>
+            </a>
+        </span>
+    </td>
                                                                 <td><?php echo $r['EMBALADO']; ?></td>
                                                                 <td><?php echo $ESTADO; ?></td>
                                                                 <td><?php echo $COLOR; ?></td>
@@ -977,10 +1006,10 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <?php endforeach; ?>        
                                                     <?php endforeach; ?>
                                                 </tbody>
-                                                <tfoot>
+                                                                                                <tfoot>
                                                     <tr class="text-center" id="filtro">
+                                                        <th>Trazabilidad</th>
                                                         <th>Folio Original</th>
-                                                        <th>Folio Nuevo</th>
                                                         <th>Fecha Embalado </th>
                                                         <th>Estado </th>
                                                         <th>Estado Calidad</th>
@@ -1003,7 +1032,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Recepción</th>
                                                         <th>Origen Recepción </th>
                                                         <th>Número Guía Recepción </th>
-                                                        <th>Fecha Guía Recepción
+                                                        <th>Fecha Guía Recepción</th>
                                                         <th>Número Repaletizaje </th>
                                                         <th>Fecha Repaletizaje </th>
                                                         <th>Número Proceso </th>
@@ -1011,7 +1040,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Proceso </th>
                                                         <th>Número Reembalaje </th>
                                                         <th>Fecha Reembalaje </th>
-                                                        <th>Tipo Reembalaje </th>                                       
+                                                        <th>Tipo Reembalaje </th>
                                                         <th>Número Inspección </th>
                                                         <th>Fecha Inspección </th>
                                                         <th>Tipo Inspección </th>
@@ -1022,14 +1051,14 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Despacho</th>
                                                         <th>Destino Despacho</th>
                                                         <th>Tipo Manejo</th>
-                                                        <th>Tipo Calibre </th>
+                                                        <th>Tipo Calibre (Detalle)</th>
                                                         <th>Tipo Embalaje </th>
                                                         <th>Stock</th>
                                                         <th>Embolsado</th>
                                                         <th>Gasificacion</th>
                                                         <th>Prefrío</th>
                                                         <th>Tipo Categoria </th>
-                                                        <th>Tipo Color </th>      
+                                                        <th>Tipo Color </th>
                                                         <th>Días</th>
                                                         <th>Ingreso</th>
                                                         <th>Modificación</th>
