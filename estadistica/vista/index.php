@@ -128,6 +128,18 @@ if ($PRODUCTORESASOCIADOS) {
                 margin-bottom: 12px;
             }
 
+            .content-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 18px;
+                background: #f8fafc;
+                padding: 14px 20px;
+                border-radius: 12px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
+            }
+
             .section-header .helper-text {
                 margin: 0;
                 color: #6c757d;
@@ -149,6 +161,28 @@ if ($PRODUCTORESASOCIADOS) {
 
             .section-shell + .section-shell {
                 margin-top: 0;
+            }
+
+            .doc-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 10px;
+                border-radius: 999px;
+                background: #eef2ff;
+                color: #4338ca;
+                font-weight: 600;
+                font-size: 0.9rem;
+            }
+
+            .doc-chip.near {
+                background: #fff7ed;
+                color: #c2410c;
+            }
+
+            .main-header {
+                background: #ffffff;
+                box-shadow: 0 6px 16px rgba(17, 24, 39, 0.08);
             }
 
             tfoot tr td {
@@ -181,7 +215,7 @@ if ($PRODUCTORESASOCIADOS) {
         </script>
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini" >
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
     <div class="wrapper">
         <!- LLAMADA AL MENU PRINCIPAL DE LA PAGINA->
             <?php include_once "../../assest/config/menuOpera.php"; ?>
@@ -276,6 +310,7 @@ if ($PRODUCTORESASOCIADOS) {
                                                 <?php } ?>
                                             </table>
                                         </div>
+                                        <div id="chartVariedad" class="chart-container"></div>
                                     </div>
                                 </div>
                             </div>
@@ -361,13 +396,13 @@ if ($PRODUCTORESASOCIADOS) {
                                             <span class="helper-text">Nombre registrado, vigencia y descarga directa</span>
                                         </div>
                                         <div class="table-responsive">
-                                            <table class="table table-hover table-compact">
+                                            <table class="table table-hover table-compact table-sm align-middle mb-0">
                                                 <thead>
                                                     <tr>
-                                                        <th>Nombre registrado</th>
+                                                        <th class="w-50">Nombre registrado</th>
                                                         <th>Vigencia</th>
-                                                        <th>Días restantes</th>
-                                                        <th>Descargar</th>
+                                                        <th class="text-center">Días</th>
+                                                        <th class="text-center">Descargar</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -377,13 +412,21 @@ if ($PRODUCTORESASOCIADOS) {
                                                             <?php
                                                                 $vigencia = new DateTime($documento->vigencia_documento);
                                                                 $diasRestantes = (int) $hoy->diff($vigencia)->format('%r%a');
+                                                                $chipClass = $diasRestantes <= 15 ? 'doc-chip near' : 'doc-chip';
                                                             ?>
                                                             <tr>
-                                                                <td><?php echo htmlspecialchars($documento->nombre_documento); ?></td>
-                                                                <td><?php echo $documento->vigencia_documento; ?></td>
-                                                                <td><?php echo $diasRestantes >= 0 ? $diasRestantes . ' días' : 'Vencido'; ?></td>
                                                                 <td>
-                                                                    <a href="../../data/data_productor/<?php echo $documento->archivo_documento; ?>" target="_blank" class="btn btn-info btn-sm">
+                                                                    <div class="font-weight-600 mb-1"><?php echo htmlspecialchars($documento->nombre_documento); ?></div>
+                                                                    <div class="text-muted small">Folio: <?php echo htmlspecialchars($documento->numero_documento); ?></div>
+                                                                </td>
+                                                                <td><?php echo $documento->vigencia_documento; ?></td>
+                                                                <td class="text-center">
+                                                                    <span class="<?php echo $chipClass; ?>">
+                                                                        <?php echo $diasRestantes >= 0 ? $diasRestantes . ' días' : 'Vencido'; ?>
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <a href="../../data/data_productor/<?php echo $documento->archivo_documento; ?>" target="_blank" class="btn btn-link btn-sm text-primary px-2">
                                                                         <i class="ti-download"></i>
                                                                     </a>
                                                                 </td>
@@ -397,7 +440,7 @@ if ($PRODUCTORESASOCIADOS) {
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
-                                                        <td colspan="4">Total documentos listados: <?php echo $TOTALDOCUMENTOS; ?></td>
+                                                        <td colspan="4" class="text-right pr-3">Total documentos listados: <?php echo $TOTALDOCUMENTOS; ?></td>
                                                     </tr>
                                                 </tfoot>
                                             </table>
