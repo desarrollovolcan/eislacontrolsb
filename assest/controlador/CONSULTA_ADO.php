@@ -899,10 +899,10 @@ class CONSULTA_ADO
                                                 LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
                                                 LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
                                                 WHERE recepcion.ESTADO_REGISTRO = 1
-                                                AND recepcion.ESTADO = 0
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
