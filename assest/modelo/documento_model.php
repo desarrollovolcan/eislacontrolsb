@@ -22,6 +22,30 @@ class DocumentoModel {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    public function getUltimosDocumentosByProductores(array $productores, $especieId = null, $limit = 5) {
+        if (empty($productores)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($productores), '?'));
+        $params = $productores;
+
+        $query = "SELECT * FROM tb_documento WHERE estado_documento = 1 AND productor_documento IN ($placeholders)";
+
+        if ($especieId) {
+            $query .= " AND especie_documento = ?";
+            $params[] = $especieId;
+        }
+
+        $query .= " ORDER BY create_documento DESC LIMIT ?";
+        $params[] = $limit;
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
     public function getDocumentoById($id) {
         $query = "SELECT * FROM tb_documento WHERE id_documento = :id";
         $stmt = $this->db->prepare($query);

@@ -37,6 +37,10 @@ class ProductorController {
         return $documentos;
     }
 
+    public function ultimosDocumentosProductores(array $productorIds, $especieId, $limit = 5) {
+        return $this->documentoModel->getUltimosDocumentosByProductores($productorIds, $especieId, $limit);
+    }
+
     public function uploadDocumento() {
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
