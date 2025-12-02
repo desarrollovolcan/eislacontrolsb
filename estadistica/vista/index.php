@@ -15,6 +15,7 @@ $productorController = new ProductorController();
 $PRODUCTORESASOCIADOS = array();
 $KILOSVARIEDAD = array();
 $KILOSSEMANA = array();
+$KILOSPROCESOSEMANAS = array();
 $DETALLEPRODUCTOR = array();
 $DETALLECSPVARIEDAD = array();
 $DOCUMENTOSPORVENCER = array();
@@ -39,6 +40,7 @@ if ($ARRAYEMPRESAPRODUCTOR) {
 if ($PRODUCTORESASOCIADOS) {
     $KILOSVARIEDAD = $CONSULTA_ADO->kilosPorVariedadProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $KILOSSEMANA = $CONSULTA_ADO->kilosPorSemanaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+    $KILOSPROCESOSEMANAS = $CONSULTA_ADO->kilosProcesadosPorSemanaProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $DETALLEPRODUCTOR = $CONSULTA_ADO->kilosPorProductorAsociado($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $DETALLECSPVARIEDAD = $CONSULTA_ADO->kilosPorCspYVariedadProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
 
@@ -91,6 +93,16 @@ if ($PRODUCTORESASOCIADOS) {
                 justify-content: center;
                 gap: 6px;
                 box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
+            }
+
+            .kpi-badge {
+                display: inline-block;
+                padding: 6px 10px;
+                border-radius: 10px;
+                background: linear-gradient(90deg, #0d6efd, #4677f5);
+                color: #fff;
+                font-weight: 700;
+                letter-spacing: 0.02em;
             }
 
             .kpi-title {
@@ -243,22 +255,22 @@ if ($PRODUCTORESASOCIADOS) {
                             <p class="text-muted mb-10">Información basada en productores asociados, temporada y especie seleccionada. Los acumulados y gráficos consideran datos hasta el día previo; las cifras diarias corresponden al último día cerrado.</p>
                             <div class="kpi-grid">
                                 <div class="kpi-card">
-                                    <p class="kpi-title">Kilos recepcionados acumulados</p>
+                                    <span class="kpi-badge">Kilos recepcionados acumulados</span>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSRECEPCIONACUMULADOS, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Materia prima neta recepcionada</p>
                                 </div>
                                 <div class="kpi-card">
-                                    <p class="kpi-title">Kilos recepcionados (día anterior)</p>
+                                    <span class="kpi-badge">Kilos recepcionados (día anterior)</span>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSRECEPCIONHOY, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Ingresos netos del último día cerrado</p>
                                 </div>
                                 <div class="kpi-card">
-                                    <p class="kpi-title">Kilos procesados acumulados</p>
+                                    <span class="kpi-badge">Kilos procesados acumulados</span>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSPROCESOACUMULADOS, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Neto de entrada procesado al día previo</p>
                                 </div>
                                 <div class="kpi-card">
-                                    <p class="kpi-title">Kilos procesados (día anterior)</p>
+                                    <span class="kpi-badge">Kilos procesados (día anterior)</span>
                                     <p class="kpi-value"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</p>
                                     <p class="kpi-foot">Procesos cerrados el último día</p>
                                 </div>
@@ -318,10 +330,10 @@ if ($PRODUCTORESASOCIADOS) {
                                 <div class="box box-clean section-shell">
                                     <div class="box-body p-0">
                                         <div class="section-header">
-                                            <h4 class="box-title mb-0">Kilos por variedad</h4>
-                                            <p class="helper-text mb-0">Distribución por especie</p>
+                                            <h4 class="box-title mb-0">Procesos por semana</h4>
+                                            <p class="helper-text mb-0">Neto de proceso al cierre del día</p>
                                         </div>
-                                        <div id="chartVariedad" class="chart-container"></div>
+                                        <div id="chartProcesoSemanal" class="chart-container"></div>
                                     </div>
                                 </div>
                             </div>
@@ -332,8 +344,8 @@ if ($PRODUCTORESASOCIADOS) {
                                 <div class="box box-clean section-shell">
                                     <div class="box-body p-0">
                                         <div class="section-header">
-                                            <h4 class="box-title mb-0">Kilos por semana</h4>
-                                            <span class="helper-text">Promedia el neto recepcionado semanal</span>
+                                            <h4 class="box-title mb-0">Recepciones por semana</h4>
+                                            <span class="helper-text">Neto recepcionado semanal (corte día previo)</span>
                                         </div>
                                         <div id="chartSemanas" class="chart-container"></div>
                                     </div>
@@ -461,35 +473,35 @@ if ($PRODUCTORESASOCIADOS) {
         <script src="../../api/cryptioadmin10/html/assets/vendor_components/d3/d3.min.js"></script>
         <script src="../../api/cryptioadmin10/html/assets/vendor_components/c3/c3.min.js"></script>
         <script>
-            const datosVariedad = <?php echo json_encode($KILOSVARIEDAD); ?>;
             const datosSemanas = <?php echo json_encode($KILOSSEMANA); ?>;
+            const datosProcesos = <?php echo json_encode($KILOSPROCESOSEMANAS); ?>;
 
             (function generarCharts() {
-                const variedadColumns = [['Variedad', ...datosVariedad.map((v) => v.TOTAL)]];
-                const variedadCategories = datosVariedad.map((v) => v.NOMBRE);
+                const procesosColumns = [
+                    ['Kilos procesados', ...datosProcesos.map((p) => p.TOTAL)]
+                ];
+                const procesosCategories = datosProcesos.map((p) => 'Semana ' + p.SEMANA);
 
                 c3.generate({
-                    bindto: '#chartVariedad',
+                    bindto: '#chartProcesoSemanal',
                     data: {
-                        columns: variedadColumns,
-                        type: 'bar',
+                        columns: procesosColumns,
+                        type: 'area-spline',
                         colors: {
-                            Variedad: '#0d6efd'
+                            'Kilos procesados': '#0d6efd'
                         }
                     },
                     axis: {
                         x: {
                             type: 'category',
-                            categories: variedadCategories
+                            categories: procesosCategories
                         },
                         y: {
                             label: 'Kilos netos'
                         }
                     },
-                    bar: {
-                        width: {
-                            ratio: 0.6
-                        }
+                    point: {
+                        show: true
                     }
                 });
 

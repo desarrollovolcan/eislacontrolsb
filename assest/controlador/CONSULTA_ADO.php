@@ -755,6 +755,40 @@ class CONSULTA_ADO
         }
     }
 
+    public function kilosProcesadosPorSemanaProductor($TEMPORADA, $ESPECIE, $PRODUCTORES)
+    {
+        try {
+
+            if (empty($PRODUCTORES)) {
+                return [];
+            }
+
+            $productoresIn = implode("','", $PRODUCTORES);
+
+            $datos = $this->conexion->prepare("SELECT WEEK(P.FECHA_PROCESO,3) AS SEMANA,
+                                                    IFNULL(SUM(EXI.KILOS_NETO_EXIMATERIAPRIMA),0) AS TOTAL
+                                                FROM fruta_eximateriaprima EXI
+                                                INNER JOIN fruta_proceso P ON EXI.ID_PROCESO = P.ID_PROCESO
+                                                LEFT JOIN fruta_vespecies V ON EXI.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE EXI.ESTADO_REGISTRO = 1
+                                                AND P.ESTADO_REGISTRO = 1
+                                                AND P.ESTADO = 0
+                                                AND P.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                AND P.FECHA_PROCESO < CURRENT_DATE
+                                                AND EXI.ID_PRODUCTOR IN ('".$productoresIn."')
+                                                GROUP BY SEMANA
+                                                ORDER BY SEMANA;");
+            $datos->execute();
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
     public function kilosPorProductorAsociado($TEMPORADA, $ESPECIE, $PRODUCTORES)
     {
         try {
