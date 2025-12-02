@@ -16,34 +16,29 @@
     <!-- Style-->
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/style.css">
     <link rel="stylesheet" href="api/cryptioadmin10/html/main/css/skin_color.css">
+    <style>
+        body,
+        html {
+            height: 100%;
+        }
 
-</head>
+        .portal-wrapper {
+            min-height: 100vh;
+        }
 
-<body class="hold-transition theme-primary bg-gradient-primary">
-    <div class="container h-p100">
-        <div class="row align-items-center justify-content-md-center h-p100">
-            <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
-                <div class="row justify-content-center no-gutters">
-                    <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-5 col-sm-12 col-12 col-xs-12">
-                        <div class="bg-white-10 rounded5">
-                            <div class="content-top-agile p-10 pb-0">
-                                <h2 class="text-white">SISTEMAS INTERNOS</h2>
-                            </div>
-                            <div class="p-30">
-                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
-                                    <div class="form-group">
-                                        <a href="./fruta/">
-                                            <button type="button" class="btn bg-gradient-primary btn-block" id="ENTRAR" name="ENTRAR">Fruta</button>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
-                                    <div class="form-group">
-                                        <a href="./material/">
-                                            <button type="button" class="btn bg-gradient-secondary btn-block " id="ENTRAR" name="ENTRAR">Materiales</button>
-                                        </a>
-                                    </div>
-                                </div>
+        .module-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+            padding: 24px 22px 10px;
+            height: 100%;
+        }
+
+        .module-card h3 {
+            color: #1f2d3d;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
 
                                 <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
                                     <div class="form-group">
@@ -61,19 +56,47 @@
                                     </div>
                                 </div>
 
-                                <!--
-                                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
-                                    <div class="form-group">
-                                        <a href="mantencion/index.php">
-                                            <a href="https://operacionesvolcan:8890" target="_blank" class="btn bg-gradient-info btn-block">Operaciones.</a>
-                                        </a>
-                                    </div>
-                                </div>
-                                -->
-                                <!-- /.col -->
-                            </div>
-                        </div>
-                    </div>
+        .module-card .btn {
+            padding: 11px 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="hold-transition theme-primary bg-gradient-primary">
+    <div class="container portal-wrapper py-5">
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-white mb-2">Sistemas internos</h2>
+                <p class="text-white-50 mb-0">Accede a cada módulo manteniendo los colores y funciones originales.</p>
+            </div>
+        </div>
+        <div class="row module-grid justify-content-center">
+            <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
+                <div class="module-card w-100">
+                    <h3>Fruta</h3>
+                    <p class="mb-3">Gestión completa de fruta.</p>
+                    <a class="btn bg-gradient-primary btn-block w-100" href="./fruta/">Entrar</a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
+                <div class="module-card w-100">
+                    <h3>Materiales</h3>
+                    <p class="mb-3">Control y disponibilidad.</p>
+                    <a class="btn bg-gradient-secondary btn-block w-100" href="./material/">Entrar</a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
+                <div class="module-card w-100">
+                    <h3>Exportadora</h3>
+                    <p class="mb-3">Operaciones de exportación.</p>
+                    <a class="btn bg-gradient-secondary btn-block w-100" href="./exportadora/">Entrar</a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
+                <div class="module-card w-100">
+                    <h3>Estadísticas</h3>
+                    <p class="mb-3">Indicadores y reportes.</p>
+                    <a class="btn bg-gradient-secondary btn-block w-100" href="./estadistica/">Entrar</a>
                 </div>
                 <p class="grid-section__text">Navega por cada módulo sin modificar su funcionamiento.</p>
             </header>
