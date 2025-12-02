@@ -21,7 +21,9 @@ $DETALLECSPVARIEDAD = array();
 $DOCUMENTOSPORVENCER = array();
 $TOTALPRODUCTORKILOS = 0;
 $TOTALPRODUCTORECEPCIONES = 0;
+$TOTALPRODUCTORENVASES = 0;
 $TOTALCSPVARIEDAD = 0;
+$TOTALCSPVARIEDADENVASES = 0;
 $TOTALDOCUMENTOS = 0;
 
 $KILOSRECEPCIONACUMULADOS = 0;
@@ -54,9 +56,11 @@ if ($PRODUCTORESASOCIADOS) {
     if ($DETALLEPRODUCTOR) {
         $TOTALPRODUCTORKILOS = array_sum(array_column($DETALLEPRODUCTOR, 'TOTAL'));
         $TOTALPRODUCTORECEPCIONES = array_sum(array_column($DETALLEPRODUCTOR, 'RECEPCIONES'));
+        $TOTALPRODUCTORENVASES = array_sum(array_column($DETALLEPRODUCTOR, 'ENVASES'));
     }
     if ($DETALLECSPVARIEDAD) {
         $TOTALCSPVARIEDAD = array_sum(array_column($DETALLECSPVARIEDAD, 'TOTAL'));
+        $TOTALCSPVARIEDADENVASES = array_sum(array_column($DETALLECSPVARIEDAD, 'ENVASES'));
     }
     $TOTALDOCUMENTOS = $DOCUMENTOSPORVENCER ? count($DOCUMENTOSPORVENCER) : 0;
 }
@@ -226,17 +230,17 @@ if ($PRODUCTORESASOCIADOS) {
                                         <div class="d-flex align-items-center mb-3">
                                             <span class="badge badge-pill badge-info mr-2"><i class="icon-Notes"></i></span>
                                             <div>
-                                                <div class="text-muted small">Recepciones registradas</div>
-                                                <div class="h5 mb-0"><?php echo number_format($TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></div>
-                                            </div>
+                                            <div class="text-muted small">Recepciones registradas</div>
+                                            <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 2, ',', '.'); ?></div>
                                         </div>
-                                        <div class="d-flex align-items-center mb-3">
-                                            <span class="badge badge-pill badge-success mr-2"><i class="icon-Gear"></i></span>
-                                            <div>
-                                                <div class="text-muted small">Kilos netos por productor</div>
-                                                <div class="h5 mb-0"><?php echo number_format($TOTALPRODUCTORKILOS, 0, ',', '.'); ?> kg</div>
-                                            </div>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="badge badge-pill badge-success mr-2"><i class="icon-Gear"></i></span>
+                                        <div>
+                                            <div class="text-muted small">Kilos netos por productor</div>
+                                            <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</div>
                                         </div>
+                                    </div>
                                         <div class="bg-light p-2 rounded mb-2">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <span class="text-muted small">Kilos recepcionados (día previo)</span>
@@ -265,7 +269,7 @@ if ($PRODUCTORESASOCIADOS) {
                                         <?php if ($DETALLEPRODUCTOR) { ?>
                                             <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
                                                 <span>Total productores</span>
-                                                <span class="badge badge-secondary"><?php echo number_format($TOTALPRODUCTORKILOS, 0, ',', '.'); ?> kg</span>
+                                                <span class="badge badge-secondary"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</span>
                                             </div>
                                             <div class="table-responsive">
                                                 <table class="table table-striped mb-0 compact-table">
@@ -273,12 +277,13 @@ if ($PRODUCTORESASOCIADOS) {
                                                         <tr>
                                                             <th>Productor</th>
                                                             <th class="text-right">Kg netos</th>
+                                                            <th class="text-right">Envases</th>
                                                             <th class="text-right">Recepciones</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         <?php foreach ($DETALLEPRODUCTOR as $productor) {
-                                                            $totalProd = round($productor['TOTAL'], 0);
+                                                            $totalProd = round($productor['TOTAL'], 2);
                                                             $porcentaje = $TOTALPRODUCTORKILOS > 0 ? ($totalProd / $TOTALPRODUCTORKILOS) * 100 : 0;
                                                         ?>
                                                         <tr>
@@ -286,11 +291,12 @@ if ($PRODUCTORESASOCIADOS) {
                                                                 <div class="font-weight-600"><?php echo htmlspecialchars($productor['NOMBRE']); ?></div>
                                                                 <div class="text-muted small">CSP: <?php echo $productor['CSP'] ? $productor['CSP'] : 'Sin dato'; ?></div>
                                                             </td>
-                                                            <td class="text-right"><?php echo number_format($totalProd, 0, ',', '.'); ?> kg</td>
-                                                            <td class="text-right"><?php echo number_format($productor['RECEPCIONES'], 0, ',', '.'); ?></td>
+                                                            <td class="text-right"><?php echo number_format($totalProd, 2, ',', '.'); ?> kg</td>
+                                                            <td class="text-right"><?php echo number_format((float)$productor['ENVASES'], 2, ',', '.'); ?></td>
+                                                            <td class="text-right"><?php echo number_format((float)$productor['RECEPCIONES'], 2, ',', '.'); ?></td>
                                                         </tr>
                                                         <tr>
-                                                            <td colspan="3">
+                                                            <td colspan="4">
                                                                 <div class="progress progress-xxs mb-0">
                                                                     <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $porcentaje; ?>%" aria-valuenow="<?php echo $porcentaje; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                                                 </div>
@@ -301,8 +307,9 @@ if ($PRODUCTORESASOCIADOS) {
                                                     <tfoot>
                                                         <tr>
                                                             <td>Totales</td>
-                                                            <td class="text-right"><?php echo number_format($TOTALPRODUCTORKILOS, 0, ',', '.'); ?> kg</td>
-                                                            <td class="text-right"><?php echo number_format($TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></td>
+                                                            <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</td>
+                                                            <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORENVASES, 2, ',', '.'); ?></td>
+                                                            <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 2, ',', '.'); ?></td>
                                                         </tr>
                                                     </tfoot>
                                                 </table>
@@ -322,7 +329,7 @@ if ($PRODUCTORESASOCIADOS) {
                                             <span class="badge badge-outline badge-warning">Prioridad</span>
                                         </div>
                                     </div>
-                                    <div class="box-body">
+                                    <div class="box-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-hover table-sm mb-0 compact-table">
                                                 <thead>
@@ -344,6 +351,7 @@ if ($PRODUCTORESASOCIADOS) {
                                                             <td>
                                                                 <div class="font-weight-600 mb-0"><?php echo htmlspecialchars($documento->nombre_documento); ?></div>
                                                                 <div class="text-muted small">Vence: <?php echo $documento->vigencia_documento; ?></div>
+                                                                <div class="text-muted small">Folio: <?php echo htmlspecialchars($documento->numero_documento); ?></div>
                                                             </td>
                                                             <td class="text-center">
                                                                 <span class="<?php echo $chipClass; ?>">
@@ -351,8 +359,8 @@ if ($PRODUCTORESASOCIADOS) {
                                                                 </span>
                                                             </td>
                                                             <td class="text-center">
-                                                                <a href="../../data/data_productor/<?php echo $documento->archivo_documento; ?>" target="_blank" class="btn btn-link btn-sm text-primary px-2">
-                                                                    <i class="ti-download"></i>
+                                                                <a href="../../data/data_productor/<?php echo $documento->archivo_documento; ?>" target="_blank" class="btn btn-primary btn-xs px-2 py-1 d-inline-flex align-items-center">
+                                                                    <i class="ti-download mr-1"></i><span>Descargar</span>
                                                                 </a>
                                                             </td>
                                                         </tr>
@@ -365,7 +373,7 @@ if ($PRODUCTORESASOCIADOS) {
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
-                                                        <td colspan="3" class="text-right">Total documentos: <?php echo $TOTALDOCUMENTOS; ?></td>
+                                                        <td colspan="3" class="text-right">Total documentos: <?php echo number_format((float)$TOTALDOCUMENTOS, 2, ',', '.'); ?></td>
                                                     </tr>
                                                 </tfoot>
                                             </table>
@@ -415,23 +423,25 @@ if ($PRODUCTORESASOCIADOS) {
                                     </div>
                                     <div class="box-body p-0">
                                         <div class="table-responsive">
-                                            <table class="table table-hover table-compact mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Productor</th>
-                                                        <th>CSP</th>
-                                                        <th class="text-right">Kilos netos</th>
-                                                        <th class="text-right">Recepciones</th>
+                                                <table class="table table-hover table-compact mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Productor</th>
+                                                            <th>CSP</th>
+                                                            <th class="text-right">Kilos netos</th>
+                                                            <th class="text-right">Envases</th>
+                                                            <th class="text-right">Recepciones</th>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
+                                                    </thead>
+                                                    <tbody>
                                                     <?php if ($DETALLEPRODUCTOR) { ?>
                                                         <?php foreach ($DETALLEPRODUCTOR as $productor) { ?>
                                                             <tr>
                                                                 <td><?php echo htmlspecialchars($productor['NOMBRE']); ?></td>
                                                                 <td><?php echo $productor['CSP'] ? $productor['CSP'] : 'Sin dato'; ?></td>
-                                                                <td class="text-right"><?php echo number_format($productor['TOTAL'], 0, ',', '.'); ?> kg</td>
-                                                                <td class="text-right"><?php echo number_format($productor['RECEPCIONES'], 0, ',', '.'); ?></td>
+                                                                <td class="text-right"><?php echo number_format((float)$productor['TOTAL'], 2, ',', '.'); ?> kg</td>
+                                                                <td class="text-right"><?php echo number_format((float)$productor['ENVASES'], 2, ',', '.'); ?></td>
+                                                                <td class="text-right"><?php echo number_format((float)$productor['RECEPCIONES'], 2, ',', '.'); ?></td>
                                                             </tr>
                                                         <?php } ?>
                                                     <?php } else { ?>
@@ -444,8 +454,9 @@ if ($PRODUCTORESASOCIADOS) {
                                                     <tfoot>
                                                         <tr>
                                                             <td colspan="2">Totales</td>
-                                                            <td class="text-right"><?php echo number_format($TOTALPRODUCTORKILOS, 0, ',', '.'); ?> kg</td>
-                                                            <td class="text-right"><?php echo number_format($TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></td>
+                                                            <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</td>
+                                                            <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORENVASES, 2, ',', '.'); ?></td>
+                                                            <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 2, ',', '.'); ?></td>
                                                         </tr>
                                                     </tfoot>
                                                 <?php } ?>
@@ -465,23 +476,25 @@ if ($PRODUCTORESASOCIADOS) {
                                     </div>
                                     <div class="box-body p-0">
                                         <div class="table-responsive">
-                                            <table class="table table-striped table-compact mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Productor</th>
-                                                        <th>CSP</th>
-                                                        <th>Variedad</th>
-                                                        <th class="text-right">Kilos netos</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php if ($DETALLECSPVARIEDAD) { ?>
-                                                        <?php foreach ($DETALLECSPVARIEDAD as $fila) { ?>
+                                                <table class="table table-striped table-compact mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Productor</th>
+                                                            <th>CSP</th>
+                                                            <th>Variedad</th>
+                                                            <th class="text-right">Kilos netos</th>
+                                                            <th class="text-right">Envases</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php if ($DETALLECSPVARIEDAD) { ?>
+                                                            <?php foreach ($DETALLECSPVARIEDAD as $fila) { ?>
                                                             <tr>
                                                                 <td><?php echo htmlspecialchars($fila['PRODUCTOR']); ?></td>
                                                                 <td><?php echo $fila['CSP'] ? $fila['CSP'] : 'Sin dato'; ?></td>
                                                                 <td><?php echo htmlspecialchars($fila['VARIEDAD']); ?></td>
-                                                                <td class="text-right"><?php echo number_format($fila['TOTAL'], 0, ',', '.'); ?> kg</td>
+                                                                <td class="text-right"><?php echo number_format((float)$fila['TOTAL'], 2, ',', '.'); ?> kg</td>
+                                                                <td class="text-right"><?php echo number_format((float)$fila['ENVASES'], 2, ',', '.'); ?></td>
                                                             </tr>
                                                         <?php } ?>
                                                     <?php } else { ?>
@@ -494,7 +507,8 @@ if ($PRODUCTORESASOCIADOS) {
                                                     <tfoot>
                                                         <tr>
                                                             <td colspan="3">Totales</td>
-                                                            <td class="text-right"><?php echo number_format($TOTALCSPVARIEDAD, 0, ',', '.'); ?> kg</td>
+                                                            <td class="text-right"><?php echo number_format((float)$TOTALCSPVARIEDAD, 2, ',', '.'); ?> kg</td>
+                                                            <td class="text-right"><?php echo number_format((float)$TOTALCSPVARIEDADENVASES, 2, ',', '.'); ?></td>
                                                         </tr>
                                                     </tfoot>
                                                 <?php } ?>

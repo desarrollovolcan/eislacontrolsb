@@ -802,6 +802,7 @@ class CONSULTA_ADO
             $datos = $this->conexion->prepare("SELECT PR.NOMBRE_PRODUCTOR AS NOMBRE,
                                                         PR.CSG_PRODUCTOR AS CSP,
                                                         IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL,
+                                                        IFNULL(SUM(detalle.CANTIDAD_ENVASE_DRECEPCION),0) AS ENVASES,
                                                         COUNT(DISTINCT recepcion.ID_RECEPCION) AS RECEPCIONES
                                                 FROM fruta_recepcionmp recepcion
                                                 LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
@@ -1080,7 +1081,8 @@ class CONSULTA_ADO
             $datos = $this->conexion->prepare("SELECT PR.NOMBRE_PRODUCTOR AS PRODUCTOR,
                                                         PR.CSG_PRODUCTOR AS CSP,
                                                         V.NOMBRE_VESPECIES AS VARIEDAD,
-                                                        IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
+                                                        IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL,
+                                                        IFNULL(SUM(detalle.CANTIDAD_ENVASE_DRECEPCION),0) AS ENVASES
                                                 FROM fruta_recepcionmp recepcion
                                                 LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
                                                 LEFT JOIN fruta_productor PR ON recepcion.ID_PRODUCTOR = PR.ID_PRODUCTOR
