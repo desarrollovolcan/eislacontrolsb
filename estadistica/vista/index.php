@@ -310,6 +310,7 @@ if ($PRODUCTORESASOCIADOS) {
                                                 <?php } ?>
                                             </table>
                                         </div>
+                                        <div id="chartVariedad" class="chart-container"></div>
                                     </div>
                                 </div>
                             </div>
