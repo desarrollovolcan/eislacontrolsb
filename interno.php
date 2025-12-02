@@ -15,6 +15,8 @@
         body,
         html {
             height: 100%;
+            background: #f5f7fb;
+            color: #1f2d3d;
         }
 
         .portal-wrapper {
@@ -22,15 +24,16 @@
         }
 
         .module-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
             border-radius: 12px;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
             padding: 24px 22px 10px;
             height: 100%;
         }
 
         .module-card h3 {
-            color: #1f2d3d;
+            color: #1b2a4a;
             font-weight: 700;
             margin-bottom: 10px;
         }
@@ -50,12 +53,12 @@
         }
     </style>
 </head>
-<body class="hold-transition theme-primary bg-gradient-primary">
+<body class="hold-transition">
     <div class="container portal-wrapper py-5">
         <div class="row justify-content-center mb-4">
             <div class="col-lg-8 text-center">
-                <h2 class="text-white mb-2">Sistemas internos</h2>
-                <p class="text-white-50 mb-0">Accede a cada módulo manteniendo los colores y funciones originales.</p>
+                <h2 class="mb-2" style="color: #1b2a4a;">Sistemas internos</h2>
+                <p class="mb-0" style="color: #334155;">Accede a cada módulo manteniendo los colores claros y la funcionalidad intacta.</p>
             </div>
         </div>
         <div class="row module-grid justify-content-center">
@@ -63,28 +66,28 @@
                 <div class="module-card w-100">
                     <h3>Fruta</h3>
                     <p class="mb-3">Gestión completa de fruta.</p>
-                    <a class="btn bg-gradient-primary btn-block w-100" href="./fruta/">Entrar</a>
+                    <a class="btn btn-primary btn-block w-100" href="./fruta/">Entrar</a>
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
                 <div class="module-card w-100">
                     <h3>Materiales</h3>
                     <p class="mb-3">Control y disponibilidad.</p>
-                    <a class="btn bg-gradient-secondary btn-block w-100" href="./material/">Entrar</a>
+                    <a class="btn btn-outline-primary btn-block w-100" href="./material/">Entrar</a>
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
                 <div class="module-card w-100">
                     <h3>Exportadora</h3>
                     <p class="mb-3">Operaciones de exportación.</p>
-                    <a class="btn bg-gradient-secondary btn-block w-100" href="./exportadora/">Entrar</a>
+                    <a class="btn btn-outline-primary btn-block w-100" href="./exportadora/">Entrar</a>
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex">
                 <div class="module-card w-100">
                     <h3>Estadísticas</h3>
                     <p class="mb-3">Indicadores y reportes.</p>
-                    <a class="btn bg-gradient-secondary btn-block w-100" href="./estadistica/">Entrar</a>
+                    <a class="btn btn-outline-primary btn-block w-100" href="./estadistica/">Entrar</a>
                 </div>
                 <p class="grid-section__text">Navega por cada módulo sin modificar su funcionamiento.</p>
             </header>
