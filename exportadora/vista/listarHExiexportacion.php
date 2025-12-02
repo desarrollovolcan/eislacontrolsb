@@ -18,8 +18,6 @@ include_once '../../assest/controlador/TPROCESO_ADO.php';
 include_once '../../assest/controlador/TREEMBALAJE_ADO.php';
 include_once '../../assest/controlador/COMPRADOR_ADO.php';
 include_once '../../assest/controlador/DFINAL_ADO.php';
-include_once '../../assest/controlador/TCOLOR_ADO.php';
-include_once '../../assest/controlador/TCATEGORIA_ADO.php';
 include_once '../../assest/controlador/ICARGA_ADO.php';
 
  
@@ -52,8 +50,6 @@ $TPROCESO_ADO =  new TPROCESO_ADO();
 $TREEMBALAJE_ADO =  new TREEMBALAJE_ADO();
 $COMPRADOR_ADO =  new COMPRADOR_ADO();
 $DFINAL_ADO =  new DFINAL_ADO();
-$TCOLOR_ADO =  new TCOLOR_ADO();
-$TCATEGORIA_ADO =  new TCATEGORIA_ADO();
 $ICARGA_ADO =  new ICARGA_ADO();
 
 
@@ -128,12 +124,21 @@ $TREEMBALAJE_CACHE = [];
 $REEMBALAJE_CACHE = [];
 $REPALETIZAJE_CACHE = [];
 $INPSAG_CACHE = [];
-$TCATEGORIA_CACHE = [];
-$TCOLOR_CACHE = [];
 $TINPSAG_CACHE = [];
 $DFINAL_CACHE = [];
 $COMPRADOR_CACHE = [];
 $ICARGA_CACHE = [];
+
+$LOGOEMPRESA = '';
+$NOMBREEMPRESA = '';
+
+if ($EMPRESAS) {
+    $ARRAYEMPRESA = $EMPRESA_ADO->verEmpresa($EMPRESAS);
+    if ($ARRAYEMPRESA) {
+        $LOGOEMPRESA = $ARRAYEMPRESA[0]['LOGO_EMPRESA'];
+        $NOMBREEMPRESA = $ARRAYEMPRESA[0]['NOMBRE_EMPRESA'];
+    }
+}
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
 if ($EMPRESAS  && $TEMPORADAS) {
@@ -156,53 +161,77 @@ if ($EMPRESAS  && $TEMPORADAS) {
         <?php include_once "../../assest/config/urlHead.php"; ?>
     <style>
         .detalle-modal .modal-content {
-            border: 1px solid #d0d7e3;
-            box-shadow: 0 8px 22px rgba(0, 54, 94, 0.08);
-            border-radius: 10px;
+            border: 1px solid #cfd9ec;
+            box-shadow: 0 10px 26px rgba(7, 33, 71, 0.12);
+            border-radius: 14px;
+            overflow: hidden;
         }
 
         .detalle-modal .modal-header {
-            background: #fff;
-            color: #0f4a7a;
-            border-bottom: 1px solid #d0d7e3;
-            padding: 10px 12px;
+            background: linear-gradient(120deg, #0b3058 0%, #0f4a7a 100%);
+            color: #f0f5ff;
+            border: none;
+            padding: 12px 16px;
         }
 
         .detalle-modal .modal-title {
-            font-weight: 700;
-            letter-spacing: 0.2px;
+            font-weight: 800;
+            letter-spacing: 0.25px;
             margin: 0;
-            color: #0f4a7a;
+            color: #f8fbff;
         }
 
         .detalle-modal .modal-subtitle {
             font-size: 11px;
-            letter-spacing: 0.4px;
-            color: #5a6f86;
+            letter-spacing: 0.5px;
+            color: #c7d6ef;
             margin-bottom: 2px;
-            opacity: 0.9;
+            opacity: 0.95;
         }
 
         .detalle-modal .close {
-            color: #0f4a7a;
-            opacity: 0.85;
+            color: #d9e6ff;
+            opacity: 1;
+            font-weight: 800;
+        }
+
+        .detalle-hero {
+            margin: 0 -10px 12px;
+            background: linear-gradient(135deg, #f4f7fb 0%, #e8f0fb 100%);
+            border-bottom: 1px solid #d7e2f2;
+            padding: 12px 12px 10px;
+        }
+
+        .detalle-hero .brand-banner {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #d7e2f2;
+            background: #fff;
+        }
+
+        .detalle-hero .brand-banner img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
         }
 
         .detalle-modal .modal-body {
             background: #fff;
-            padding: 10px;
+            padding: 10px 12px 6px;
         }
 
         .detalle-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 6px;
+            gap: 10px;
             align-items: stretch;
             grid-auto-rows: 1fr;
         }
 
         .detalle-resumen-table {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .detalle-resumen-table .detalle-table {
@@ -210,24 +239,26 @@ if ($EMPRESAS  && $TEMPORADAS) {
         }
 
         .detalle-resumen-table thead th {
-            background: #f2f6fb;
+            background: #0f4a7a;
+            color: #f2f6fb;
             text-transform: uppercase;
             font-size: 11px;
             letter-spacing: 0.4px;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .detalle-resumen-table tbody td {
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
+            background: #f9fbff;
         }
 
         .detalle-card {
             background: #fff;
             border: 1px solid #dce4ef;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 0;
-            box-shadow: 0 1px 4px rgba(15, 62, 91, 0.05);
+            box-shadow: 0 8px 16px rgba(15, 62, 91, 0.06);
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -235,12 +266,12 @@ if ($EMPRESAS  && $TEMPORADAS) {
 
         .detalle-card h5 {
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             color: #0f2d4a;
             margin: 0;
             letter-spacing: 0.3px;
-            padding: 8px 10px;
-            background: #f2f6fb;
+            padding: 10px 12px;
+            background: linear-gradient(90deg, #f1f5fb 0%, #e8f0fb 100%);
             border-bottom: 1px solid #e3ebf5;
         }
 
@@ -253,7 +284,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
 
         .detalle-card th,
         .detalle-card td {
-            padding: 6px 10px;
+            padding: 7px 12px;
             border-bottom: 1px solid #eef2f7;
             vertical-align: top;
             word-wrap: break-word;
@@ -263,13 +294,13 @@ if ($EMPRESAS  && $TEMPORADAS) {
 
         .detalle-card th {
             background: #fafbfc;
-            color: #556b85;
-            width: 38%;
-            font-weight: 600;
+            color: #4d637d;
+            width: 42%;
+            font-weight: 700;
         }
 
         .detalle-card td {
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .detalle-table.resumen-table th,
@@ -281,40 +312,43 @@ if ($EMPRESAS  && $TEMPORADAS) {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 72px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            background: #e8f0fb;
-            color: #0f4a7a;
-            font-weight: 700;
+            min-width: 90px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: #e6efff;
+            color: #0b3058;
+            font-weight: 800;
+            border: 1px solid #c8d8f2;
         }
 
         .detalle-modal .modal-footer {
-            padding: 10px;
+            padding: 12px 14px;
             border-top: 1px solid #dce4ef;
-            background: #f7f9fc;
+            background: #f2f6fb;
         }
 
         .detalle-modal .btn-primary {
-            background: #0d6efd;
-            border-color: #0b5ed7;
-            font-weight: 700;
+            background: #0f4a7a;
+            border-color: #0b3058;
+            font-weight: 800;
         }
 
         .detalle-modal .btn-secondary {
             background: #e7eef7;
-            color: #0a2f57;
+            color: #0b2f57;
             border-color: #c5d3e6;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .detalle-modal .btn {
             min-width: 160px;
+            border-radius: 10px;
         }
 
         .mov-link {
             color: #0f4a7a;
             text-decoration: underline;
+            font-weight: 700;
         }
     </style>
         <!- FUNCIONES BASES -!>
@@ -377,13 +411,11 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                     <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
                                         <div class="table-responsive">
                                             <table id="hexistencia" class="table-hover table-bordered" style="width: 300%;">
-                                                <thead>
+                                                                                                <thead>
                                                     <tr class="text-center">
-                                                        <th>Detalle</th>
-                                                        <th>Detalle</th>
+                                                        <th>Trazabilidad</th>
                                                         <th>Folio Original</th>
-                                                        <th>Folio Nuevo</th>
-                                                        <th>Fecha Embalado </th>
+                                                        <th>Fecha Embalado</th>
                                                         <th>Estado </th>
                                                         <th>Estado Calidad</th>
                                                         <th>Condición </th>
@@ -392,7 +424,6 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Calibre </th>
                                                         <th>CSG</th>
                                                         <th>Productor</th>
-                                                        <th>Especies</th>
                                                         <th>Variedad</th>
                                                         <th>Cantidad Envase</th>
                                                         <th>Kilos Neto</th>
@@ -405,7 +436,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Recepción</th>
                                                         <th>Origen Recepción </th>
                                                         <th>Número Guía Recepción </th>
-                                                        <th>Fecha Guía Recepción
+                                                        <th>Fecha Guía Recepción</th>
                                                         <th>Número Repaletizaje </th>
                                                         <th>Fecha Repaletizaje </th>
                                                         <th>Número Proceso </th>
@@ -413,7 +444,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Proceso </th>
                                                         <th>Número Reembalaje </th>
                                                         <th>Fecha Reembalaje </th>
-                                                        <th>Tipo Reembalaje </th>                                              
+                                                        <th>Tipo Reembalaje </th>
                                                         <th>Número Inspección </th>
                                                         <th>Fecha Inspección </th>
                                                         <th>Tipo Inspección </th>
@@ -424,20 +455,15 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Despacho</th>
                                                         <th>Destino Despacho</th>
                                                         <th>Tipo Manejo</th>
-                                                        <th>Tipo Calibre </th>
+                                                        <th>Tipo Calibre (Detalle)</th>
                                                         <th>Tipo Embalaje </th>
                                                         <th>Stock</th>
                                                         <th>Embolsado</th>
                                                         <th>Gasificacion</th>
                                                         <th>Prefrío</th>
-                                                        <th>Tipo Categoria </th>
-                                                        <th>Tipo Color </th>      
                                                         <th>Días</th>
                                                         <th>Ingreso</th>
                                                         <th>Modificación</th>
-                                                        <th>Empresa</th>
-                                                        <th>Planta</th>
-                                                        <th>Temporada</th>
                                                         <th>Numero Referencia</th>
                                                     </tr>
                                                 </thead>
@@ -502,20 +528,22 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                             if ($r['TESTADOSAG'] == "5") {
                                                                 $ESTADOSAG =  "Rechazado";
                                                             }
+                                                            $CONDICION = $ESTADOSAG;
 
                                                             if($r['COLOR']=="1"){
                                                                 $TRECHAZOCOLOR="badge badge-danger ";
                                                                 $COLOR="Rechazado";
                                                             }else if($r['COLOR']=="2"){
                                                                 $TRECHAZOCOLOR="badge badge-warning ";
-                                                                $COLOR="Objetado";
+                                                                $COLOR="Levantado";
                                                             }else if($r['COLOR']=="3"){
-                                                                $TRECHAZOCOLOR="badge badge-Success ";
+                                                                $TRECHAZOCOLOR="badge badge-success ";
                                                                 $COLOR="Aprobado";
                                                             }else{
                                                                 $TRECHAZOCOLOR="";
                                                                 $COLOR="Sin Datos";
-                                                            }                                                                                                             
+                                                            }
+                                                            $ESTADOCALIDAD = $COLOR;
                                                             if ($r['ID_ICARGA']) {
                                                                 $ARRAYVERICARGA = obtenerDesdeCache($r['ID_ICARGA'], $ICARGA_CACHE, function ($id) use ($ICARGA_ADO) {
                                                                     return $ICARGA_ADO->verIcarga($id);
@@ -810,30 +838,6 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                             } else {
                                                                 $NOMBRETEMBALAJE = "Sin Datos";
                                                             }
-                                                            $ARRAYTEMBALAJE = obtenerDesdeCache($r['ID_TEMBALAJE'], $TEMBALAJE_CACHE, function ($id) use ($TEMBALAJE_ADO) {
-                                                                return $TEMBALAJE_ADO->verEmbalaje($id);
-                                                            });
-                                                            if ($ARRAYTEMBALAJE) {
-                                                                $NOMBRETEMBALAJE = $ARRAYTEMBALAJE[0]['NOMBRE_TEMBALAJE'];
-                                                            } else {
-                                                                $NOMBRETEMBALAJE = "Sin Datos";
-                                                            }
-                                                            $ARRAYTCATEGORIA = obtenerDesdeCache($r['ID_TCATEGORIA'], $TCATEGORIA_CACHE, function ($id) use ($TCATEGORIA_ADO) {
-                                                                return $TCATEGORIA_ADO->verTcategoria($id);
-                                                            });
-                                                            if($ARRAYTCATEGORIA){
-                                                            $NOMBRETCATEGORIA= $ARRAYTCATEGORIA[0]["NOMBRE_TCATEGORIA"];
-                                                            }else{
-                                                                $NOMBRETCATEGORIA = "Sin Datos";
-                                                            }   
-                                                            $ARRAYTCOLOR = obtenerDesdeCache($r['ID_TCOLOR'], $TCOLOR_CACHE, function ($id) use ($TCOLOR_ADO) {
-                                                                return $TCOLOR_ADO->verTcolor($id);
-                                                            });
-                                                            if($ARRAYTCOLOR){
-                                                                $NOMBRETCOLOR= $ARRAYTCOLOR[0]["NOMBRE_TCOLOR"];
-                                                            }else{
-                                                                $NOMBRETCOLOR = "Sin Datos";
-                                                            } 
                                                             $ARRAYEMPRESA = obtenerDesdeCache($r['ID_EMPRESA'], $EMPRESA_CACHE, function ($id) use ($EMPRESA_ADO) {
                                                                 return $EMPRESA_ADO->verEmpresa($id);
                                                             });
@@ -886,31 +890,83 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                             } else {
                                                                 $PREFRIO = "Sin Datos";
                                                             }
-                                                            ?>
+                                                            
+                                                            $PROMEDIO = ($r['ENVASE'] > 0) ? round($r['NETO'] / $r['ENVASE'], 2) : 0;
+?>
                                                             <tr class="text-center">
-                                                                <td>                                                                    
-                                                                    <span class="<?php echo $TRECHAZOCOLOR; ?>">
-                                                                        <?php echo $r['FOLIO_EXIEXPORTACION']; ?> 
-                                                                    </span>
-                                                                </td>
-                                                                <td>                   
-                                                                    <span class="<?php echo $TRECHAZOCOLOR; ?>">
-                                                                        <a Onclick="abrirPestana('../../assest/documento/informeTarjasPT.php?parametro=<?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>&&parametro1=<?php echo $r['ID_EMPRESA']; ?>&&parametro2=<?php echo $r['ID_PLANTA']; ?>&&tipo=3');">                                                                        
-                                                                            <?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>                                                                                                                                        
-                                                                        </a>
-                                                                    </span>
-                                                                </td>
+    <td>
+        <button type="button" class="btn btn-sm btn-outline-info btn-block" data-toggle="modal" data-target="#detalleExistenciaModal"
+            data-folio="<?php echo htmlspecialchars($r['FOLIO_EXIEXPORTACION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-folio-aux="<?php echo htmlspecialchars($r['FOLIO_AUXILIAR_EXIEXPORTACION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-estado="<?php echo htmlspecialchars($ESTADO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-estado-calidad="<?php echo htmlspecialchars($ESTADOCALIDAD, ENT_QUOTES, 'UTF-8'); ?>"
+            data-estandar="<?php echo htmlspecialchars($CODIGOESTANDAR . ' - ' . $NOMBREESTANDAR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-productor="<?php echo htmlspecialchars($NOMBREPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-csg="<?php echo htmlspecialchars($CSGPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
+            data-especie="<?php echo htmlspecialchars($NOMBRESPECIES, ENT_QUOTES, 'UTF-8'); ?>"
+            data-variedad="<?php echo htmlspecialchars($NOMBREVESPECIES, ENT_QUOTES, 'UTF-8'); ?>"
+            data-envases="<?php echo htmlspecialchars($r['ENVASE'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-neto="<?php echo htmlspecialchars($r['NETO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-promedio="<?php echo htmlspecialchars($PROMEDIO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-bruto="<?php echo htmlspecialchars($r['BRUTO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-tmanejo="<?php echo htmlspecialchars($NOMBRETMANEJO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-calibre-detalle="<?php echo htmlspecialchars($NOMBRETCALIBRE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-embalaje="<?php echo htmlspecialchars($NOMBRETEMBALAJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-stock="<?php echo htmlspecialchars($STOCK, ENT_QUOTES, 'UTF-8'); ?>"
+            data-gasificado="<?php echo htmlspecialchars($GASIFICADO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-embolsado="<?php echo htmlspecialchars($EMBOLSADO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-prefrio="<?php echo htmlspecialchars($PREFRIO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-condicion="<?php echo htmlspecialchars($CONDICION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-recepcion="<?php echo htmlspecialchars($TIPORECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-recepcion="<?php echo htmlspecialchars($NUMERORECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-recepcion="<?php echo htmlspecialchars($FECHARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-origen="<?php echo htmlspecialchars($ORIGEN, ENT_QUOTES, 'UTF-8'); ?>"
+            data-csg-origen="<?php echo htmlspecialchars($CSGCSPORIGEN, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-guia-recepcion="<?php echo htmlspecialchars($NUMEROGUIARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-guia-recepcion="<?php echo htmlspecialchars($FECHAGUIARECEPCION, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-proceso="<?php echo htmlspecialchars($TPROCESO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-proceso="<?php echo htmlspecialchars($NUMEROPROCESO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-proceso="<?php echo htmlspecialchars($FECHAPROCESO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-proceso="<?php echo htmlspecialchars($r['ID_PROCESO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-repaletizaje="<?php echo htmlspecialchars($NUMEROREPALETIZAJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-repaletizaje="<?php echo htmlspecialchars($FECHAREPALETIZAJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-reembalaje="<?php echo htmlspecialchars($NUMEROREEMBALEJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-reembalaje="<?php echo htmlspecialchars($FECHAREEMBALEJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-reembalaje="<?php echo htmlspecialchars($TREEMBALAJE, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-despacho="<?php echo htmlspecialchars($TDESPACHO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-despacho="<?php echo htmlspecialchars($NUMERODESPACHO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-despacho="<?php echo htmlspecialchars($FECHADESPACHO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-destino="<?php echo htmlspecialchars($DESTINO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-csg-destino="<?php echo htmlspecialchars($CSGCSPDESTINO, ENT_QUOTES, 'UTF-8'); ?>"
+            data-num-inspeccion="<?php echo htmlspecialchars($NUMEROINPSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-fecha-inspeccion="<?php echo htmlspecialchars($FECHAINPSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-tipo-inspeccion="<?php echo htmlspecialchars($NOMBRETINPSAG, ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-inspeccion="<?php echo htmlspecialchars($r['ID_INPSAG'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-ingreso="<?php echo htmlspecialchars($r['INGRESO'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-modificacion="<?php echo htmlspecialchars($r['MODIFICACION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-referencia="<?php echo htmlspecialchars($NUMEROREFERENCIA, ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-recepcion="<?php echo htmlspecialchars($r['ID_RECEPCION'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-id-despacho="<?php echo htmlspecialchars($r['ID_DESPACHO2'] ? $r['ID_DESPACHO2'] : $r['ID_DESPACHOEX'], ENT_QUOTES, 'UTF-8'); ?>">
+            <i class="mdi mdi-eye"></i> Trazabilidad
+        </button>
+    </td>
+    <td>
+        <span class="<?php echo $TRECHAZOCOLOR; ?>">
+            <a Onclick="abrirPestana('../../assest/documento/informeTarjasPT.php?parametro=<?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>&&parametro1=<?php echo $r['ID_EMPRESA']; ?>&&parametro2=<?php echo $r['ID_PLANTA']; ?>&&tipo=3');">
+                <?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>
+            </a>
+        </span>
+    </td>
                                                                 <td><?php echo $r['EMBALADO']; ?></td>
                                                                 <td><?php echo $ESTADO; ?></td>
-                                                                <td><?php echo $COLOR; ?></td>
-                                                                <td><?php echo $ESTADOSAG; ?></td>
+                                                                <td><?php echo $CONDICION; ?></td>
+                                                                <td><?php echo $ESTADOCALIDAD; ?></td>
                                                                 <td><?php echo $CODIGOESTANDAR; ?></td>
                                                                 <td><?php echo $NOMBREESTANDAR; ?></td>
                                                                 <td><?php echo $NOMBRETCALIBRE; ?></td>
                                                                 <td><?php echo $CSGPRODUCTOR; ?></td>
                                                                 <td><?php echo $NOMBREPRODUCTOR; ?></td>
-                                                                <td><?php echo $NOMBRESPECIES; ?></td>
-                                                                <td><?php echo $NOMBREVESPECIES; ?></td>
+                                                                <td><?php echo $NOMBREVESPECIES . ' (' . $NOMBRESPECIES . ')'; ?></td>
                                                                 <td><?php echo $r['ENVASE']; ?></td>
                                                                 <td><?php echo $r['NETO']; ?></td>
                                                                 <td><?php echo $r['PORCENTAJE']; ?></td>
@@ -947,23 +1003,18 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                                 <td><?php echo $EMBOLSADO; ?></td>
                                                                 <td><?php echo $GASIFICADO; ?></td>
                                                                 <td><?php echo $PREFRIO; ?></td>
-                                                                <td><?php echo $NOMBRETCATEGORIA; ?></td>
-                                                                <td><?php echo $NOMBRETCOLOR; ?></td>
                                                                 <td><?php echo $r['DIAS']; ?></td>
                                                                 <td><?php echo $r['INGRESO']; ?></td>
                                                                 <td><?php echo $r['MODIFICACION']; ?></td>
-                                                                <td><?php echo $NOMBREEMPRESA; ?></td>
-                                                                <td><?php echo $NOMBREPLANTA; ?></td>
-                                                                <td><?php echo $NOMBRETEMPORADA; ?></td>
                                                                 <td><?php echo $NUMEROREFERENCIA; ?></td>
                                                             </tr>                                                       
                                                         <?php endforeach; ?>        
                                                     <?php endforeach; ?>
                                                 </tbody>
-                                                <tfoot>
+                                                                                                <tfoot>
                                                     <tr class="text-center" id="filtro">
+                                                        <th>Trazabilidad</th>
                                                         <th>Folio Original</th>
-                                                        <th>Folio Nuevo</th>
                                                         <th>Fecha Embalado </th>
                                                         <th>Estado </th>
                                                         <th>Estado Calidad</th>
@@ -973,7 +1024,6 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Calibre </th>
                                                         <th>CSG</th>
                                                         <th>Productor</th>
-                                                        <th>Especies</th>
                                                         <th>Variedad</th>
                                                         <th>Cantidad Envase</th>
                                                         <th>Kilos Neto</th>
@@ -986,7 +1036,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Recepción</th>
                                                         <th>Origen Recepción </th>
                                                         <th>Número Guía Recepción </th>
-                                                        <th>Fecha Guía Recepción
+                                                        <th>Fecha Guía Recepción</th>
                                                         <th>Número Repaletizaje </th>
                                                         <th>Fecha Repaletizaje </th>
                                                         <th>Número Proceso </th>
@@ -994,7 +1044,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>Tipo Proceso </th>
                                                         <th>Número Reembalaje </th>
                                                         <th>Fecha Reembalaje </th>
-                                                        <th>Tipo Reembalaje </th>                                       
+                                                        <th>Tipo Reembalaje </th>
                                                         <th>Número Inspección </th>
                                                         <th>Fecha Inspección </th>
                                                         <th>Tipo Inspección </th>
@@ -1005,20 +1055,15 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                                         <th>CSG/CSP Despacho</th>
                                                         <th>Destino Despacho</th>
                                                         <th>Tipo Manejo</th>
-                                                        <th>Tipo Calibre </th>
+                                                        <th>Tipo Calibre (Detalle)</th>
                                                         <th>Tipo Embalaje </th>
                                                         <th>Stock</th>
                                                         <th>Embolsado</th>
                                                         <th>Gasificacion</th>
                                                         <th>Prefrío</th>
-                                                        <th>Tipo Categoria </th>
-                                                        <th>Tipo Color </th>      
                                                         <th>Días</th>
                                                         <th>Ingreso</th>
                                                         <th>Modificación</th>
-                                                        <th>Empresa</th>
-                                                        <th>Planta</th>
-                                                        <th>Temporada</th>
                                                         <th>Numero Referencia</th>
                                                     </tr>
                                                 </tfoot>
@@ -1049,6 +1094,13 @@ if ($EMPRESAS  && $TEMPORADAS) {
                         </button>
                     </div>
                     <div class="modal-body">
+                        <?php if ($LOGOEMPRESA) : ?>
+                            <div class="detalle-hero">
+                                <div class="brand-banner">
+                                    <img src="<?php echo $LOGOEMPRESA; ?>" alt="Imagen institucional" />
+                                </div>
+                            </div>
+                        <?php endif; ?>
                         <div class="detalle-resumen-table">
                             <table class="detalle-table resumen-table">
                                 <thead>
@@ -1056,6 +1108,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <th>Folio original</th>
                                         <th>Folio nuevo</th>
                                         <th>Estado</th>
+                                        <th>Condición</th>
                                         <th>Calidad</th>
                                     </tr>
                                 </thead>
@@ -1064,6 +1117,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="folio"></td>
                                         <td data-detail="folio-aux"></td>
                                         <td><span class="detalle-badge" data-detail="estado"></span></td>
+                                        <td><span class="detalle-badge" data-detail="condicion"></span></td>
                                         <td><span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span></td>
                                     </tr>
                                 </tbody>
@@ -1081,17 +1135,8 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <th>Especie / Variedad</th>
                                         <td data-detail="especie"></td>
                                     </tr>
-                                </table>
-                            </div>
-                            <div class="detalle-card">
-                                <h5>Productor y manejo</h5>
-                                <table class="detalle-table">
                                     <tr>
-                                        <th>Productor</th>
-                                        <td data-detail="productor"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Cantidad</th>
+                                        <th>Envases</th>
                                         <td data-detail="envases"></td>
                                     </tr>
                                     <tr>
@@ -1099,17 +1144,54 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="kilos"></td>
                                     </tr>
                                     <tr>
+                                        <th>Tipo calibre</th>
+                                        <td data-detail="calibre-detalle"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embalaje</th>
+                                        <td data-detail="embalaje"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Productor y condición</h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Productor</th>
+                                        <td data-detail="productor"></td>
+                                    </tr>
+                                    <tr>
                                         <th>Manejo</th>
                                         <td data-detail="tmanejo"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Condición</th>
+                                        <td data-detail="condicion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Estado calidad</th>
+                                        <td data-detail="estado-calidad"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Inspección</th>
+                                        <td data-detail="inspeccion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
                                     </tr>
                                     <tr>
                                         <th>Gasificación</th>
                                         <td data-detail="gasificado"></td>
                                     </tr>
+                                    <tr>
+                                        <th>Prefrío</th>
+                                        <td data-detail="prefrio"></td>
+                                    </tr>
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Movimientos</h5>
+                                <h5>Movimientos y fechas</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Recepción</th>
@@ -1120,29 +1202,20 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <td data-detail="guia-recepcion"></td>
                                     </tr>
                                     <tr>
+                                        <th>Repaletizaje</th>
+                                        <td data-detail="repaletizaje"></td>
+                                    </tr>
+                                    <tr>
                                         <th>Proceso</th>
                                         <td data-detail="proceso"></td>
                                     </tr>
                                     <tr>
+                                        <th>Reembalaje</th>
+                                        <td data-detail="reembalaje"></td>
+                                    </tr>
+                                    <tr>
                                         <th>Despacho</th>
                                         <td data-detail="despacho"></td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="detalle-card">
-                                <h5>Ubicación y fechas</h5>
-                                <table class="detalle-table">
-                                    <tr>
-                                        <th>Empresa</th>
-                                        <td data-detail="empresa"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Planta</th>
-                                        <td data-detail="planta"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Temporada</th>
-                                        <td data-detail="temporada"></td>
                                     </tr>
                                     <tr>
                                         <th>Ingreso</th>
@@ -1151,6 +1224,27 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                     <tr>
                                         <th>Modificación</th>
                                         <td data-detail="modificacion"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="detalle-card">
+                                <h5>Calibre y stock</h5>
+                                <table class="detalle-table">
+                                    <tr>
+                                        <th>Tipo calibre</th>
+                                        <td data-detail="calibre-detalle"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embalaje</th>
+                                        <td data-detail="embalaje"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Stock</th>
+                                        <td data-detail="stock"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Referencia</th>
+                                        <td data-detail="referencia"></td>
                                     </tr>
                                 </table>
                             </div>
@@ -1170,8 +1264,29 @@ if ($EMPRESAS  && $TEMPORADAS) {
     <!- LLAMADA URL DE ARCHIVOS DE DISEÑO Y JQUERY E OTROS -!>
         <?php include_once "../../assest/config/urlBase.php"; ?>
     <script type="text/javascript">
-        const LOGO_EMPRESA = "";
-        const NOMBRE_EMPRESA = "";
+        const LOGO_EMPRESA = "<?php echo htmlspecialchars($LOGOEMPRESA ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+        const NOMBRE_EMPRESA = "<?php echo htmlspecialchars($NOMBREEMPRESA ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+        let html2PdfLoader;
+
+        function ensureHtml2Pdf() {
+            if (window.html2pdf) {
+                return Promise.resolve();
+            }
+            if (html2PdfLoader) {
+                return html2PdfLoader;
+            }
+            html2PdfLoader = new Promise(function(resolve, reject) {
+                var script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                script.onload = resolve;
+                script.onerror = function() {
+                    console.error('No se pudo cargar html2pdf');
+                    reject();
+                };
+                document.head.appendChild(script);
+            });
+            return html2PdfLoader;
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             function setDetailWithLink(modal, key, text, url) {
@@ -1198,6 +1313,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                 modal.find('[data-detail="folio"]').text(button.data('folio'));
                 modal.find('[data-detail="folio-aux"]').text(button.data('folio-aux'));
                 modal.find('[data-detail="estado"]').text(button.data('estado'));
+                modal.find('[data-detail="condicion"]').text(button.data('condicion'));
                 modal.find('[data-detail="estado-calidad"]').text(button.data('estado-calidad'));
                 modal.find('[data-detail="estandar"]').text(button.data('estandar'));
                 modal.find('[data-detail="productor"]').text(button.data('productor') + ' (' + button.data('csg') + ')');
@@ -1205,20 +1321,30 @@ if ($EMPRESAS  && $TEMPORADAS) {
                 modal.find('[data-detail="envases"]').text(button.data('envases'));
                 modal.find('[data-detail="kilos"]').text('Neto: ' + button.data('neto') + ' | Promedio: ' + button.data('promedio') + ' | Bruto: ' + button.data('bruto'));
                 modal.find('[data-detail="tmanejo"]').text(button.data('tmanejo'));
+                modal.find('[data-detail="embolsado"]').text(button.data('embolsado'));
                 modal.find('[data-detail="gasificado"]').text(button.data('gasificado'));
+                modal.find('[data-detail="prefrio"]').text(button.data('prefrio'));
                 var recepcionTexto = button.data('tipo-recepcion') + ' #' + button.data('num-recepcion') + ' (' + button.data('fecha-recepcion') + ') ' + button.data('origen') + ' [' + button.data('csg-origen') + ']';
-                var recepcionUrl = button.data('id-recepcion') ? '../../fruta/vista/registroRecepcionpt.php?op&id=' + encodeURIComponent(button.data('id-recepcion')) + '&a=ver' : '';
+                var recepcionUrl = button.data('id-recepcion') ? '../../exportadora/vista/registroRecepcionpt.php?op&id=' + encodeURIComponent(button.data('id-recepcion')) + '&a=ver' : '';
                 setDetailWithLink(modal, 'recepcion', recepcionTexto, recepcionUrl);
                 modal.find('[data-detail="guia-recepcion"]').text(button.data('num-guia-recepcion') + (button.data('fecha-guia-recepcion') ? ' (' + button.data('fecha-guia-recepcion') + ')' : ''));
+                var repaletizajeTexto = button.data('num-repaletizaje') ? '#' + button.data('num-repaletizaje') + (button.data('fecha-repaletizaje') ? ' (' + button.data('fecha-repaletizaje') + ')' : '') : 'Sin datos';
+                modal.find('[data-detail="repaletizaje"]').text(repaletizajeTexto);
                 var procesoTexto = button.data('tipo-proceso') + ' #' + button.data('num-proceso') + ' (' + button.data('fecha-proceso') + ')';
-                var procesoUrl = button.data('id-proceso') ? '../../fruta/vista/registroProceso.php?op&id=' + encodeURIComponent(button.data('id-proceso')) + '&a=ver' : '';
+                var procesoUrl = button.data('id-proceso') ? '../../exportadora/vista/registroProceso.php?op&id=' + encodeURIComponent(button.data('id-proceso')) + '&a=ver' : '';
                 setDetailWithLink(modal, 'proceso', procesoTexto, procesoUrl);
+                var reembalajeTexto = button.data('num-reembalaje') ? button.data('tipo-reembalaje') + ' #' + button.data('num-reembalaje') + (button.data('fecha-reembalaje') ? ' (' + button.data('fecha-reembalaje') + ')' : '') : 'Sin datos';
+                modal.find('[data-detail="reembalaje"]').text(reembalajeTexto);
                 var despachoTexto = button.data('tipo-despacho') + ' #' + button.data('num-despacho') + ' (' + button.data('fecha-despacho') + ') ' + button.data('destino') + ' [' + button.data('csg-destino') + ']';
-                var despachoUrl = button.data('id-despacho') ? '../../fruta/vista/registroDespachopt.php?op&id=' + encodeURIComponent(button.data('id-despacho')) + '&a=ver' : '';
+                var despachoUrl = button.data('id-despacho') ? '../../exportadora/vista/registroDespachopt.php?op&id=' + encodeURIComponent(button.data('id-despacho')) + '&a=ver' : '';
                 setDetailWithLink(modal, 'despacho', despachoTexto, despachoUrl);
-                modal.find('[data-detail="empresa"]').text(button.data('empresa'));
-                modal.find('[data-detail="planta"]').text(button.data('planta'));
-                modal.find('[data-detail="temporada"]').text(button.data('temporada'));
+                var inspeccionTexto = button.data('num-inspeccion') ? '#' + button.data('num-inspeccion') + ' (' + button.data('fecha-inspeccion') + ') ' + button.data('tipo-inspeccion') : 'Sin datos';
+                var inspeccionUrl = button.data('id-inspeccion') ? '../../fruta/vista/registroInpsag.php?op&id=' + encodeURIComponent(button.data('id-inspeccion')) + '&a=ver' : '';
+                setDetailWithLink(modal, 'inspeccion', inspeccionTexto, inspeccionUrl);
+                modal.find('[data-detail="calibre-detalle"]').text(button.data('calibre-detalle'));
+                modal.find('[data-detail="embalaje"]').text(button.data('embalaje'));
+                modal.find('[data-detail="stock"]').text(button.data('stock'));
+                modal.find('[data-detail="referencia"]').text(button.data('referencia'));
                 modal.find('[data-detail="ingreso"]').text(button.data('ingreso'));
                 modal.find('[data-detail="modificacion"]').text(button.data('modificacion'));
             });
@@ -1234,64 +1360,65 @@ if ($EMPRESAS  && $TEMPORADAS) {
                 return;
             }
 
-            var getDetail = function(key) {
-                var node = modal.querySelector('[data-detail="' + key + '"]');
-                return node ? node.textContent || '' : '';
-            };
+            ensureHtml2Pdf().then(function() {
+                var getDetail = function(key) {
+                    var node = modal.querySelector('[data-detail="' + key + '"]');
+                    return node ? node.textContent || '' : '';
+                };
 
-            var docDefinition = document.createElement('div');
-            docDefinition.id = 'detalle-pdf-temp';
-            docDefinition.style.padding = '20px';
-            docDefinition.style.fontFamily = 'Arial, sans-serif';
-            var buildCard = function(title, rows) {
-                var rowsHtml = rows.map(function(r) {
-                    return `<tr><th style="text-align:left;padding:6px;border:1px solid #eef2f7;background:#fafbfc;width:40%;">${r[0]}</th><td style="padding:6px;border:1px solid #eef2f7;">${getDetail(r[1])}</td></tr>`;
-                }).join('');
-                return `<div style="border:1px solid #dce4ef;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(15,62,91,0.05);"><div style="background:#f2f6fb;color:#0f2d4a;padding:6px 8px;font-weight:700;font-size:12px;">${title}</div><table style="width:100%;border-collapse:collapse;font-size:12px;">${rowsHtml}</table></div>`;
-            };
-            docDefinition.innerHTML = `
-                <div style="display:flex;align-items:center;gap:12px;border-bottom:1px solid #dce4ef;padding-bottom:10px;margin-bottom:14px;">
-                    ${LOGO_EMPRESA ? `<div style="flex-shrink:0;"><img src="${LOGO_EMPRESA}" style="height:50px;object-fit:contain;" /></div>` : ''}
-                    <div style="display:flex;flex-direction:column;">
-                        <div style="font-size:18px;font-weight:bold;color:#0f2d4a;">${NOMBRE_EMPRESA || 'Detalle de existencia'}</div>
-                        <div style="font-size:12px;color:#556b85;">${new Date().toLocaleString()}</div>
+                var docDefinition = document.createElement('div');
+                docDefinition.id = 'detalle-pdf-temp';
+                docDefinition.style.padding = '18px';
+                docDefinition.style.fontFamily = 'Arial, sans-serif';
+                var buildCard = function(title, rows) {
+                    var rowsHtml = rows.map(function(r) {
+                        return `<tr><th style="text-align:left;padding:6px;border:1px solid #eef2f7;background:#fafbfc;width:42%;">${r[0]}</th><td style="padding:6px;border:1px solid #eef2f7;">${getDetail(r[1])}</td></tr>`;
+                    }).join('');
+                    return `<div style=\"border:1px solid #dce4ef;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(15,62,91,0.08);\"><div style=\"background:#f1f5fb;color:#0f2d4a;padding:8px 10px;font-weight:800;font-size:12px;\">${title}</div><table style=\"width:100%;border-collapse:collapse;font-size:12px;\">${rowsHtml}</table></div>`;
+                };
+                docDefinition.innerHTML = `
+                    ${LOGO_EMPRESA ? `<div style="width:100%;border:1px solid #d7e2f2;border-radius:10px;overflow:hidden;background:#fff;margin-bottom:12px;"><img src="${LOGO_EMPRESA}" style="width:100%;height:140px;object-fit:cover;" /></div>` : ''}
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;">
+                        <thead>
+                            <tr style="background:#0f4a7a;color:#f2f6fb;">
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Folio original</th>
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Folio nuevo</th>
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Estado</th>
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Condición</th>
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Calidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio')}</td>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio-aux')}</td>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado')}</td>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('condicion')}</td>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado-calidad')}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;">
+                        ${buildCard('Identificación', [['Estandar', 'estandar'], ['Especie / Variedad', 'especie'], ['Envases', 'envases'], ['Kilos', 'kilos'], ['Tipo calibre', 'calibre-detalle'], ['Embalaje', 'embalaje']])}
+                        ${buildCard('Productor y condición', [['Productor', 'productor'], ['Manejo', 'tmanejo'], ['Condición', 'condicion'], ['Estado calidad', 'estado-calidad'], ['Inspección', 'inspeccion'], ['Embolsado', 'embolsado'], ['Gasificación', 'gasificado'], ['Prefrío', 'prefrio']])}
+                        ${buildCard('Movimientos y fechas', [['Recepción', 'recepcion'], ['Guía recepción', 'guia-recepcion'], ['Repaletizaje', 'repaletizaje'], ['Proceso', 'proceso'], ['Reembalaje', 'reembalaje'], ['Despacho', 'despacho'], ['Ingreso', 'ingreso'], ['Modificación', 'modificacion']])}
+                        ${buildCard('Calibre y stock', [['Tipo calibre', 'calibre-detalle'], ['Embalaje', 'embalaje'], ['Stock', 'stock'], ['Referencia', 'referencia']])}
                     </div>
-                </div>
-                <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;">
-                    <thead>
-                        <tr style="background:#f2f6fb;color:#0f2d4a;">
-                            <th style="padding:6px;border:1px solid #e4e9f1;">Folio original</th>
-                            <th style="padding:6px;border:1px solid #e4e9f1;">Folio nuevo</th>
-                            <th style="padding:6px;border:1px solid #e4e9f1;">Estado</th>
-                            <th style="padding:6px;border:1px solid #e4e9f1;">Calidad</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio')}</td>
-                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio-aux')}</td>
-                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado')}</td>
-                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado-calidad')}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px;">
-                    ${buildCard('Identificación', [['Estandar', 'estandar'], ['Especie / Variedad', 'especie']])}
-                    ${buildCard('Productor y manejo', [['Productor', 'productor'], ['Cantidad', 'envases'], ['Kilos', 'kilos'], ['Manejo', 'tmanejo'], ['Gasificación', 'gasificado']])}
-                    ${buildCard('Movimientos', [['Recepción', 'recepcion'], ['Guía recepción', 'guia-recepcion'], ['Proceso', 'proceso'], ['Despacho', 'despacho']])}
-                    ${buildCard('Ubicación y fechas', [['Empresa', 'empresa'], ['Planta', 'planta'], ['Temporada', 'temporada'], ['Ingreso', 'ingreso'], ['Modificación', 'modificacion']])}
-                </div>
-            `;
+                `;
 
-            document.body.appendChild(docDefinition);
-            html2pdf().set({
-                margin: 10,
-                filename: 'detalle-existencia.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-            }).from(docDefinition).save().then(function() {
-                document.body.removeChild(docDefinition);
+                document.body.appendChild(docDefinition);
+                html2pdf().set({
+                    margin: [10, 10, 10, 10],
+                    pagebreak: { mode: ['avoid-all'] },
+                    filename: 'detalle-existencia.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                }).from(docDefinition).save().then(function() {
+                    document.body.removeChild(docDefinition);
+                }).catch(function() {
+                    document.body.removeChild(docDefinition);
+                });
             });
         }
     </script>
