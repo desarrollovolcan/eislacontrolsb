@@ -161,69 +161,77 @@ if ($EMPRESAS  && $TEMPORADAS) {
         <?php include_once "../../assest/config/urlHead.php"; ?>
     <style>
         .detalle-modal .modal-content {
-            border: 1px solid #d0d7e3;
-            box-shadow: 0 8px 22px rgba(0, 54, 94, 0.08);
-            border-radius: 10px;
+            border: 1px solid #cfd9ec;
+            box-shadow: 0 10px 26px rgba(7, 33, 71, 0.12);
+            border-radius: 14px;
+            overflow: hidden;
         }
 
         .detalle-modal .modal-header {
-            background: #fff;
-            color: #0f4a7a;
-            border-bottom: 1px solid #d0d7e3;
-            padding: 10px 12px;
+            background: linear-gradient(120deg, #0b3058 0%, #0f4a7a 100%);
+            color: #f0f5ff;
+            border: none;
+            padding: 12px 16px;
         }
 
         .detalle-modal .modal-title {
-            font-weight: 700;
-            letter-spacing: 0.2px;
+            font-weight: 800;
+            letter-spacing: 0.25px;
             margin: 0;
-            color: #0f4a7a;
+            color: #f8fbff;
         }
 
         .detalle-modal .modal-subtitle {
             font-size: 11px;
-            letter-spacing: 0.4px;
-            color: #5a6f86;
+            letter-spacing: 0.5px;
+            color: #c7d6ef;
             margin-bottom: 2px;
-            opacity: 0.9;
+            opacity: 0.95;
         }
 
         .detalle-modal .close {
-            color: #0b2f55;
-            opacity: 0.9;
-            font-weight: 700;
+            color: #d9e6ff;
+            opacity: 1;
+            font-weight: 800;
         }
 
-        .detalle-modal .brand-banner {
-            margin: 6px 0 10px;
-            background: linear-gradient(135deg, #f0f5ff 0%, #e5edf8 100%);
-            border: 1px solid #d7e2f2;
-            border-radius: 8px;
-            padding: 10px 12px;
+        .detalle-hero {
+            margin: 0 -10px 12px;
+            background: linear-gradient(135deg, #f4f7fb 0%, #e8f0fb 100%);
+            border-bottom: 1px solid #d7e2f2;
+            padding: 12px 12px 10px;
         }
 
-        .detalle-modal .brand-banner img {
+        .detalle-hero .brand-banner {
             width: 100%;
-            max-height: 120px;
-            object-fit: contain;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #d7e2f2;
+            background: #fff;
+        }
+
+        .detalle-hero .brand-banner img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
             display: block;
         }
 
         .detalle-modal .modal-body {
             background: #fff;
-            padding: 10px;
+            padding: 10px 12px 6px;
         }
 
         .detalle-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 6px;
+            gap: 10px;
             align-items: stretch;
             grid-auto-rows: 1fr;
         }
 
         .detalle-resumen-table {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .detalle-resumen-table .detalle-table {
@@ -231,24 +239,26 @@ if ($EMPRESAS  && $TEMPORADAS) {
         }
 
         .detalle-resumen-table thead th {
-            background: #f2f6fb;
+            background: #0f4a7a;
+            color: #f2f6fb;
             text-transform: uppercase;
             font-size: 11px;
             letter-spacing: 0.4px;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .detalle-resumen-table tbody td {
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
+            background: #f9fbff;
         }
 
         .detalle-card {
             background: #fff;
             border: 1px solid #dce4ef;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 0;
-            box-shadow: 0 1px 4px rgba(15, 62, 91, 0.05);
+            box-shadow: 0 8px 16px rgba(15, 62, 91, 0.06);
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -256,12 +266,12 @@ if ($EMPRESAS  && $TEMPORADAS) {
 
         .detalle-card h5 {
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             color: #0f2d4a;
             margin: 0;
             letter-spacing: 0.3px;
-            padding: 8px 10px;
-            background: #f2f6fb;
+            padding: 10px 12px;
+            background: linear-gradient(90deg, #f1f5fb 0%, #e8f0fb 100%);
             border-bottom: 1px solid #e3ebf5;
         }
 
@@ -274,7 +284,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
 
         .detalle-card th,
         .detalle-card td {
-            padding: 6px 10px;
+            padding: 7px 12px;
             border-bottom: 1px solid #eef2f7;
             vertical-align: top;
             word-wrap: break-word;
@@ -284,13 +294,13 @@ if ($EMPRESAS  && $TEMPORADAS) {
 
         .detalle-card th {
             background: #fafbfc;
-            color: #556b85;
-            width: 38%;
-            font-weight: 600;
+            color: #4d637d;
+            width: 42%;
+            font-weight: 700;
         }
 
         .detalle-card td {
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .detalle-table.resumen-table th,
@@ -302,40 +312,43 @@ if ($EMPRESAS  && $TEMPORADAS) {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 72px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            background: #e8f0fb;
-            color: #0f4a7a;
-            font-weight: 700;
+            min-width: 90px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: #e6efff;
+            color: #0b3058;
+            font-weight: 800;
+            border: 1px solid #c8d8f2;
         }
 
         .detalle-modal .modal-footer {
-            padding: 10px;
+            padding: 12px 14px;
             border-top: 1px solid #dce4ef;
-            background: #f7f9fc;
+            background: #f2f6fb;
         }
 
         .detalle-modal .btn-primary {
-            background: #0d6efd;
-            border-color: #0b5ed7;
-            font-weight: 700;
+            background: #0f4a7a;
+            border-color: #0b3058;
+            font-weight: 800;
         }
 
         .detalle-modal .btn-secondary {
             background: #e7eef7;
-            color: #0a2f57;
+            color: #0b2f57;
             border-color: #c5d3e6;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .detalle-modal .btn {
             min-width: 160px;
+            border-radius: 10px;
         }
 
         .mov-link {
             color: #0f4a7a;
             text-decoration: underline;
+            font-weight: 700;
         }
     </style>
         <!- FUNCIONES BASES -!>
@@ -1082,8 +1095,10 @@ if ($EMPRESAS  && $TEMPORADAS) {
                     </div>
                     <div class="modal-body">
                         <?php if ($LOGOEMPRESA) : ?>
-                            <div class="brand-banner">
-                                <img src="<?php echo $LOGOEMPRESA; ?>" alt="Imagen institucional" />
+                            <div class="detalle-hero">
+                                <div class="brand-banner">
+                                    <img src="<?php echo $LOGOEMPRESA; ?>" alt="Imagen institucional" />
+                                </div>
                             </div>
                         <?php endif; ?>
                         <div class="detalle-resumen-table">
@@ -1128,10 +1143,18 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <th>Kilos</th>
                                         <td data-detail="kilos"></td>
                                     </tr>
+                                    <tr>
+                                        <th>Tipo calibre</th>
+                                        <td data-detail="calibre-detalle"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embalaje</th>
+                                        <td data-detail="embalaje"></td>
+                                    </tr>
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Productor y manejo</h5>
+                                <h5>Productor y condición</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Productor</th>
@@ -1140,6 +1163,22 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                     <tr>
                                         <th>Manejo</th>
                                         <td data-detail="tmanejo"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Condición</th>
+                                        <td data-detail="condicion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Estado calidad</th>
+                                        <td data-detail="estado-calidad"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Inspección</th>
+                                        <td data-detail="inspeccion"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Embolsado</th>
+                                        <td data-detail="embolsado"></td>
                                     </tr>
                                     <tr>
                                         <th>Embolsado</th>
@@ -1156,24 +1195,7 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Calidad e inspección</h5>
-                                <table class="detalle-table">
-                                    <tr>
-                                        <th>Condición</th>
-                                        <td data-detail="condicion"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Estado calidad</th>
-                                        <td data-detail="estado-calidad"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Inspección</th>
-                                        <td data-detail="inspeccion"></td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="detalle-card">
-                                <h5>Movimientos</h5>
+                                <h5>Movimientos y fechas</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Recepción</th>
@@ -1199,10 +1221,18 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <th>Despacho</th>
                                         <td data-detail="despacho"></td>
                                     </tr>
+                                    <tr>
+                                        <th>Ingreso</th>
+                                        <td data-detail="ingreso"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Modificación</th>
+                                        <td data-detail="modificacion"></td>
+                                    </tr>
                                 </table>
                             </div>
                             <div class="detalle-card">
-                                <h5>Calibre y embalaje</h5>
+                                <h5>Calibre y stock</h5>
                                 <table class="detalle-table">
                                     <tr>
                                         <th>Tipo calibre</th>
@@ -1216,22 +1246,14 @@ if ($EMPRESAS  && $TEMPORADAS) {
                                         <th>Stock</th>
                                         <td data-detail="stock"></td>
                                     </tr>
-                                    <tr>
-                                        <th>Referencia</th>
-                                        <td data-detail="referencia"></td>
-                                    </tr>
                                 </table>
                             </div>
                             <div class="detalle-card">
                                 <h5>Fechas</h5>
                                 <table class="detalle-table">
                                     <tr>
-                                        <th>Ingreso</th>
-                                        <td data-detail="ingreso"></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Modificación</th>
-                                        <td data-detail="modificacion"></td>
+                                        <th>Referencia</th>
+                                        <td data-detail="referencia"></td>
                                     </tr>
                                 </table>
                             </div>
@@ -1253,6 +1275,27 @@ if ($EMPRESAS  && $TEMPORADAS) {
     <script type="text/javascript">
         const LOGO_EMPRESA = "<?php echo htmlspecialchars($LOGOEMPRESA ?? '', ENT_QUOTES, 'UTF-8'); ?>";
         const NOMBRE_EMPRESA = "<?php echo htmlspecialchars($NOMBREEMPRESA ?? '', ENT_QUOTES, 'UTF-8'); ?>";
+        let html2PdfLoader;
+
+        function ensureHtml2Pdf() {
+            if (window.html2pdf) {
+                return Promise.resolve();
+            }
+            if (html2PdfLoader) {
+                return html2PdfLoader;
+            }
+            html2PdfLoader = new Promise(function(resolve, reject) {
+                var script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                script.onload = resolve;
+                script.onerror = function() {
+                    console.error('No se pudo cargar html2pdf');
+                    reject();
+                };
+                document.head.appendChild(script);
+            });
+            return html2PdfLoader;
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             function setDetailWithLink(modal, key, text, url) {
@@ -1326,68 +1369,65 @@ if ($EMPRESAS  && $TEMPORADAS) {
                 return;
             }
 
-            var getDetail = function(key) {
-                var node = modal.querySelector('[data-detail="' + key + '"]');
-                return node ? node.textContent || '' : '';
-            };
+            ensureHtml2Pdf().then(function() {
+                var getDetail = function(key) {
+                    var node = modal.querySelector('[data-detail="' + key + '"]');
+                    return node ? node.textContent || '' : '';
+                };
 
-            var docDefinition = document.createElement('div');
-            docDefinition.id = 'detalle-pdf-temp';
-            docDefinition.style.padding = '20px';
-            docDefinition.style.fontFamily = 'Arial, sans-serif';
-            var buildCard = function(title, rows) {
-                var rowsHtml = rows.map(function(r) {
-                    return `<tr><th style="text-align:left;padding:6px;border:1px solid #eef2f7;background:#fafbfc;width:40%;">${r[0]}</th><td style="padding:6px;border:1px solid #eef2f7;">${getDetail(r[1])}</td></tr>`;
-                }).join('');
-                return `<div style="border:1px solid #dce4ef;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(15,62,91,0.05);"><div style="background:#f2f6fb;color:#0f2d4a;padding:6px 8px;font-weight:700;font-size:12px;">${title}</div><table style="width:100%;border-collapse:collapse;font-size:12px;">${rowsHtml}</table></div>`;
-            };
-            docDefinition.innerHTML = `
-                <div style="display:flex;align-items:center;gap:12px;border-bottom:1px solid #dce4ef;padding-bottom:10px;margin-bottom:14px;">
-                    ${LOGO_EMPRESA ? `<div style="flex-shrink:0;"><img src="${LOGO_EMPRESA}" style="height:50px;object-fit:contain;" /></div>` : ''}
-                    <div style="display:flex;flex-direction:column;">
-                        <div style="font-size:18px;font-weight:bold;color:#0f2d4a;">${NOMBRE_EMPRESA || 'Detalle de existencia'}</div>
-                        <div style="font-size:12px;color:#556b85;">${new Date().toLocaleString()}</div>
+                var docDefinition = document.createElement('div');
+                docDefinition.id = 'detalle-pdf-temp';
+                docDefinition.style.padding = '18px';
+                docDefinition.style.fontFamily = 'Arial, sans-serif';
+                var buildCard = function(title, rows) {
+                    var rowsHtml = rows.map(function(r) {
+                        return `<tr><th style="text-align:left;padding:6px;border:1px solid #eef2f7;background:#fafbfc;width:42%;">${r[0]}</th><td style="padding:6px;border:1px solid #eef2f7;">${getDetail(r[1])}</td></tr>`;
+                    }).join('');
+                    return `<div style=\"border:1px solid #dce4ef;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(15,62,91,0.08);\"><div style=\"background:#f1f5fb;color:#0f2d4a;padding:8px 10px;font-weight:800;font-size:12px;\">${title}</div><table style=\"width:100%;border-collapse:collapse;font-size:12px;\">${rowsHtml}</table></div>`;
+                };
+                docDefinition.innerHTML = `
+                    ${LOGO_EMPRESA ? `<div style="width:100%;border:1px solid #d7e2f2;border-radius:10px;overflow:hidden;background:#fff;margin-bottom:12px;"><img src="${LOGO_EMPRESA}" style="width:100%;height:140px;object-fit:cover;" /></div>` : ''}
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;">
+                        <thead>
+                            <tr style="background:#0f4a7a;color:#f2f6fb;">
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Folio original</th>
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Folio nuevo</th>
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Estado</th>
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Condición</th>
+                                <th style="padding:6px;border:1px solid #e4e9f1;">Calidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio')}</td>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio-aux')}</td>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado')}</td>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('condicion')}</td>
+                                <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado-calidad')}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;">
+                        ${buildCard('Identificación', [['Estandar', 'estandar'], ['Especie / Variedad', 'especie'], ['Envases', 'envases'], ['Kilos', 'kilos'], ['Tipo calibre', 'calibre-detalle'], ['Embalaje', 'embalaje']])}
+                        ${buildCard('Productor y condición', [['Productor', 'productor'], ['Manejo', 'tmanejo'], ['Condición', 'condicion'], ['Estado calidad', 'estado-calidad'], ['Inspección', 'inspeccion'], ['Embolsado', 'embolsado'], ['Gasificación', 'gasificado'], ['Prefrío', 'prefrio']])}
+                        ${buildCard('Movimientos y fechas', [['Recepción', 'recepcion'], ['Guía recepción', 'guia-recepcion'], ['Repaletizaje', 'repaletizaje'], ['Proceso', 'proceso'], ['Reembalaje', 'reembalaje'], ['Despacho', 'despacho'], ['Ingreso', 'ingreso'], ['Modificación', 'modificacion']])}
+                        ${buildCard('Calibre y stock', [['Tipo calibre', 'calibre-detalle'], ['Embalaje', 'embalaje'], ['Stock', 'stock'], ['Referencia', 'referencia']])}
                     </div>
-                </div>
-                <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;">
-                    <thead>
-                        <tr style="background:#f2f6fb;color:#0f2d4a;">
-                            <th style="padding:6px;border:1px solid #e4e9f1;">Folio original</th>
-                            <th style="padding:6px;border:1px solid #e4e9f1;">Folio nuevo</th>
-                            <th style="padding:6px;border:1px solid #e4e9f1;">Estado</th>
-                            <th style="padding:6px;border:1px solid #e4e9f1;">Condición</th>
-                            <th style="padding:6px;border:1px solid #e4e9f1;">Calidad</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio')}</td>
-                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('folio-aux')}</td>
-                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado')}</td>
-                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('condicion')}</td>
-                            <td style="padding:6px;border:1px solid #e4e9f1;text-align:center;">${getDetail('estado-calidad')}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px;">
-                    ${buildCard('Identificación', [['Estandar', 'estandar'], ['Especie / Variedad', 'especie'], ['Envases', 'envases'], ['Kilos', 'kilos']])}
-                    ${buildCard('Productor y manejo', [['Productor', 'productor'], ['Manejo', 'tmanejo'], ['Embolsado', 'embolsado'], ['Gasificación', 'gasificado'], ['Prefrío', 'prefrio']])}
-                    ${buildCard('Calidad e inspección', [['Condición', 'condicion'], ['Estado calidad', 'estado-calidad'], ['Inspección', 'inspeccion']])}
-                    ${buildCard('Movimientos', [['Recepción', 'recepcion'], ['Guía recepción', 'guia-recepcion'], ['Repaletizaje', 'repaletizaje'], ['Proceso', 'proceso'], ['Reembalaje', 'reembalaje'], ['Despacho', 'despacho']])}
-                    ${buildCard('Calibre y embalaje', [['Tipo calibre', 'calibre-detalle'], ['Embalaje', 'embalaje'], ['Stock', 'stock'], ['Referencia', 'referencia']])}
-                    ${buildCard('Fechas', [['Ingreso', 'ingreso'], ['Modificación', 'modificacion']])}
-                </div>
-            `;
+                `;
 
-            document.body.appendChild(docDefinition);
-            html2pdf().set({
-                margin: 10,
-                filename: 'detalle-existencia.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-            }).from(docDefinition).save().then(function() {
-                document.body.removeChild(docDefinition);
+                document.body.appendChild(docDefinition);
+                html2pdf().set({
+                    margin: [10, 10, 10, 10],
+                    pagebreak: { mode: ['avoid-all'] },
+                    filename: 'detalle-existencia.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                }).from(docDefinition).save().then(function() {
+                    document.body.removeChild(docDefinition);
+                }).catch(function() {
+                    document.body.removeChild(docDefinition);
+                });
             });
         }
     </script>
