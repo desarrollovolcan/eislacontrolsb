@@ -256,6 +256,7 @@ if ($PRODUCTORESASOCIADOS) {
                                                 <?php } ?>
                                             </table>
                                         </div>
+                                        <div id="chartSemanas" class="chart-container"></div>
                                     </div>
                                 </div>
                             </div>
