@@ -1389,12 +1389,12 @@ if (isset($_POST)) {
                                                             <td>
                                                                 <?php if (isset($ARRAYESTADOFOLIOS[$s['FOLIO_DRECEPCION']])) : ?>
                                                                     <?php foreach ($ARRAYESTADOFOLIOS[$s['FOLIO_DRECEPCION']] as $estadoFolio) : ?>
-                                                                        <a target="_blank" href="<?php echo $estadoFolio['url']; ?>" class="badge <?php echo $estadoFolio['color']; ?> btn-block" style="white-space: normal;">
+                                                                        <a target="_blank" href="<?php echo $estadoFolio['url']; ?>" class="badge <?php echo $estadoFolio['color']; ?> d-block w-100 mb-1" style="white-space: normal;">
                                                                             <?php echo $estadoFolio['texto']; ?>
                                                                         </a>
                                                                     <?php endforeach; ?>
                                                                 <?php else : ?>
-                                                                    <span class="badge badge-secondary btn-block">Sin Operaciones</span>
+                                                                    <span class="badge badge-secondary d-block w-100">Sin Operaciones</span>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td>
