@@ -1329,7 +1329,7 @@ if (isset($_POST)) {
                                                                     if ($arrayProceso) {
                                                                         $ARRAYESTADOFOLIO[] = [
                                                                             'texto' => 'Procesado #' . $arrayProceso[0]['NUMERO_PROCESO'],
-                                                                            'url' => 'registroProceso.php?op=ver&id=' . $existencia['ID_PROCESO'],
+                                                                            'url' => 'registroProceso.php?op&id=' . $existencia['ID_PROCESO'] . '&a=ver',
                                                                             'color' => 'badge-success'
                                                                         ];
                                                                     }
@@ -1339,7 +1339,7 @@ if (isset($_POST)) {
                                                                     if ($arrayDespacho) {
                                                                         $ARRAYESTADOFOLIO[] = [
                                                                             'texto' => 'Despachado #' . $arrayDespacho[0]['NUMERO_DESPACHO'],
-                                                                            'url' => 'registroDespachomp.php?op=ver&id=' . $existencia['ID_DESPACHO'],
+                                                                            'url' => 'registroDespachomp.php?op&id=' . $existencia['ID_DESPACHO'] . '&a=ver',
                                                                             'color' => 'badge-primary'
                                                                         ];
                                                                     }
@@ -1349,7 +1349,7 @@ if (isset($_POST)) {
                                                                     if ($arrayDespacho) {
                                                                         $ARRAYESTADOFOLIO[] = [
                                                                             'texto' => 'Despachado #' . $arrayDespacho[0]['NUMERO_DESPACHO'],
-                                                                            'url' => 'registroDespachomp.php?op=ver&id=' . $existencia['ID_DESPACHO2'],
+                                                                            'url' => 'registroDespachomp.php?op&id=' . $existencia['ID_DESPACHO2'] . '&a=ver',
                                                                             'color' => 'badge-primary'
                                                                         ];
                                                                     }
@@ -1359,7 +1359,7 @@ if (isset($_POST)) {
                                                                     if ($arrayRechazo) {
                                                                         $ARRAYESTADOFOLIO[] = [
                                                                             'texto' => 'Rechazado #' . $arrayRechazo[0]['NUMERO_RECHAZO'],
-                                                                            'url' => 'registroRechazomp.php?op=ver&id=' . $existencia['ID_RECHAZADO'],
+                                                                            'url' => 'registroRechazomp.php?op&id=' . $existencia['ID_RECHAZADO'] . '&a=ver',
                                                                             'color' => 'badge-danger'
                                                                         ];
                                                                     }
@@ -1369,7 +1369,7 @@ if (isset($_POST)) {
                                                                     if ($arrayLevantamiento) {
                                                                         $ARRAYESTADOFOLIO[] = [
                                                                             'texto' => 'Levantamiento #' . $arrayLevantamiento[0]['NUMERO_LEVANTAMIENTO'],
-                                                                            'url' => 'registroLevantamientomp.php?op=ver&id=' . $existencia['ID_LEVANTAMIENTO'],
+                                                                            'url' => 'registroLevantamientomp.php?op&id=' . $existencia['ID_LEVANTAMIENTO'] . '&a=ver',
                                                                             'color' => 'badge-warning'
                                                                         ];
                                                                     }
