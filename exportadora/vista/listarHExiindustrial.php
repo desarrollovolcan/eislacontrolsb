@@ -337,6 +337,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                         <th>Folio Nuevo</th>
                                                         <th>Fecha Embalado </th>
                                                         <th>Estado </th>
+                                                        <th>Calidad </th>
                                                         <th>Código Estandar</th>
                                                         <th>Envase/Estandar</th>
                                                         <th>CSG</th>
@@ -651,18 +652,21 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                         } else {
                                                             $NOMBRETMANEJO = "Sin Datos";
                                                         }
+
+                                                        $ESTADOCALIDAD = "Sin Datos";
                                                         ?>
 
                                                         <tr class="text-center">
-                                                            <td class="no-export">
+                                                        <td class="no-export">
                                                                 <button type="button"
-                                                                    class="btn btn-sm btn-primary"
+                                                                    class="btn btn-info btn-sm detalle-existencia"
                                                                     data-toggle="modal"
                                                                     data-target="#detalleExistenciaModal"
                                                                     data-folio="<?php echo htmlspecialchars($r['FOLIO_EXIINDUSTRIAL'], ENT_QUOTES, 'UTF-8'); ?>"
                                                                     data-folio-aux="<?php echo htmlspecialchars($r['FOLIO_AUXILIAR_EXIINDUSTRIAL'], ENT_QUOTES, 'UTF-8'); ?>"
                                                                     data-estado="<?php echo htmlspecialchars($ESTADO, ENT_QUOTES, 'UTF-8'); ?>"
                                                                     data-estandar="<?php echo htmlspecialchars($CODIGOESTANDAR . ' - ' . $NOMBREESTANDAR, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                    data-estado-calidad="<?php echo htmlspecialchars($ESTADOCALIDAD, ENT_QUOTES, 'UTF-8'); ?>"
                                                                     data-productor="<?php echo htmlspecialchars($NOMBREPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
                                                                     data-csg="<?php echo htmlspecialchars($CSGPRODUCTOR, ENT_QUOTES, 'UTF-8'); ?>"
                                                                     data-especie="<?php echo htmlspecialchars($NOMBRESPECIES, ENT_QUOTES, 'UTF-8'); ?>"
@@ -698,13 +702,14 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                                     data-id-reembalaje="<?php echo htmlspecialchars($r['ID_REEMBALAJE'], ENT_QUOTES, 'UTF-8'); ?>"
                                                                     data-id-despacho="<?php echo htmlspecialchars($r['ID_DESPACHO2'], ENT_QUOTES, 'UTF-8'); ?>"
                                                                 >
-                                                                    Detalle
+                                                                    Ver detalle
                                                                 </button>
                                                             </td>
                                                             <td><?php echo $r['FOLIO_EXIINDUSTRIAL']; ?> </td>
                                                             <td><?php echo $r['FOLIO_AUXILIAR_EXIINDUSTRIAL']; ?> </td>
                                                             <td><?php echo $r['EMBALADO']; ?> </td>
                                                             <td><?php echo $ESTADO; ?> </td>
+                                                            <td><?php echo $ESTADOCALIDAD; ?> </td>
                                                             <td><?php echo $CODIGOESTANDAR; ?></td>
                                                             <td><?php echo $NOMBREESTANDAR; ?></td>
                                                             <td><?php echo $CSGPRODUCTOR; ?></td>
@@ -748,6 +753,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                                         <th>Folio Nuevo</th>
                                                         <th>Fecha Embalado </th>
                                                         <th>Estado </th>
+                                                        <th>Calidad </th>
                                                         <th>Código Estandar</th>
                                                         <th>Envase/Estandar</th>
                                                         <th>CSG</th>
@@ -822,6 +828,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                         <th>Folio original</th>
                                         <th>Folio nuevo</th>
                                         <th>Estado</th>
+                                        <th>Calidad</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -829,6 +836,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
                                         <td data-detail="folio"></td>
                                         <td data-detail="folio-aux"></td>
                                         <td><span class="detalle-badge" data-detail="estado"></span></td>
+                                        <td><span class="detalle-badge detalle-estado-calidad" data-detail="estado-calidad"></span></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -960,6 +968,7 @@ if ($EMPRESAS   && $TEMPORADAS) {
                 modal.find('[data-detail="folio"]').text(button.data('folio'));
                 modal.find('[data-detail="folio-aux"]').text(button.data('folio-aux'));
                 modal.find('[data-detail="estado"]').text(button.data('estado'));
+                modal.find('[data-detail="estado-calidad"]').text(button.data('estado-calidad'));
                 modal.find('[data-detail="estandar"]').text(button.data('estandar'));
                 modal.find('[data-detail="productor"]').text(button.data('productor') + ' (' + button.data('csg') + ')');
                 modal.find('[data-detail="especie"]').text(button.data('especie') + ' / ' + button.data('variedad'));
@@ -1016,12 +1025,13 @@ if ($EMPRESAS   && $TEMPORADAS) {
                 startY: y,
                 styles: { fontSize: 9, cellPadding: 4, halign: 'left' },
                 headStyles: { fillColor: [236, 242, 249], textColor: [15, 74, 122] },
-                head: [['Folio original', 'Folio nuevo', 'Estado']],
+                head: [['Folio original', 'Folio nuevo', 'Estado', 'Calidad']],
                 body: [
                     [
                         modal.find('[data-detail="folio"]').text(),
                         modal.find('[data-detail="folio-aux"]').text(),
-                        modal.find('[data-detail="estado"]').text()
+                        modal.find('[data-detail="estado"]').text(),
+                        modal.find('[data-detail="estado-calidad"]').text()
                     ]
                 ]
             });

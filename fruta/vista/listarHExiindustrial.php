@@ -347,11 +347,12 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                             <table id="hexistencia" class="table-hover table-bordered" style="width: 100%;">
                                                 <thead>
                                                     <tr class="text-center">
-                                                        <th class="no-export"></th>
+                                                        <th class="no-export">Detalle</th>
                                                         <th>Folio Original</th>
                                                         <th>Folio Nuevo</th>
                                                         <th>Fecha Embalado </th>
                                                         <th>Estado </th>
+                                                        <th>Calidad </th>
                                                         <th>Código Estandar</th>
                                                         <th>Envase/Estandar</th>
                                                         <th>CSG</th>
@@ -660,7 +661,7 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                                         <tr class="text-center">
                                                             <td class="no-export">
                                                                 <button type="button"
-                                                                    class="btn btn-sm btn-primary"
+                                                                    class="btn btn-info btn-sm detalle-existencia"
                                                                     data-toggle="modal"
                                                                     data-target="#detalleExistenciaModal"
                                                                     data-folio="<?php echo htmlspecialchars($r['FOLIO_EXIINDUSTRIAL'], ENT_QUOTES, 'UTF-8'); ?>"
@@ -704,13 +705,14 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                                                     data-id-reembalaje="<?php echo htmlspecialchars($r['ID_REEMBALAJE'], ENT_QUOTES, 'UTF-8'); ?>"
                                                                     data-id-despacho="<?php echo htmlspecialchars($r['ID_DESPACHO'], ENT_QUOTES, 'UTF-8'); ?>"
                                                                     data-id-despacho2="<?php echo htmlspecialchars($r['ID_DESPACHO2'], ENT_QUOTES, 'UTF-8'); ?>">
-                                                                    <i class="ti-zoom-in"></i>
+                                                                    Ver detalle
                                                                 </button>
                                                             </td>
                                                             <td><?php echo $r['FOLIO_EXIINDUSTRIAL']; ?> </td>
                                                             <td><?php echo $r['FOLIO_AUXILIAR_EXIINDUSTRIAL']; ?> </td>
                                                             <td><?php echo $r['EMBALADO']; ?> </td>
                                                             <td><?php echo $ESTADO; ?> </td>
+                                                            <td><?php echo $ESTADOCALIDAD; ?> </td>
                                                             <td><?php echo $CODIGOESTANDAR; ?></td>
                                                             <td><?php echo $NOMBREESTANDAR; ?></td>
                                                             <td><?php echo $CSGPRODUCTOR; ?></td>
@@ -749,11 +751,12 @@ if ($EMPRESAS  && $PLANTAS && $TEMPORADAS) {
                                                 </tbody>
                                                 <tfoot>
                                                     <tr class="text-center" id="filtro">
-                                                        <th class="no-export"></th>
+                                                        <th class="no-export">Detalle</th>
                                                         <th>Folio Original</th>
                                                         <th>Folio Nuevo</th>
                                                         <th>Fecha Embalado </th>
                                                         <th>Estado </th>
+                                                        <th>Calidad </th>
                                                         <th>Código Estandar</th>
                                                         <th>Envase/Estandar</th>
                                                         <th>CSG</th>
