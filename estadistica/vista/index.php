@@ -344,7 +344,6 @@ if ($PRODUCTORESASOCIADOS) {
                                                             <td>
                                                                 <div class="font-weight-600 mb-0"><?php echo htmlspecialchars($documento->nombre_documento); ?></div>
                                                                 <div class="text-muted small">Vence: <?php echo $documento->vigencia_documento; ?></div>
-                                                                <div class="text-muted small">Folio: <?php echo htmlspecialchars($documento->numero_documento); ?></div>
                                                             </td>
                                                             <td class="text-center">
                                                                 <span class="<?php echo $chipClass; ?>">
