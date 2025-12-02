@@ -1261,12 +1261,12 @@ if (isset($_POST)) {
                                         if ($ARRAYESTADOEXISTENCIA) {
                                             foreach ($ARRAYESTADOEXISTENCIA as $existencia) {
                                                 $folioExistencia = $existencia['FOLIO_EXIMATERIAPRIMA'];
-                                                if (!isset($ARRAYESTADOFOLIOS[$folioExistencia])) {
-                                                    $ARRAYESTADOFOLIOS[$folioExistencia] = [];
-                                                }
                                                 if ($existencia['ID_PROCESO']) {
                                                     $arrayProceso = $PROCESO_ADO->verProceso2($existencia['ID_PROCESO']);
                                                     if ($arrayProceso) {
+                                                        if (!isset($ARRAYESTADOFOLIOS[$folioExistencia])) {
+                                                            $ARRAYESTADOFOLIOS[$folioExistencia] = [];
+                                                        }
                                                         $ARRAYESTADOFOLIOS[$folioExistencia][] = [
                                                             'texto' => 'Procesado #' . $arrayProceso[0]['NUMERO_PROCESO'],
                                                             'url' => 'registroProceso.php?op=ver&id=' . $existencia['ID_PROCESO'],
@@ -1277,6 +1277,9 @@ if (isset($_POST)) {
                                                 if ($existencia['ID_DESPACHO']) {
                                                     $arrayDespacho = $DESPACHOMP_ADO->verDespachomp2($existencia['ID_DESPACHO']);
                                                     if ($arrayDespacho) {
+                                                        if (!isset($ARRAYESTADOFOLIOS[$folioExistencia])) {
+                                                            $ARRAYESTADOFOLIOS[$folioExistencia] = [];
+                                                        }
                                                         $ARRAYESTADOFOLIOS[$folioExistencia][] = [
                                                             'texto' => 'Despachado #' . $arrayDespacho[0]['NUMERO_DESPACHO'],
                                                             'url' => 'registroDespachomp.php?op=ver&id=' . $existencia['ID_DESPACHO'],
@@ -1287,6 +1290,9 @@ if (isset($_POST)) {
                                                 if ($existencia['ID_DESPACHO2']) {
                                                     $arrayDespacho = $DESPACHOMP_ADO->verDespachomp2($existencia['ID_DESPACHO2']);
                                                     if ($arrayDespacho) {
+                                                        if (!isset($ARRAYESTADOFOLIOS[$folioExistencia])) {
+                                                            $ARRAYESTADOFOLIOS[$folioExistencia] = [];
+                                                        }
                                                         $ARRAYESTADOFOLIOS[$folioExistencia][] = [
                                                             'texto' => 'Despachado #' . $arrayDespacho[0]['NUMERO_DESPACHO'],
                                                             'url' => 'registroDespachomp.php?op=ver&id=' . $existencia['ID_DESPACHO2'],
@@ -1297,6 +1303,9 @@ if (isset($_POST)) {
                                                 if ($existencia['ID_RECHAZADO']) {
                                                     $arrayRechazo = $RECHAZOMP_ADO->verRechazo2($existencia['ID_RECHAZADO']);
                                                     if ($arrayRechazo) {
+                                                        if (!isset($ARRAYESTADOFOLIOS[$folioExistencia])) {
+                                                            $ARRAYESTADOFOLIOS[$folioExistencia] = [];
+                                                        }
                                                         $ARRAYESTADOFOLIOS[$folioExistencia][] = [
                                                             'texto' => 'Rechazado #' . $arrayRechazo[0]['NUMERO_RECHAZO'],
                                                             'url' => 'registroRechazomp.php?op=ver&id=' . $existencia['ID_RECHAZADO'],
@@ -1307,6 +1316,9 @@ if (isset($_POST)) {
                                                 if ($existencia['ID_LEVANTAMIENTO']) {
                                                     $arrayLevantamiento = $LEVANTAMIENTOMP_ADO->verLevantamiento2($existencia['ID_LEVANTAMIENTO']);
                                                     if ($arrayLevantamiento) {
+                                                        if (!isset($ARRAYESTADOFOLIOS[$folioExistencia])) {
+                                                            $ARRAYESTADOFOLIOS[$folioExistencia] = [];
+                                                        }
                                                         $ARRAYESTADOFOLIOS[$folioExistencia][] = [
                                                             'texto' => 'Levantamiento #' . $arrayLevantamiento[0]['NUMERO_LEVANTAMIENTO'],
                                                             'url' => 'registroLevantamientomp.php?op=ver&id=' . $existencia['ID_LEVANTAMIENTO'],
@@ -1387,7 +1399,7 @@ if (isset($_POST)) {
                                                             <td><?php echo $CONTADOR ?></td>
                                                             <td><?php echo $s['FOLIO_DRECEPCION']; ?></td>
                                                             <td>
-                                                                <?php if (isset($ARRAYESTADOFOLIOS[$s['FOLIO_DRECEPCION']])) : ?>
+                                                                <?php if (!empty($ARRAYESTADOFOLIOS[$s['FOLIO_DRECEPCION']])) : ?>
                                                                     <?php foreach ($ARRAYESTADOFOLIOS[$s['FOLIO_DRECEPCION']] as $estadoFolio) : ?>
                                                                         <a target="_blank" href="<?php echo $estadoFolio['url']; ?>" class="badge <?php echo $estadoFolio['color']; ?> d-block w-100 mb-1" style="white-space: normal;">
                                                                             <?php echo $estadoFolio['texto']; ?>
