@@ -1024,26 +1024,7 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                                 </button>
                                             </div>
                                         </form>
-                                        <form method="post" class="col-auto" id="form_agregar_folio">
-                                            <input type="hidden" name="IDP" value="<?php echo $IDOP; ?>" />
-                                            <input type="hidden" name="OPP" value="<?php echo $OP; ?>" />
-                                            <div class="input-group mb-2">
-                                                <input type="text"
-                                                       class="form-control"
-                                                       placeholder="Ingresar folio"
-                                                       id="FOLIOAGREGAR"
-                                                       name="FOLIOAGREGAR"
-                                                       value="<?php echo htmlspecialchars($FOLIOAGREGAR, ENT_QUOTES, 'UTF-8'); ?>"
-                                                       <?php echo $DISABLED2; ?>
-                                                       <?php if ($ESTADO == 0) { echo "disabled style='background-color: #eeeeee;'"; } ?>
-                                                />
-                                                <div class="input-group-append">
-                                                    <button type="submit" class="btn btn-primary" name="AGREGARFOLIO" id="AGREGARFOLIO" <?php echo $DISABLED2; ?> <?php if ($ESTADO == 0) { echo "disabled";} ?>>
-                                                        Agregar folio
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </form>
+     
                                         <div class="col-auto">
                                             <label class="sr-only" for=""></label>
                                             <div class="input-group mb-2">
