@@ -73,6 +73,7 @@ $TOTALBRUTO = "";
 $TOTALENVASE2 = "";
 $TOTALNETO2 = "";
 $TOTALBRUTO2 = "";
+$TOTALFOLIOS = 0;
 
 
 $IDEXIEXPORTACIONQUITAR = "";
@@ -185,6 +186,15 @@ if (isset($id_dato) && isset($accion_dato)) {
     $TOTALENVASE2 = $ARRAYDESPACHOTOTAL2[0]['ENVASE'];
     $TOTALNETO2 = $ARRAYDESPACHOTOTAL2[0]['NETO'];
     $TOTALBRUTO2 = $ARRAYDESPACHOTOTAL2[0]['BRUTO'];
+    if ($ARRAYTOMADO) {
+        $FOLIOS_UNICOS = array();
+        foreach ($ARRAYTOMADO as $registro) {
+            if (isset($registro['FOLIO_AUXILIAR_EXIEXPORTACION']) && $registro['FOLIO_AUXILIAR_EXIEXPORTACION'] !== '') {
+                $FOLIOS_UNICOS[$registro['FOLIO_AUXILIAR_EXIEXPORTACION']] = true;
+            }
+        }
+        $TOTALFOLIOS = count($FOLIOS_UNICOS);
+    }
     if(empty($ARRAYTOMADO)){
         $DISABLEDT="disabled";
     }else{
@@ -661,6 +671,57 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
              
             </script>
 
+    <style>
+        .action-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .action-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .action-group .btn {
+            border-radius: 8px;
+            padding: 0.55rem 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .action-group .btn i {
+            margin-right: 6px;
+        }
+
+        .action-group .btn:hover,
+        .action-group .btn:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 767px) {
+            .action-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .action-group .btn {
+                flex: 1 1 auto;
+            }
+        }
+    </style>
+
 </head>
 
 <body class="hold-transition light-skin fixed sidebar-mini theme-primary" >
@@ -950,9 +1011,9 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                 </div>
                                 <!-- /.row -->
                                 <!-- /.box-body -->
-                                <div class="box-footer">
-                                    <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="toolbar">
-                                        <div class="btn-group  col-xxl-4 col-xl-6 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12" role="group" aria-label="Acciones generales">
+                                                                <div class="box-footer">
+                                    <div class="btn-toolbar action-toolbar" role="toolbar" aria-label="toolbar">
+                                        <div class="action-group" role="group" aria-label="Acciones generales">
                                             <?php if ($OP == "") { ?>
                                                 <button type="button" class="btn btn-warning " data-toggle="tooltip" title="Cancelar" name="CANCELAR" value="CANCELAR" Onclick="irPagina('registroInpsag.php');">
                                                     <i class="ti-trash"></i> Cancelar
@@ -973,9 +1034,9 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                                 </button>
                                             <?php } ?>
                                         </div>
-                                        <div class="btn-group  col-xxl-6 col-xl-6 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12  float-right">
+                                        <div class="action-group" aria-label="Acciones de exportación">
                                             <?php if ($OP != ""): ?>
-                                                <button type="button" class="btn btn-primary  " data-toggle="tooltip" title="Informe" id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsag.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>');">
+                                                <button type="button" class="btn btn-primary  " data-toggle="tooltip" title="Informe" id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsag.php?parametro=<?php echo $IDOP; ?>&usuario=<?php echo $IDUSUARIOS; ?>');">
                                                     <i class="fa fa-file-pdf-o"></i> Informe
                                                 </button>
                                                 <button type="button" class="btn btn-primary  " data-toggle="tooltip" title=" S.I.F"   id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsagSif.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>');">
@@ -989,14 +1050,12 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                                 </button>
                                                 <button type="button" class="btn  btn-success" data-toggle="tooltip" id="defecto" name="tarjas" title="Archivo Plano" <?php echo $DISABLEDC; ?> <?php echo $DISABLEDT; ?> Onclick="abrirPestana('../../assest/csv/CsvInpsag.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>'); ">
                                                     <i class="fa fa-file-excel-o"></i> Archivo Plano
-                                                </button>                                                
+                                                </button>
                                             <?php endif ?>
                                         </div>
                                     </div>
                                 </div>
-                        </div>
-
-                        <?php if (isset($_GET['op'])): ?>
+<?php if (isset($_GET['op'])): ?>
                             <!-- Formulario separado para selección de existencias -->
                             <form method="post" id="form1" action="registroSelecionExistenciaPTInpSag.php">
                                 <input type="hidden" name="IDP" value="<?php echo $IDOP; ?>" />
@@ -1055,8 +1114,18 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                                 <input type="text" class="form-control" placeholder="Total Neto" id="TOTALENVASEV" name="TOTALENVASEV" value="<?php echo $TOTALBRUTO2; ?>" disabled />
                                             </div>
                                         </div>
+                                        <div class="col-auto">
+                                            <label class="sr-only" for=""></label>
+                                            <div class="input-group mb-2">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">Total Folios</div>
+                                                </div>
+                                                <input type="hidden" class="form-control" id="TOTALFOLIOS" name="TOTALFOLIOS" value="<?php echo $TOTALFOLIOS; ?>" />
+                                                <input type="text" class="form-control" placeholder="Total Folios" value="<?php echo $TOTALFOLIOS; ?>" disabled />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>                                                     
+                                </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-12">
