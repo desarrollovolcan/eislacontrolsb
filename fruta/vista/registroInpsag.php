@@ -635,8 +635,15 @@ if ($TINPSAG && $ARRAYTINPSAG) {
                       actualizarVisibilidadCondicionSag();
 
                       var tinpsag = document.getElementById('TINPSAG');
+                      var tinpsagHidden = document.getElementById('TINPSAGE');
                       if (tinpsag) {
-                          tinpsag.addEventListener('change', actualizarVisibilidadCondicionSag);
+                          tinpsag.addEventListener('change', function() {
+                              if (tinpsagHidden) {
+                                  tinpsagHidden.value = tinpsag.value;
+                              }
+                              actualizarVisibilidadCondicionSag();
+                              refrescar();
+                          });
                       }
 
                       var condicionEncabezado = document.getElementById('TESTADOSAG');
