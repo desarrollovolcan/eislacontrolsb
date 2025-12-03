@@ -475,69 +475,6 @@ if ($PRODUCTORESASOCIADOS) {
                                                             <th class="text-right">Kilos netos</th>
                                                             <th class="text-right">Envases</th>
                                                         </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="3" class="text-right">Total documentos: <?php echo number_format((float)$TOTALDOCUMENTOS, 0, ',', '.'); ?></td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row dashboard-row">
-                            <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
-                                    <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Procesos por semana</h4>
-                                            <span class="badge badge-outline badge-success">Neto de proceso</span>
-                                        </div>
-                                    </div>
-                                    <div class="box-body">
-                                        <div id="chartProcesoSemanal" class="chart-container"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
-                                    <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Recepciones por semana</h4>
-                                            <span class="badge badge-outline badge-info">Neto recepcionado</span>
-                                        </div>
-                                    </div>
-                                    <div class="box-body">
-                                        <div id="chartSemanas" class="chart-container"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row dashboard-row">
-                            <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
-                                    <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Detalle por productor y CSP</h4>
-                                            <span class="badge badge-outline badge-primary">Recepciones</span>
-                                        </div>
-                                    </div>
-                                    <div class="box-body p-0">
-                                        <div class="table-responsive">
-                                                <table class="table table-hover table-compact mb-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Productor</th>
-                                                            <th>CSP</th>
-                                                            <th class="text-right">Kilos netos</th>
-                                                            <th class="text-right">Envases</th>
-                                                            <th class="text-right">Recepciones</th>
-                                                    </tr>
                                                     </thead>
                                                     <tbody>
                                                         <?php if ($DETALLECSPVARIEDAD) { ?>
