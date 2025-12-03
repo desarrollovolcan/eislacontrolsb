@@ -107,7 +107,9 @@ if ($PRODUCTORESASOCIADOS) {
 
             .row .col-xl-4th { display: flex; }
 
+            .row-stretch { align-items: stretch; }
             .row-stretch > [class*='col-'] { display: flex; }
+            .row-stretch > [class*='col-'] > .box { flex: 1; display: flex; flex-direction: column; }
 
             .bg-gradient-sky { background: linear-gradient(135deg, #1d8cf8 0%, #5ac8fa 100%); }
             .bg-gradient-dusk { background: linear-gradient(135deg, #7b42f6 0%, #b06ab3 100%); }
@@ -116,9 +118,7 @@ if ($PRODUCTORESASOCIADOS) {
 
             .compact-card { display: flex; flex-direction: column; height: 100%; }
             .compact-card .box-body { padding: 12px; flex: 1; display: flex; flex-direction: column; }
-            .compact-card .box-header { padding: 10px 12px; }
-            .compact-card.h-100 { display: flex; flex-direction: column; }
-            .compact-card.h-100 .box-body { flex: 1; display: flex; flex-direction: column; }
+            .compact-card .box-header { padding: 10px 12px; flex-shrink: 0; }
 
             .compact-table th, .compact-table td { padding: 8px 6px; font-size: 13px; vertical-align: middle; }
             .compact-table th { font-weight: 600; }
@@ -180,7 +180,7 @@ if ($PRODUCTORESASOCIADOS) {
                     <section class="content">
                         <p class="text-muted mb-15">Datos filtrados por productores asociados, temporada y especie seleccionada. Los acumulados consideran información hasta el cierre del día anterior.</p>
 
-                        <div class="row dashboard-row">
+                        <div class="row dashboard-row row-stretch">
                             <div class="col-xl-4th col-lg-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-sky">
                                     <div class="flexbox align-items-center">
