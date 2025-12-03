@@ -255,26 +255,26 @@ if (isset($id_dato) && isset($accion_dato)) {
                             })
                         </script>';
                     } else {
-                        $bloqueadoPorInspeccion = true;
-                        $bloqueadoPorCondicion = true;
-                        $bloqueadoPorDespacho = true;
-                        $bloqueadoPorVigencia = true;
+                        $bloqueadoPorInspeccion = false;
+                        $bloqueadoPorCondicion = false;
+                        $bloqueadoPorDespacho = false;
+                        $bloqueadoPorVigencia = false;
 
                         foreach ($detalleFolio as $folioEstado) {
-                            if ($folioEstado['ID_INPSAG'] === null) {
-                                $bloqueadoPorInspeccion = false;
+                            if ($folioEstado['ID_INPSAG'] !== null) {
+                                $bloqueadoPorInspeccion = true;
                             }
 
-                            if ($folioEstado['TESTADOSAG'] === null) {
-                                $bloqueadoPorCondicion = false;
+                            if ($folioEstado['TESTADOSAG'] !== null) {
+                                $bloqueadoPorCondicion = true;
                             }
 
-                            if ($folioEstado['ID_DESPACHOEX'] === null && $folioEstado['ID_DESPACHO'] === null && $folioEstado['ID_DESPACHO2'] === null) {
-                                $bloqueadoPorDespacho = false;
+                            if ($folioEstado['ID_DESPACHOEX'] !== null || $folioEstado['ID_DESPACHO'] !== null || $folioEstado['ID_DESPACHO2'] !== null) {
+                                $bloqueadoPorDespacho = true;
                             }
 
-                            if ($folioEstado['ESTADO'] == 2 && $folioEstado['ESTADO_REGISTRO'] == 1) {
-                                $bloqueadoPorVigencia = false;
+                            if (!($folioEstado['ESTADO'] == 2 && $folioEstado['ESTADO_REGISTRO'] == 1)) {
+                                $bloqueadoPorVigencia = true;
                             }
                         }
 
