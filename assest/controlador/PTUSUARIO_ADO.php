@@ -1,9 +1,9 @@
 <?php
 //LLAMADA DE LOS ARCHIVOS NECESAROP PARA LA OPERACION DEL CONTROLADOR
 //LLAMADA AL MODELO DE CLASE
-include_once '../../assest/modelo/PTUSUARIO.php';
+include_once __DIR__ . '/../modelo/PTUSUARIO.php';
 //LLAMADA AL CONFIGURACION DE LA BASE DE DATOS
-include_once '../../assest/config/BDCONFIG.php';
+include_once __DIR__ . '/../config/BDCONFIG.php';
 
 
 //INICIALIZAR VARIABLES
