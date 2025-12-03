@@ -2,9 +2,9 @@
 
 //LLAMADA DE LOS ARCHIVOS NECESAROP PARA LA OPERACION DEL CONTROLADOR
 //LLAMADA AL MODELO DE CLASE
-include_once __DIR__ . '/../modelo/PLANTA.php';
+include_once '../../assest/modelo/PLANTA.php';
 //LLAMADA AL CONFIGURACION DE LA BASE DE DATOS
-include_once __DIR__ . '/../config/BDCONFIG.php';
+include_once '../../assest/config/BDCONFIG.php';
 
 //INICIALIZAR VARIABLES
 $HOST="";
