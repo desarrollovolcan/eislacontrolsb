@@ -73,8 +73,6 @@ $NODATOURL = "";
 
 $SINO = "";
 $SINO2 = "";
-
-
 //INICIALIZAR ARREGLOS
 $ARRAYEXIEXPORTACION = "";
 
@@ -88,7 +86,6 @@ $ARRAYVERFOLIOID = "";
 $ARRAYVERPCDESPACHO = "";
 $ARRAYBUSCARNUMEROFOLIOEXIEXPORTACION = "";
 $ARRAYTESTADOSAG = "";
-
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
 
@@ -121,6 +118,7 @@ if (isset($id_dato) && isset($accion_dato) && isset($urlo_dato)) {
     $URLO = $urlo_dato;
     $ARRAYEXIEXPORTACION = $EXIEXPORTACION_ADO->buscarPorPlantaTemporadaEstadoSagNullInpsag($PLANTAS, $TEMPORADAS);
 }
+
 include_once "../../assest/config/validarDatosUrlD.php";
 
 
@@ -196,7 +194,7 @@ include_once "../../assest/config/validarDatosUrlD.php";
                                     <input type="hidden" class="form-control" placeholder="URL DESPACHOEX" id="URLO" name="URLO" value="<?php echo $URLO; ?>" />
                                     <input type="hidden" class="form-control" placeholder="ID EMPRESA" id="EMPRESA" name="EMPRESA" value="<?php echo $EMPRESAS; ?>" />
                                     <input type="hidden" class="form-control" placeholder="ID PLANTA" id="PLANTA" name="PLANTA" value="<?php echo $PLANTAS; ?>" />
-                                    <input type="hidden" class="form-control" placeholder="ID TEMPORADA" id="TEMPORADA" name="TEMPORADA" value="<?php echo $TEMPORADAS; ?>" />    
+                                    <input type="hidden" class="form-control" placeholder="ID TEMPORADA" id="TEMPORADA" name="TEMPORADA" value="<?php echo $TEMPORADAS; ?>" />
                                     <div clas="row">
                                         <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
                                             <div class="table-responsive">
