@@ -114,6 +114,7 @@ $DISABLEDSTYLE = "";
 
 $MENSAJE = "";
 $MENSAJEVALIDATO = "";
+$FOLIOAGREGAR = "";
 
 
 //INICIALIZAR ARREGLOS
@@ -217,6 +218,159 @@ if (isset($id_dato) && isset($accion_dato)) {
                 $DISABLEDC="disabled";
             }else{
                 $DISABLEDC="";
+            }
+
+            if (isset($_REQUEST['AGREGARFOLIO'])) {
+                $folioSolicitado = isset($_REQUEST['FOLIOAGREGAR']) ? trim($_REQUEST['FOLIOAGREGAR']) : '';
+                $id_dato = $_REQUEST['IDP'];
+                $accion_dato = $_REQUEST['OPP'];
+
+                if ($folioSolicitado === '') {
+                    echo '<script>
+                        Swal.fire({
+                            icon:"warning",
+                            title:"Folio requerido",
+                            text:"Debe ingresar un folio para agregarlo a la inspección.",
+                            showConfirmButton: true,
+                            confirmButtonText:"Cerrar",
+                            closeOnConfirm:false
+                        }).then((result)=>{
+                            location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                        })
+                    </script>';
+                } else {
+                    $detalleFolio = $EXIEXPORTACION_ADO->obtenerDetallePorPlantaTemporadaFolio($PLANTAS, $TEMPORADAS, $folioSolicitado);
+
+                    if (!$detalleFolio) {
+                        echo '<script>
+                            Swal.fire({
+                                icon:"warning",
+                                title:"Folio no encontrado",
+                                text:"El folio ingresado no existe en la planta y temporada seleccionadas.",
+                                showConfirmButton: true,
+                                confirmButtonText:"Cerrar",
+                                closeOnConfirm:false
+                            }).then((result)=>{
+                                location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                            })
+                        </script>';
+                    } else {
+                        $bloqueadoPorInspeccion = false;
+                        $bloqueadoPorCondicion = false;
+                        $bloqueadoPorDespacho = false;
+                        $bloqueadoPorVigencia = false;
+
+                        foreach ($detalleFolio as $folioEstado) {
+                            if ($folioEstado['ID_INPSAG'] !== null) {
+                                $bloqueadoPorInspeccion = true;
+                            }
+
+                            if ($folioEstado['TESTADOSAG'] !== null) {
+                                $bloqueadoPorCondicion = true;
+                            }
+
+                            if ($folioEstado['ID_DESPACHOEX'] !== null || $folioEstado['ID_DESPACHO'] !== null || $folioEstado['ID_DESPACHO2'] !== null) {
+                                $bloqueadoPorDespacho = true;
+                            }
+
+                            if (!($folioEstado['ESTADO'] == 2 && $folioEstado['ESTADO_REGISTRO'] == 1)) {
+                                $bloqueadoPorVigencia = true;
+                            }
+                        }
+
+                        if ($bloqueadoPorInspeccion) {
+                            echo '<script>
+                                Swal.fire({
+                                    icon:"warning",
+                                    title:"Folio con inspección",
+                                    text:"El folio ya está asignado a una inspección, no se puede volver a ingresar.",
+                                    showConfirmButton: true,
+                                    confirmButtonText:"Cerrar",
+                                    closeOnConfirm:false
+                                }).then((result)=>{
+                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                })
+                            </script>';
+                        } elseif ($bloqueadoPorCondicion) {
+                            echo '<script>
+                                Swal.fire({
+                                    icon:"warning",
+                                    title:"Condición SAG",
+                                    text:"El folio tiene una condición SAG y no puede agregarse a la inspección.",
+                                    showConfirmButton: true,
+                                    confirmButtonText:"Cerrar",
+                                    closeOnConfirm:false
+                                }).then((result)=>{
+                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                })
+                            </script>';
+                        } elseif ($bloqueadoPorDespacho) {
+                            echo '<script>
+                                Swal.fire({
+                                    icon:"warning",
+                                    title:"Folio despachado",
+                                    text:"El folio ya fue despachado y no puede agregarse a la inspección.",
+                                    showConfirmButton: true,
+                                    confirmButtonText:"Cerrar",
+                                    closeOnConfirm:false
+                                }).then((result)=>{
+                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                })
+                            </script>';
+                        } elseif ($bloqueadoPorVigencia) {
+                            echo '<script>
+                                Swal.fire({
+                                    icon:"warning",
+                                    title:"Folio no vigente",
+                                    text:"El folio no está vigente, por lo que no puede añadirse a la inspección.",
+                                    showConfirmButton: true,
+                                    confirmButtonText:"Cerrar",
+                                    closeOnConfirm:false
+                                }).then((result)=>{
+                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                })
+                            </script>';
+                        } else {
+                            $existenciasDisponibles = $EXIEXPORTACION_ADO->buscarPorPlantaTemporadaEstadoSagNullInpsagFolio($PLANTAS, $TEMPORADAS, $folioSolicitado);
+
+                            if ($existenciasDisponibles) {
+                                foreach ($existenciasDisponibles as $existencia) :
+                                    $EXIEXPORTACION->__SET('ID_INPSAG', $id_dato);
+                                    $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $existencia['ID_EXIEXPORTACION']);
+                                    $EXIEXPORTACION_ADO->actualizarSelecionarSagCambiarEstado($EXIEXPORTACION);
+
+                                    $AUSUARIO_ADO->agregarAusuario2("NULL",1,2,"".$_SESSION["NOMBRE_USUARIO"].", Se agrego la Existencia de producto terminado a la Inspección SAG por folio.","fruta_exiexportacion", "NULL" ,$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'], $_SESSION['ID_PLANTA'],$_SESSION['ID_TEMPORADA'] );
+                                endforeach;
+
+                                echo '<script>
+                                    Swal.fire({
+                                        icon:"success",
+                                        title:"Folio agregado",
+                                        text:"Se agregó el folio a la inspección.",
+                                        showConfirmButton: true,
+                                        confirmButtonText:"Volver a Inspección",
+                                        closeOnConfirm:false
+                                    }).then((result)=>{
+                                        location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                    })
+                                </script>';
+                            } else {
+                                echo '<script>
+                                    Swal.fire({
+                                        icon:"warning",
+                                        title:"Folio sin existencias",
+                                        text:"El folio no tiene existencias disponibles para agregar.",
+                                        showConfirmButton: true,
+                                        confirmButtonText:"Cerrar",
+                                        closeOnConfirm:false
+                                    }).then((result)=>{
+                                        location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                    })
+                                </script>';
+                            }
+                        }
+                    }
+                }
             }
             $FECHAINGRESOINPSAG = "" . $r['FECHA_INGRESOR'];
             $FECHAMODIFCIACIONINPSAG = "" . $r['FECHA_MODIFICACIONR'];
@@ -340,6 +494,10 @@ if (isset($id_dato) && isset($accion_dato)) {
 }
 //PROCESO PARA OBTENER LOS DATOS DEL FORMULARIO  Y MANTENERLO AL ACTUALIZACION QUE REALIZA EL SELECT DE CONDUCTOR
 if (isset($_POST)) {
+
+    if (isset($_REQUEST['FOLIOAGREGAR'])) {
+        $FOLIOAGREGAR = "" . $_REQUEST['FOLIOAGREGAR'];
+    }
 
     if (isset($_REQUEST['FECHAINPSAG'])) {
         $FECHAINPSAG = "" . $_REQUEST['FECHAINPSAG'];
@@ -916,9 +1074,29 @@ if (isset($_POST)) {
                                             <input type="hidden" class="form-control" placeholder="URL SELECCIONAR" id="URLD" name="URLD" value="registroSelecionExistenciaPTInpSag" />
                                             <div class="col-auto">
                                                 <button type="submit" class="btn btn-success btn-block mb-2" data-toggle="tooltip" title="Seleccion Existencia" id="SELECIONOCDURL" name="SELECIONOCDURL"
-                                                    <?php echo $DISABLED2; ?>  <?php   if ($ESTADO == 0) {   echo "disabled style='background-color: #eeeeee;'"; } ?>  > 
+                                                    <?php echo $DISABLED2; ?>  <?php   if ($ESTADO == 0) {   echo "disabled style='background-color: #eeeeee;'"; } ?>  >
                                                     Seleccion Existencias
                                                 </button>
+                                            </div>
+                                        </form>
+                                        <form method="post" class="col-auto" id="form_agregar_folio">
+                                            <input type="hidden" name="IDP" value="<?php echo $IDOP; ?>" />
+                                            <input type="hidden" name="OPP" value="<?php echo $OP; ?>" />
+                                            <div class="input-group mb-2">
+                                                <input type="text"
+                                                       class="form-control"
+                                                       placeholder="Ingresar folio"
+                                                       id="FOLIOAGREGAR"
+                                                       name="FOLIOAGREGAR"
+                                                       value="<?php echo htmlspecialchars($FOLIOAGREGAR, ENT_QUOTES, 'UTF-8'); ?>"
+                                                       <?php echo $DISABLED2; ?>
+                                                       <?php if ($ESTADO == 0) { echo "disabled style='background-color: #eeeeee;'"; } ?>
+                                                />
+                                                <div class="input-group-append">
+                                                    <button type="submit" class="btn btn-primary" name="AGREGARFOLIO" id="AGREGARFOLIO" <?php echo $DISABLED2; ?> <?php if ($ESTADO == 0) { echo "disabled";} ?>>
+                                                        Agregar folio
+                                                    </button>
+                                                </div>
                                             </div>
                                         </form>
                                         <div class="col-auto">
