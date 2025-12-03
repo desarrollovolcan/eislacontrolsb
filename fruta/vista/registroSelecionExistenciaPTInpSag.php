@@ -88,15 +88,6 @@ $ARRAYVERFOLIOID = "";
 $ARRAYVERPCDESPACHO = "";
 $ARRAYBUSCARNUMEROFOLIOEXIEXPORTACION = "";
 $ARRAYTESTADOSAG = "";
-$ARRAYGRUPOFOLIO = [];
-
-$PRODUCTOR_CACHE = [];
-$ESTANDAR_CACHE = [];
-$VESPECIES_CACHE = [];
-$TMANEJO_CACHE = [];
-$TCALIBRE_CACHE = [];
-$TEMBALAJE_CACHE = [];
-$EMPRESA_CACHE = [];
 
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
@@ -131,57 +122,6 @@ if (isset($id_dato) && isset($accion_dato) && isset($urlo_dato)) {
     $ARRAYEXIEXPORTACION = $EXIEXPORTACION_ADO->buscarPorPlantaTemporadaEstadoSagNullInpsag($PLANTAS, $TEMPORADAS);
 }
 include_once "../../assest/config/validarDatosUrlD.php";
-
-if ($ARRAYEXIEXPORTACION) {
-    foreach ($ARRAYEXIEXPORTACION as $r) {
-        if (!isset($PRODUCTOR_CACHE[$r['ID_PRODUCTOR']])) {
-            $PRODUCTOR_CACHE[$r['ID_PRODUCTOR']] = $PRODUCTOR_ADO->verProductor($r['ID_PRODUCTOR']);
-        }
-        if (!isset($ESTANDAR_CACHE[$r['ID_ESTANDAR']])) {
-            $ESTANDAR_CACHE[$r['ID_ESTANDAR']] = $EEXPORTACION_ADO->verEstandar($r['ID_ESTANDAR']);
-        }
-        if (!isset($VESPECIES_CACHE[$r['ID_VESPECIES']])) {
-            $VESPECIES_CACHE[$r['ID_VESPECIES']] = $VESPECIES_ADO->verVespecies($r['ID_VESPECIES']);
-        }
-        if (!isset($TMANEJO_CACHE[$r['ID_TMANEJO']])) {
-            $TMANEJO_CACHE[$r['ID_TMANEJO']] = $TMANEJO_ADO->verTmanejo($r['ID_TMANEJO']);
-        }
-        if (!isset($TCALIBRE_CACHE[$r['ID_TCALIBRE']])) {
-            $TCALIBRE_CACHE[$r['ID_TCALIBRE']] = $TCALIBRE_ADO->verCalibre($r['ID_TCALIBRE']);
-        }
-        if (!isset($TEMBALAJE_CACHE[$r['ID_TEMBALAJE']])) {
-            $TEMBALAJE_CACHE[$r['ID_TEMBALAJE']] = $TEMBALAJE_ADO->verEmbalaje($r['ID_TEMBALAJE']);
-        }
-        if (!isset($EMPRESA_CACHE[$r['ID_EMPRESA']])) {
-            $EMPRESA_CACHE[$r['ID_EMPRESA']] = $EMPRESA_ADO->verEmpresa($r['ID_EMPRESA']);
-        }
-
-        $folioAgrupado = $r['FOLIO_AUXILIAR_EXIEXPORTACION'];
-        if (!isset($ARRAYGRUPOFOLIO[$folioAgrupado])) {
-            $ARRAYGRUPOFOLIO[$folioAgrupado] = [
-                'IDS' => [],
-                'FOLIO' => $folioAgrupado,
-                'COLOR' => $r['COLOR'],
-                'TESTADOSAG' => $r['TESTADOSAG'],
-                'EMBALADO' => $r['EMBALADO'],
-                'ID_EMPRESA' => $r['ID_EMPRESA'],
-                'ID_ESTANDAR' => $r['ID_ESTANDAR'],
-                'ID_PRODUCTOR' => $r['ID_PRODUCTOR'],
-                'ID_VESPECIES' => $r['ID_VESPECIES'],
-                'ID_TMANEJO' => $r['ID_TMANEJO'],
-                'ID_TCALIBRE' => $r['ID_TCALIBRE'],
-                'ID_TEMBALAJE' => $r['ID_TEMBALAJE'],
-                'ENVASE' => 0,
-                'NETO' => 0,
-                'STOCKR' => 0,
-            ];
-        }
-        $ARRAYGRUPOFOLIO[$folioAgrupado]['IDS'][] = $r['ID_EXIEXPORTACION'];
-        $ARRAYGRUPOFOLIO[$folioAgrupado]['ENVASE'] += $r['ENVASE'];
-        $ARRAYGRUPOFOLIO[$folioAgrupado]['NETO'] += $r['NETO'];
-        $ARRAYGRUPOFOLIO[$folioAgrupado]['STOCKR'] += $r['STOCKR'];
-    }
-}
 
 
 
@@ -257,14 +197,6 @@ if ($ARRAYEXIEXPORTACION) {
                                     <input type="hidden" class="form-control" placeholder="ID EMPRESA" id="EMPRESA" name="EMPRESA" value="<?php echo $EMPRESAS; ?>" />
                                     <input type="hidden" class="form-control" placeholder="ID PLANTA" id="PLANTA" name="PLANTA" value="<?php echo $PLANTAS; ?>" />
                                     <input type="hidden" class="form-control" placeholder="ID TEMPORADA" id="TEMPORADA" name="TEMPORADA" value="<?php echo $TEMPORADAS; ?>" />    
-                                    <div class="row mb-3">
-                                        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 col-xs-12">
-                                            <div class="form-group">
-                                                <label for="buscadorFolio" class="form-label">Buscar por folio</label>
-                                                <input type="text" class="form-control" id="buscadorFolio" placeholder="Ingresa el folio a buscar" autocomplete="off">
-                                            </div>
-                                        </div>
-                                    </div>
                                     <div clas="row">
                                         <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
                                             <div class="table-responsive">
@@ -291,40 +223,40 @@ if ($ARRAYEXIEXPORTACION) {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <?php foreach ($ARRAYGRUPOFOLIO as $GRUPO) : ?>
+                                                        <?php foreach ($ARRAYEXIEXPORTACION as $r) : ?>
                                                             <?php
-                                                            if ($GRUPO['TESTADOSAG'] == null || $GRUPO['TESTADOSAG'] == "0") {
+                                                            if ($r['TESTADOSAG'] == null || $r['TESTADOSAG'] == "0") {
                                                                 $ESTADOSAG = "Sin Condición";
                                                             }
-                                                            if ($GRUPO['TESTADOSAG'] == "1") {
+                                                            if ($r['TESTADOSAG'] == "1") {
                                                                 $ESTADOSAG =  "En Inspección";
                                                             }
-                                                            if ($GRUPO['TESTADOSAG'] == "2") {
+                                                            if ($r['TESTADOSAG'] == "2") {
                                                                 $ESTADOSAG =  "Aprobado Origen";
                                                             }
-                                                            if ($GRUPO['TESTADOSAG'] == "3") {
+                                                            if ($r['TESTADOSAG'] == "3") {
                                                                 $ESTADOSAG =  "Aprobado USLA";
                                                             }
-                                                            if ($GRUPO['TESTADOSAG'] == "4") {
+                                                            if ($r['TESTADOSAG'] == "4") {
                                                                 $ESTADOSAG =  "Fumigado";
                                                             }
-                                                            if ($GRUPO['TESTADOSAG'] == "5") {
+                                                            if ($r['TESTADOSAG'] == "5") {
                                                                 $ESTADOSAG =  "Rechazado";
                                                             }
-                                                            if($GRUPO['COLOR']=="1"){
+                                                            if($r['COLOR']=="1"){
                                                                 $TRECHAZOCOLOR="badge badge-danger ";
                                                                 $COLOR="Rechazado";
-                                                            }else if($GRUPO['COLOR']=="2"){
+                                                            }else if($r['COLOR']=="2"){
                                                                 $TRECHAZOCOLOR="badge badge-warning ";
                                                                 $COLOR="Objetado";
-                                                            }else if($GRUPO['COLOR']=="3"){
+                                                            }else if($r['COLOR']=="3"){
                                                                 $TRECHAZOCOLOR="badge badge-Success ";
                                                                 $COLOR="Aprobado";
                                                             }else{
                                                                 $TRECHAZOCOLOR="";
                                                                 $COLOR="Sin Datos";
                                                             }
-                                                            $ARRAYVERPRODUCTORID = $PRODUCTOR_CACHE[$GRUPO['ID_PRODUCTOR']];
+                                                            $ARRAYVERPRODUCTORID = $PRODUCTOR_ADO->verProductor($r['ID_PRODUCTOR']);
                                                             if ($ARRAYVERPRODUCTORID) {
 
                                                                 $CSGPRODUCTOR = $ARRAYVERPRODUCTORID[0]['CSG_PRODUCTOR'];
@@ -333,7 +265,7 @@ if ($ARRAYEXIEXPORTACION) {
                                                                 $CSGPRODUCTOR = "Sin Datos";
                                                                 $NOMBREPRODUCTOR = "Sin Datos";
                                                             }
-                                                            $ARRAYEVERERECEPCIONID = $ESTANDAR_CACHE[$GRUPO['ID_ESTANDAR']];
+                                                            $ARRAYEVERERECEPCIONID = $EEXPORTACION_ADO->verEstandar($r['ID_ESTANDAR']);
                                                             if ($ARRAYEVERERECEPCIONID) {
                                                                 $CODIGOESTANDAR = $ARRAYEVERERECEPCIONID[0]['CODIGO_ESTANDAR'];
                                                                 $NOMBREESTANDAR = $ARRAYEVERERECEPCIONID[0]['NOMBRE_ESTANDAR'];
@@ -341,66 +273,64 @@ if ($ARRAYEXIEXPORTACION) {
                                                                 $CODIGOESTANDAR = "Sin Datos";
                                                                 $NOMBREESTANDAR = "Sin Datos";
                                                             }
-                                                            $ARRAYVERVESPECIESID = $VESPECIES_CACHE[$GRUPO['ID_VESPECIES']];
+                                                            $ARRAYVERVESPECIESID = $VESPECIES_ADO->verVespecies($r['ID_VESPECIES']);
                                                             if ($ARRAYVERVESPECIESID) {
                                                                 $NOMBREVESPECIES = $ARRAYVERVESPECIESID[0]['NOMBRE_VESPECIES'];
                                                             } else {
                                                                 $NOMBREVESPECIES = "Sin Datos";
                                                             }
-                                                            $ARRAYTMANEJO = $TMANEJO_CACHE[$GRUPO['ID_TMANEJO']];
+                                                            $ARRAYTMANEJO = $TMANEJO_ADO->verTmanejo($r['ID_TMANEJO']);
                                                             if ($ARRAYTMANEJO) {
                                                                 $NOMBRETMANEJO = $ARRAYTMANEJO[0]['NOMBRE_TMANEJO'];
                                                             } else {
                                                                 $NOMBRETMANEJO = "Sin Datos";
                                                             }
-                                                            $ARRAYTCALIBRE = $TCALIBRE_CACHE[$GRUPO['ID_TCALIBRE']];
+                                                            $ARRAYTCALIBRE = $TCALIBRE_ADO->verCalibre($r['ID_TCALIBRE']);
                                                             if ($ARRAYTCALIBRE) {
                                                                 $NOMBRETCALIBRE = $ARRAYTCALIBRE[0]['NOMBRE_TCALIBRE'];
                                                             } else {
                                                                 $NOMBRETCALIBRE = "Sin Datos";
                                                             }
-                                                            $ARRAYTEMBALAJE = $TEMBALAJE_CACHE[$GRUPO['ID_TEMBALAJE']];
+                                                            $ARRAYTEMBALAJE = $TEMBALAJE_ADO->verEmbalaje($r['ID_TEMBALAJE']);
                                                             if ($ARRAYTEMBALAJE) {
                                                                 $NOMBRETEMBALAJE = $ARRAYTEMBALAJE[0]['NOMBRE_TEMBALAJE'];
                                                             } else {
                                                                 $NOMBRETEMBALAJE = "Sin Datos";
                                                             }
-                                                            $ARRAYEMPRESA = $EMPRESA_CACHE[$GRUPO['ID_EMPRESA']];
+                                                            $ARRAYEMPRESA = $EMPRESA_ADO->verEmpresa($r['ID_EMPRESA']);
                                                             if ($ARRAYEMPRESA) {
                                                                 $NOMBREEMPRESA = $ARRAYEMPRESA[0]['NOMBRE_EMPRESA'];
                                                             } else {
                                                                 $NOMBREEMPRESA = "Sin Datos";
                                                             }
-                                                            $VALORESELECCION = implode(',', $GRUPO['IDS']);
                                                             ?>
-                                                            <tr class="text-center" data-folio="<?php echo strtolower($GRUPO['FOLIO']); ?>">
-                                                                <td>
-
+                                                            <tr class="text-center">
+                                                                <td>                                                                   
                                                                     <span class="<?php echo $TRECHAZOCOLOR; ?>">
-                                                                        <?php echo $GRUPO['FOLIO']; ?>
+                                                                        <?php echo $r['FOLIO_AUXILIAR_EXIEXPORTACION']; ?>
                                                                     </span>
                                                                 </td>
                                                                 <td><?php echo $COLOR; ?></td>
                                                                 <td><?php echo $ESTADOSAG; ?></td>
                                                                 <td>
                                                                     <div class="form-group">
-                                                                        <input type="checkbox" name="SELECIONAREXISTENCIA[]" id="SELECIONAREXISTENCIA<?php echo $GRUPO['FOLIO']; ?>" value="<?php echo $VALORESELECCION; ?>">
-                                                                        <label for="SELECIONAREXISTENCIA<?php echo $GRUPO['FOLIO']; ?>"> Seleccionar</label>
+                                                                        <input type="checkbox" name="SELECIONAREXISTENCIA[]" id="SELECIONAREXISTENCIA<?php echo $r['ID_EXIEXPORTACION']; ?>" value="<?php echo $r['ID_EXIEXPORTACION']; ?>">
+                                                                        <label for="SELECIONAREXISTENCIA<?php echo $r['ID_EXIEXPORTACION']; ?>"> Seleccionar</label>
                                                                     </div>
                                                                 </td>
-                                                                <td><?php echo $GRUPO['EMBALADO']; ?></td>
+                                                                <td><?php echo $r['EMBALADO']; ?></td>
                                                                 <td><?php echo $NOMBREEMPRESA; ?></td>
                                                                 <td><?php echo $CODIGOESTANDAR; ?></td>
                                                                 <td><?php echo $NOMBREESTANDAR; ?></td>
                                                                 <td><?php echo $CSGPRODUCTOR; ?></td>
                                                                 <td><?php echo $NOMBREPRODUCTOR; ?></td>
                                                                 <td><?php echo $NOMBREVESPECIES; ?></td>
-                                                                <td><?php echo $GRUPO['ENVASE']; ?></td>
-                                                                <td><?php echo $GRUPO['NETO']; ?></td>
+                                                                <td><?php echo $r['ENVASE']; ?></td>
+                                                                <td><?php echo $r['NETO']; ?></td>
                                                                 <td><?php echo $NOMBRETMANEJO; ?></td>
                                                                 <td><?php echo $NOMBRETCALIBRE; ?></td>
                                                                 <td><?php echo $NOMBRETEMBALAJE; ?></td>
-                                                                <td><?php echo $GRUPO['STOCKR']; ?></td>
+                                                                <td><?php echo $r['STOCKR']; ?></td>
                                                             </tr>
                                                         <?php endforeach; ?>
                                                     </tbody>
@@ -408,25 +338,6 @@ if ($ARRAYEXIEXPORTACION) {
                                             </div>
                                         </div>
                                     </div>
-                                    <script type="text/javascript">
-                                        document.addEventListener('DOMContentLoaded', function() {
-                                            const inputBusqueda = document.getElementById('buscadorFolio');
-                                            if (!inputBusqueda) {
-                                                return;
-                                            }
-                                            inputBusqueda.addEventListener('keyup', function() {
-                                                const termino = this.value.toLowerCase();
-                                                document.querySelectorAll('#selecionExistencia tbody tr').forEach(function(fila) {
-                                                    const folio = fila.getAttribute('data-folio') || '';
-                                                    if (folio.indexOf(termino) !== -1) {
-                                                        fila.style.display = '';
-                                                    } else {
-                                                        fila.style.display = 'none';
-                                                    }
-                                                });
-                                            });
-                                        });
-                                    </script>
                                     <!-- /.row -->
                                     <!-- /.box-body -->
                                     <div class="card-footer">
@@ -478,16 +389,13 @@ if ($ARRAYEXIEXPORTACION) {
                 }
                 if ($SINO == "0") {
                     foreach ($SELECIONAREXISTENCIA as $r) :
-                        $ARRAYIDEXIEXPORTACION = explode(',', $r);
-                        foreach ($ARRAYIDEXIEXPORTACION as $IDEXIEXPORTACION) {
-                            $EXIEXPORTACION->__SET('ID_INPSAG', $IDINPSAG);
-                            $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $IDEXIEXPORTACION);
-                            //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
-                            $EXIEXPORTACION_ADO->actualizarSelecionarSagCambiarEstado($EXIEXPORTACION);
+                        $IDEXIEXPORTACION = $r;
+                        $EXIEXPORTACION->__SET('ID_INPSAG', $IDINPSAG);
+                        $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $IDEXIEXPORTACION);
+                        //LLAMADA AL METODO DE REGISTRO DEL CONTROLADOR
+                        $EXIEXPORTACION_ADO->actualizarSelecionarSagCambiarEstado($EXIEXPORTACION);
 
-                            $AUSUARIO_ADO->agregarAusuario2("NULL",1,2,"".$_SESSION["NOMBRE_USUARIO"].", Se agrego la Existencia de
-producto terminado a la Inspección SAG.","fruta_exiexportacion", "NULL" ,$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'], $_SESSION['ID_PLANTA'],$_SESSION['ID_TEMPORADA'] );
-                        }
+                        $AUSUARIO_ADO->agregarAusuario2("NULL",1,2,"".$_SESSION["NOMBRE_USUARIO"].", Se agrego la Existencia de producto terminado a la Inspección SAG.","fruta_exiexportacion", "NULL" ,$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'], $_SESSION['ID_PLANTA'],$_SESSION['ID_TEMPORADA'] );  
 
                     endforeach;
                     $id_dato =  $_REQUEST['IDP'];
