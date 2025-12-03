@@ -420,11 +420,11 @@ if ($PRODUCTORESASOCIADOS) {
 
                         <div class="row dashboard-row">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card h-100">
-                                    <div class="box-header with-border bg-primary" style="border-radius: 3px 3px 0 0;">
-                                        <div class="d-flex justify-content-between align-items-center text-white">
+                                <div class="box compact-card collage-card h-100">
+                                    <div class="box-header with-border">
+                                        <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Información de proceso</h4>
-                                            <span class="badge badge-light">Neto entrada</span>
+                                            <span class="badge badge-outline badge-primary">Neto entrada</span>
                                         </div>
                                     </div>
                                     <div class="box-body">
