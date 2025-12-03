@@ -458,28 +458,25 @@ if ($PRODUCTORESASOCIADOS) {
                                     <div class="box-body">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <div>
-                                                <div class="text-muted small">Recepciones registradas</div>
-                                                <div class="h4 mb-0 font-weight-700"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></div>
+                                                <div class="text-muted small">Kilos procesados acumulados</div>
+                                                <div class="h4 mb-0 font-weight-700"><?php echo number_format((float)$KILOSPROCESOACUMULADOS, 2, ',', '.'); ?> kg</div>
                                             </div>
-                                            <span class="badge badge-primary badge-slim">Agrupado</span>
+                                            <span class="badge badge-success badge-slim">Proceso</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <div>
-                                                <div class="text-muted small">Kilos netos por productor</div>
-                                                <div class="h4 mb-0 font-weight-700"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</div>
+                                                <div class="text-muted small">Procesos (día previo)</div>
+                                                <div class="h4 mb-0 font-weight-700"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</div>
                                             </div>
-                                            <span class="badge badge-success badge-slim">Materia prima</span>
-                                        </div>
-                                        <div class="bg-light p-2 rounded mb-2">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="text-muted small">Kilos recepcionados (día previo)</span>
-                                                <span class="badge badge-secondary"><?php echo number_format((float)$KILOSRECEPCIONHOY, 2, ',', '.'); ?> kg</span>
-                                            </div>
+                                            <span class="badge badge-info badge-slim">Cierre diario</span>
                                         </div>
                                         <div class="bg-light p-2 rounded mb-3">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="text-muted small">Procesos cerrados (día previo)</span>
-                                                <span class="badge badge-info"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</span>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="text-muted small">Relación proceso / recepción</span>
+                                                <span class="badge badge-secondary"><?php echo number_format((float)$RELACIONPROCESO, 1, ',', '.'); ?>%</span>
+                                            </div>
+                                            <div class="progress progress-xxs mb-0">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: <?php echo $RELACIONPROCESOBARRA; ?>%" aria-valuenow="<?php echo $RELACIONPROCESOBARRA; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
                                         <p class="text-muted small mb-0">Totales alineados a <strong>Agrupado de proceso</strong> con corte al día previo.</p>
