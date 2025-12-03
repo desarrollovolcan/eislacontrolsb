@@ -218,6 +218,7 @@ if (isset($id_dato) && isset($accion_dato)) {
             }else{
                 $DISABLEDC="";
             }
+
             $FECHAINGRESOINPSAG = "" . $r['FECHA_INGRESOR'];
             $FECHAMODIFCIACIONINPSAG = "" . $r['FECHA_MODIFICACIONR'];
             $OBSERVACIONINPSAG = "" . $r['OBSERVACION_INPSAG'];
@@ -916,7 +917,7 @@ if (isset($_POST)) {
                                             <input type="hidden" class="form-control" placeholder="URL SELECCIONAR" id="URLD" name="URLD" value="registroSelecionExistenciaPTInpSag" />
                                             <div class="col-auto">
                                                 <button type="submit" class="btn btn-success btn-block mb-2" data-toggle="tooltip" title="Seleccion Existencia" id="SELECIONOCDURL" name="SELECIONOCDURL"
-                                                    <?php echo $DISABLED2; ?>  <?php   if ($ESTADO == 0) {   echo "disabled style='background-color: #eeeeee;'"; } ?>  > 
+                                                    <?php echo $DISABLED2; ?>  <?php   if ($ESTADO == 0) {   echo "disabled style='background-color: #eeeeee;'"; } ?>  >
                                                     Seleccion Existencias
                                                 </button>
                                             </div>
