@@ -96,7 +96,8 @@ if ($PRODUCTORESASOCIADOS) {
             .collage-card { background-color: #fff; }
             .collage-card .box-body > *:last-child { margin-bottom: 0; }
 
-            .dashboard-row { margin-bottom: 12px; }
+            .dashboard-row { margin-bottom: 15px; }
+            .dashboard-row > [class*='col-'] { margin-bottom: 15px; }
 
             .collage-row { margin-left: -8px; margin-right: -8px; }
             .collage-row > [class*='col-'] { padding-left: 8px; padding-right: 8px; }
@@ -117,8 +118,16 @@ if ($PRODUCTORESASOCIADOS) {
             .bg-gradient-amber { background: linear-gradient(135deg, #f5a623 0%, #f7c46c 100%); }
 
             .compact-card { display: flex; flex-direction: column; height: 100%; }
-            .compact-card .box-body { padding: 12px; flex: 1; display: flex; flex-direction: column; }
             .compact-card .box-header { padding: 10px 12px; flex-shrink: 0; }
+            .compact-card .box-body {
+                padding: 12px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .compact-card .table-responsive { flex: 1; }
 
             .compact-table th, .compact-table td { padding: 8px 6px; font-size: 13px; vertical-align: middle; }
             .compact-table th { font-weight: 600; }
@@ -240,21 +249,21 @@ if ($PRODUCTORESASOCIADOS) {
                                         </div>
                                     </div>
                                     <div class="box-body">
-                                        <div class="d-flex align-items-center mb-3">
+                                        <div class="d-flex align-items-center">
                                             <span class="badge badge-pill badge-info mr-2"><i class="icon-Notes"></i></span>
                                             <div>
-                                            <div class="text-muted small">Recepciones registradas</div>
-                                            <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></div>
+                                                <div class="text-muted small">Recepciones registradas</div>
+                                                <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-3">
-                                        <span class="badge badge-pill badge-success mr-2"><i class="icon-Gear"></i></span>
-                                        <div>
-                                            <div class="text-muted small">Kilos netos por productor</div>
-                                            <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</div>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge badge-pill badge-success mr-2"><i class="icon-Gear"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Kilos netos por productor</div>
+                                                <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                        <div class="bg-light p-2 rounded mb-2">
+                                        <div class="bg-light p-2 rounded">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <span class="text-muted small">Kilos recepcionados (día previo)</span>
                                                 <span class="badge badge-primary"><?php echo number_format((float)$KILOSRECEPCIONHOY, 2, ',', '.'); ?> kg</span>
