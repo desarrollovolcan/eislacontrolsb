@@ -427,33 +427,6 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
     <meta name="author" content="">
     <!- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -!>
         <?php include_once "../../assest/config/urlHead.php"; ?>
-        <style>
-            .btn-minimal {
-                border: none;
-                border-radius: 10px;
-                box-shadow: none;
-                font-weight: 600;
-                letter-spacing: 0.01em;
-                padding: 8px 14px;
-                transition: box-shadow 0.15s ease, transform 0.12s ease, opacity 0.2s ease;
-            }
-
-            .btn-minimal i {
-                margin-right: 6px;
-            }
-
-            .btn-minimal:hover,
-            .btn-minimal:focus {
-                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
-                transform: translateY(-1px);
-            }
-
-            .btn-minimal:disabled,
-            .btn-minimal[disabled] {
-                box-shadow: none;
-                opacity: 0.75;
-            }
-        </style>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
                 var ES_MUESTREO_INICIAL = <?php echo $ES_MUESTREO_USDA ? 'true' : 'false'; ?>;
@@ -981,42 +954,42 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                     <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="toolbar">
                                         <div class="btn-group  col-xxl-4 col-xl-6 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12" role="group" aria-label="Acciones generales">
                                             <?php if ($OP == "") { ?>
-                                                <button type="button" class="btn btn-warning btn-minimal" data-toggle="tooltip" title="Cancelar" name="CANCELAR" value="CANCELAR" Onclick="irPagina('registroInpsag.php');">
+                                                <button type="button" class="btn btn-warning " data-toggle="tooltip" title="Cancelar" name="CANCELAR" value="CANCELAR" Onclick="irPagina('registroInpsag.php');">
                                                     <i class="ti-trash"></i> Cancelar
                                                 </button>
-                                                <button type="submit" class="btn btn-primary btn-minimal" data-toggle="tooltip" title="Guardar" name="CREAR" value="CREAR"  onclick="return validacion()">
+                                                <button type="submit" class="btn btn-primary" data-toggle="tooltip" title="Guardar" name="CREAR" value="CREAR"  onclick="return validacion()">
                                                     <i class="ti-save-alt"></i> Guardar
                                                 </button>
                                             <?php } ?>
                                             <?php if ($OP != "") { ?>
-                                                <button type="button" class="btn  btn-success btn-minimal" data-toggle="tooltip" title="Volver" name="VOLVER" value="VOLVER" Onclick="irPagina('listarInpsag.php'); ">
+                                                <button type="button" class="btn  btn-success " data-toggle="tooltip" title="Volver" name="VOLVER" value="VOLVER" Onclick="irPagina('listarInpsag.php'); ">
                                                     <i class="ti-back-left "></i> Volver
                                                 </button>
-                                                <button type="submit" class="btn btn-warning btn-minimal" data-toggle="tooltip" title="Guardar" name="GUARDAR" value="GUARDAR"   <?php echo $DISABLED2; ?> onclick="return validacion()">
+                                                <button type="submit" class="btn btn-warning " data-toggle="tooltip" title="Guardar" name="GUARDAR" value="GUARDAR"   <?php echo $DISABLED2; ?> onclick="return validacion()">
                                                     <i class="ti-pencil-alt"></i> Guardar
                                                 </button>
-                                                <button type="submit" class="btn btn-danger btn-minimal" data-toggle="tooltip" title="Cerrar" name="CERRAR" value="CERRAR"   <?php echo $DISABLED2; ?> onclick="return validacion()">
+                                                <button type="submit" class="btn btn-danger " data-toggle="tooltip" title="Cerrar" name="CERRAR" value="CERRAR"   <?php echo $DISABLED2; ?> onclick="return validacion()">
                                                     <i class="ti-save-alt"></i> Cerrar
                                                 </button>
                                             <?php } ?>
                                         </div>
                                         <div class="btn-group  col-xxl-6 col-xl-6 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12  float-right">
                                             <?php if ($OP != ""): ?>
-                                                <button type="button" class="btn btn-primary btn-minimal" data-toggle="tooltip" title="Informe" id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsag.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>');">
+                                                <button type="button" class="btn btn-primary  " data-toggle="tooltip" title="Informe" id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsag.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>');">
                                                     <i class="fa fa-file-pdf-o"></i> Informe
                                                 </button>
-                                                <button type="button" class="btn btn-primary btn-minimal" data-toggle="tooltip" title=" S.I.F"   id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsagSif.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>');">
+                                                <button type="button" class="btn btn-primary  " data-toggle="tooltip" title=" S.I.F"   id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsagSif.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>');">
                                                     <i class="fa fa-file-pdf-o"></i>  S.I.F
                                                 </button>
-                                                <button type="button" class="btn  btn-info btn-minimal " data-toggle="tooltip" title="Packing list" id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsagPackingList.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>'); ">
+                                                <button type="button" class="btn  btn-info  " data-toggle="tooltip" title="Packing list" id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsagPackingList.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>'); ">
                                                     <i class="fa fa-file-pdf-o"></i> Packing List
                                                 </button>
-                                                <button type="button" class="btn  btn-info btn-minimal " data-toggle="tooltip" title="Packing list USDA" id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsagPackingListUsda.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>'); ">
+                                                <button type="button" class="btn  btn-info  " data-toggle="tooltip" title="Packing list USDA" id="defecto" name="tarjas" Onclick="abrirPestana('../../assest/documento/informeInpsagPackingListUsda.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>'); ">
                                                     <i class="fa fa-file-pdf-o"></i> Packing List USDA
                                                 </button>
-                                                <button type="button" class="btn  btn-success btn-minimal" data-toggle="tooltip" id="defecto" name="tarjas" title="Archivo Plano" <?php echo $DISABLEDC; ?> <?php echo $DISABLEDT; ?> Onclick="abrirPestana('../../assest/csv/CsvInpsag.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>'); ">
+                                                <button type="button" class="btn  btn-success" data-toggle="tooltip" id="defecto" name="tarjas" title="Archivo Plano" <?php echo $DISABLEDC; ?> <?php echo $DISABLEDT; ?> Onclick="abrirPestana('../../assest/csv/CsvInpsag.php?parametro=<?php echo $IDOP; ?>&&usuario=<?php echo $IDUSUARIOS; ?>'); ">
                                                     <i class="fa fa-file-excel-o"></i> Archivo Plano
-                                                </button>
+                                                </button>                                                
                                             <?php endif ?>
                                         </div>
                                     </div>
@@ -1045,7 +1018,7 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                             <input type="hidden" class="form-control" placeholder="URL DESPACHO" id="URLP" name="URLP" value="registroInpsag" />
                                             <input type="hidden" class="form-control" placeholder="URL SELECCIONAR" id="URLD" name="URLD" value="registroSelecionExistenciaPTInpSag" />
                                             <div class="col-auto">
-                                                <button type="submit" class="btn btn-success btn-minimal mb-2" data-toggle="tooltip" title="Seleccion Existencia" id="SELECIONOCDURL" name="SELECIONOCDURL"
+                                                <button type="submit" class="btn btn-success btn-block mb-2" data-toggle="tooltip" title="Seleccion Existencia" id="SELECIONOCDURL" name="SELECIONOCDURL"
                                                     <?php echo $DISABLED2; ?>  <?php   if ($ESTADO == 0) {   echo "disabled style='background-color: #eeeeee;'"; } ?>  >
                                                     Seleccion Existencias
                                                 </button>
@@ -1428,30 +1401,6 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                             }
                         }
 
-                    }
-                } else {
-                    if ($condicionCabecera !== '') {
-                        $ARRAYDETALLE_INPSAG = $EXIEXPORTACION_ADO->verExistenciaPorInpSag($_REQUEST['IDP']);
-                        if ($ARRAYDETALLE_INPSAG) {
-                            foreach ($ARRAYDETALLE_INPSAG as $detalle) {
-                                $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $detalle['ID_EXIEXPORTACION']);
-                                $EXIEXPORTACION->__SET('TESTADOSAG', $condicionCabecera);
-                                $EXIEXPORTACION_ADO->actualizarEstadoSag($EXIEXPORTACION);
-
-                                $AUSUARIO_ADO->agregarAusuario2(
-                                    "NULL",
-                                    1,
-                                    2,
-                                    "" . $_SESSION["NOMBRE_USUARIO"] . ", Condición SAG de encabezado aplicada a folio ID: " . $detalle['ID_EXIEXPORTACION'] . ".",
-                                    "fruta_exiexportacion",
-                                    $detalle['ID_EXIEXPORTACION'],
-                                    $_SESSION["ID_USUARIO"],
-                                    $_SESSION['ID_EMPRESA'],
-                                    $_SESSION['ID_PLANTA'],
-                                    $_SESSION['ID_TEMPORADA']
-                                );
-                            }
-                        }
                     }
                 } else {
                     if ($condicionCabecera !== '') {
