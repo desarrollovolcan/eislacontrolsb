@@ -362,6 +362,9 @@ if (isset($_POST)) {
     if (isset($_REQUEST['TINPSAG'])) {
         $TINPSAG = "" . $_REQUEST['TINPSAG'];
     }
+    if (isset($_REQUEST['TINPSAGE'])) {
+        $TINPSAG = "" . $_REQUEST['TINPSAGE'];
+    }
     if (isset($_REQUEST['TMANEJO'])) {
         $TMANEJO = "" . $_REQUEST['TMANEJO'];
     }
@@ -413,6 +416,8 @@ if ($TINPSAG && $ARRAYTINPSAG) {
         }
     }
 }
+
+$DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled" : "";
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -807,7 +812,7 @@ if ($TINPSAG && $ARRAYTINPSAG) {
                                         <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12" id="sag-condicion-encabezado" <?php echo $ES_MUESTREO_USDA ? 'style="display:none;"' : ''; ?>>
                                             <div class="form-group">
                                                 <label>Condición SAG</label>
-                                                <select class="form-control" id="TESTADOSAG" name="TESTADOSAG" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>
+                                                <select class="form-control" id="TESTADOSAG" name="TESTADOSAG" <?php echo $DISABLED_CONDICION_SAG; ?>>
                                                     <option value=""></option>
                                                     <option value="1" <?php if ($TESTADOSAG == "1") echo "selected"; ?>>En Inspección</option>
                                                     <option value="2" <?php if ($TESTADOSAG == "2") echo "selected"; ?>>Aprobado Origen</option>
@@ -1282,6 +1287,7 @@ if ($TINPSAG && $ARRAYTINPSAG) {
                 $INPSAG->__SET('NUMERO_INPSAG', $NUMERO);
                 $INPSAG->__SET('FECHA_INPSAG', $_REQUEST['FECHAINPSAG']);
                 $INPSAG->__SET('CORRELATIVO_INPSAG', $_REQUEST['CORRELATIVOINPSAG']);
+                $INPSAG->__SET('TESTADOSAG', isset($_REQUEST['TESTADOSAG']) ? $_REQUEST['TESTADOSAG'] : null);
                 $INPSAG->__SET('OBSERVACION_INPSAG', $_REQUEST['OBSERVACIONINPSAG']);
                 $INPSAG->__SET('CIF_INPSAG', $_REQUEST['CIF']);
                 $INPSAG->__SET('ID_TINPSAG', $_REQUEST['TINPSAG']);
@@ -1331,9 +1337,22 @@ if ($TINPSAG && $ARRAYTINPSAG) {
             //OPERACION EDICION DE FILA
             if (isset($_REQUEST['GUARDAR'])) {
                 // Crear archivo de log temporal para debugging
-                
+
                 //UTILIZACION METODOS SET DEL MODELO
                 //SETEO DE ATRIBUTOS DE LA CLASE, OBTENIDO EN EL FORMULARIO
+                $condicionCabecera = isset($_REQUEST['TESTADOSAG']) ? trim($_REQUEST['TESTADOSAG']) : '';
+                $tipoSeleccionado = isset($_REQUEST['TINPSAGE']) ? $_REQUEST['TINPSAGE'] : (isset($_REQUEST['TINPSAG']) ? $_REQUEST['TINPSAG'] : null);
+                $esMuestreoSeleccion = false;
+
+                if ($tipoSeleccionado && $ARRAYTINPSAG) {
+                    foreach ($ARRAYTINPSAG as $tipo) {
+                        if ($tipo['ID_TINPSAG'] == $tipoSeleccionado && stripos($tipo['NOMBRE_TINPSAG'], 'muestreo') !== false) {
+                            $esMuestreoSeleccion = true;
+                            break;
+                        }
+                    }
+                }
+
                 $INPSAG->__SET('FECHA_INPSAG', $_REQUEST['FECHAINPSAG']);
                 $INPSAG->__SET('CORRELATIVO_INPSAG', $_REQUEST['CORRELATIVOINPSAG']);
                 $INPSAG->__SET('CANTIDAD_ENVASE_INPSAG', $_REQUEST['TOTALENVASE']);
@@ -1341,7 +1360,7 @@ if ($TINPSAG && $ARRAYTINPSAG) {
                 $INPSAG->__SET('KILOS_BRUTO_INPSAG', $_REQUEST['TOTALBRUTO']);
                 $INPSAG->__SET('OBSERVACION_INPSAG', $_REQUEST['OBSERVACIONINPSAG']);
                 $INPSAG->__SET('CIF_INPSAG', $_REQUEST['CIFE']);
-                $INPSAG->__SET('TESTADOSAG', $_REQUEST['TESTADOSAG']);
+                $INPSAG->__SET('TESTADOSAG', $condicionCabecera);
                 $INPSAG->__SET('ID_TINPSAG', $_REQUEST['TINPSAGE']);
                 $INPSAG->__SET('ID_TMANEJO', $_REQUEST['TMANEJOE']);
                 $INPSAG->__SET('ID_INPECTOR', $_REQUEST['INPECTORE']);
@@ -1372,42 +1391,61 @@ if ($TINPSAG && $ARRAYTINPSAG) {
                 }
                 
                 // Actualizar estados SAG por fila si vienen como array TESTADOSAG_ROW
-                
+
                 // Intentar obtener de POST directamente si REQUEST falla
-                $arrayEstadosSag = isset($_REQUEST['TESTADOSAG_ROW']) ? $_REQUEST['TESTADOSAG_ROW'] : 
+                $arrayEstadosSag = isset($_REQUEST['TESTADOSAG_ROW']) ? $_REQUEST['TESTADOSAG_ROW'] :
                                   (isset($_POST['TESTADOSAG_ROW']) ? $_POST['TESTADOSAG_ROW'] : null);
-                
-                if ($arrayEstadosSag !== null && is_array($arrayEstadosSag)) {
 
-                    $contadorActualizados = 0;
-                    
-                    foreach ($arrayEstadosSag as $idExi => $valorEstadoFila) {
-                        $idExi = intval($idExi);
-                        $valorEstadoFila = trim($valorEstadoFila);
-                        
-                        if ($idExi > 0 && $valorEstadoFila !== '') {
-                            
-                            try {
-                                $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $idExi);
-                                $EXIEXPORTACION->__SET('TESTADOSAG', $valorEstadoFila);
-                                $resultadoActualizacion = $EXIEXPORTACION_ADO->actualizarEstadoSag($EXIEXPORTACION);
-                                
-                                $AUSUARIO_ADO->agregarAusuario2("NULL", 1, 2, "" . $_SESSION["NOMBRE_USUARIO"] . ", Actualización Condición SAG por folio ID: $idExi.", "fruta_exiexportacion", $idExi, $_SESSION["ID_USUARIO"], $_SESSION['ID_EMPRESA'], $_SESSION['ID_PLANTA'], $_SESSION['ID_TEMPORADA']);
-                                
-                                $contadorActualizados++;
+                if ($esMuestreoSeleccion) {
+                    if ($arrayEstadosSag !== null && is_array($arrayEstadosSag)) {
 
-                            } catch (Exception $e) {
+                        $contadorActualizados = 0;
 
+                        foreach ($arrayEstadosSag as $idExi => $valorEstadoFila) {
+                            $idExi = intval($idExi);
+                            $valorEstadoFila = trim($valorEstadoFila);
+
+                            if ($idExi > 0 && $valorEstadoFila !== '') {
+
+                                try {
+                                    $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $idExi);
+                                    $EXIEXPORTACION->__SET('TESTADOSAG', $valorEstadoFila);
+                                    $EXIEXPORTACION_ADO->actualizarEstadoSag($EXIEXPORTACION);
+
+                                    $AUSUARIO_ADO->agregarAusuario2("NULL", 1, 2, "" . $_SESSION["NOMBRE_USUARIO"] . ", Actualización Condición SAG por folio ID: $idExi.", "fruta_exiexportacion", $idExi, $_SESSION["ID_USUARIO"], $_SESSION['ID_EMPRESA'], $_SESSION['ID_PLANTA'], $_SESSION['ID_TEMPORADA']);
+
+                                    $contadorActualizados++;
+
+                                } catch (Exception $e) {
+
+                                }
                             }
-                        } else {
-
                         }
+
                     }
-
                 } else {
+                    if ($condicionCabecera !== '') {
+                        $ARRAYDETALLE_INPSAG = $EXIEXPORTACION_ADO->verExistenciaPorInpSag($_REQUEST['IDP']);
+                        if ($ARRAYDETALLE_INPSAG) {
+                            foreach ($ARRAYDETALLE_INPSAG as $detalle) {
+                                $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $detalle['ID_EXIEXPORTACION']);
+                                $EXIEXPORTACION->__SET('TESTADOSAG', $condicionCabecera);
+                                $EXIEXPORTACION_ADO->actualizarEstadoSag($EXIEXPORTACION);
 
-                    if ($arrayEstadosSag !== null) {
-
+                                $AUSUARIO_ADO->agregarAusuario2(
+                                    "NULL",
+                                    1,
+                                    2,
+                                    "" . $_SESSION["NOMBRE_USUARIO"] . ", Condición SAG de encabezado aplicada a folio ID: " . $detalle['ID_EXIEXPORTACION'] . ".",
+                                    "fruta_exiexportacion",
+                                    $detalle['ID_EXIEXPORTACION'],
+                                    $_SESSION["ID_USUARIO"],
+                                    $_SESSION['ID_EMPRESA'],
+                                    $_SESSION['ID_PLANTA'],
+                                    $_SESSION['ID_TEMPORADA']
+                                );
+                            }
+                        }
                     }
                 }
 
