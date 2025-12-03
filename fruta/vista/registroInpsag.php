@@ -220,120 +220,6 @@ if (isset($id_dato) && isset($accion_dato)) {
                 $DISABLEDC="";
             }
 
-            if (isset($_REQUEST['AGREGARFOLIO'])) {
-                $folioSolicitado = isset($_REQUEST['FOLIOAGREGAR']) ? trim($_REQUEST['FOLIOAGREGAR']) : '';
-                $id_dato = $_REQUEST['IDP'];
-                $accion_dato = $_REQUEST['OPP'];
-
-                if ($folioSolicitado === '') {
-                    echo '<script>
-                        Swal.fire({
-                            icon:"warning",
-                            title:"Folio requerido",
-                            text:"Debe ingresar un folio para agregarlo a la inspección.",
-                            showConfirmButton: true,
-                            confirmButtonText:"Cerrar",
-                            closeOnConfirm:false
-                        }).then((result)=>{
-                            location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
-                        })
-                    </script>';
-                } else {
-                    $detalleFolio = $EXIEXPORTACION_ADO->obtenerDetallePorPlantaTemporadaFolio($PLANTAS, $TEMPORADAS, $folioSolicitado);
-
-                    if (!$detalleFolio) {
-                        echo '<script>
-                            Swal.fire({
-                                icon:"warning",
-                                title:"Folio no encontrado",
-                                text:"El folio ingresado no existe en la planta y temporada seleccionadas.",
-                                showConfirmButton: true,
-                                confirmButtonText:"Cerrar",
-                                closeOnConfirm:false
-                            }).then((result)=>{
-                                location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
-                            })
-                        </script>';
-                    } else {
-                        $motivoBloqueo = '';
-
-                        foreach ($detalleFolio as $folioEstado) {
-                            if ($folioEstado['ID_DESPACHOEX'] !== null || $folioEstado['ID_DESPACHO'] !== null || $folioEstado['ID_DESPACHO2'] !== null) {
-                                $motivoBloqueo = 'El folio ya está despachado.';
-                                break;
-                            }
-
-                            if ($folioEstado['ID_INPSAG'] !== null) {
-                                $motivoBloqueo = 'El folio ya está asignado a una inspección.';
-                                break;
-                            }
-
-                            if ($folioEstado['TESTADOSAG'] !== null) {
-                                $motivoBloqueo = 'El folio tiene una condición SAG vigente.';
-                                break;
-                            }
-
-                            if (!($folioEstado['ESTADO'] == 2 && $folioEstado['ESTADO_REGISTRO'] == 1)) {
-                                $motivoBloqueo = 'El folio no está vigente.';
-                                break;
-                            }
-                        }
-
-                        if ($motivoBloqueo !== '') {
-                            echo '<script>
-                                Swal.fire({
-                                    icon:"warning",
-                                    title:"Folio no agregado",
-                                    text:"' . $motivoBloqueo . '",
-                                    showConfirmButton: true,
-                                    confirmButtonText:"Cerrar",
-                                    closeOnConfirm:false
-                                }).then((result)=>{
-                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
-                                })
-                            </script>';
-                        } else {
-                            $existenciasDisponibles = $EXIEXPORTACION_ADO->buscarPorPlantaTemporadaEstadoSagNullInpsagFolio($PLANTAS, $TEMPORADAS, $folioSolicitado);
-
-                            if ($existenciasDisponibles) {
-                                foreach ($existenciasDisponibles as $existencia) :
-                                    $EXIEXPORTACION->__SET('ID_INPSAG', $id_dato);
-                                    $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $existencia['ID_EXIEXPORTACION']);
-                                    $EXIEXPORTACION_ADO->actualizarSelecionarSagCambiarEstado($EXIEXPORTACION);
-
-                                    $AUSUARIO_ADO->agregarAusuario2("NULL",1,2,"".$_SESSION["NOMBRE_USUARIO"].", Se agrego la Existencia de producto terminado a la Inspección SAG por folio.","fruta_exiexportacion", "NULL" ,$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'], $_SESSION['ID_PLANTA'],$_SESSION['ID_TEMPORADA'] );
-                                endforeach;
-
-                                echo '<script>
-                                    Swal.fire({
-                                        icon:"success",
-                                        title:"Folio agregado",
-                                        text:"Se agregó el folio a la inspección.",
-                                        showConfirmButton: true,
-                                        confirmButtonText:"Volver a Inspección",
-                                        closeOnConfirm:false
-                                    }).then((result)=>{
-                                        location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
-                                    })
-                                </script>';
-                            } else {
-                                echo '<script>
-                                    Swal.fire({
-                                        icon:"warning",
-                                        title:"Folio sin existencias",
-                                        text:"El folio no tiene existencias disponibles para agregar.",
-                                        showConfirmButton: true,
-                                        confirmButtonText:"Cerrar",
-                                        closeOnConfirm:false
-                                    }).then((result)=>{
-                                        location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
-                                    })
-                                </script>';
-                            }
-                        }
-                    }
-                }
-            }
             $FECHAINGRESOINPSAG = "" . $r['FECHA_INGRESOR'];
             $FECHAMODIFCIACIONINPSAG = "" . $r['FECHA_MODIFICACIONR'];
             $OBSERVACIONINPSAG = "" . $r['OBSERVACION_INPSAG'];
@@ -645,10 +531,10 @@ if (isset($_POST)) {
                 }
 
                 // FUNCIÓN PARA ACTUALIZAR EL LOTE VIA AJAX
-                function actualizarLote(idExiexportacion, valorLote) {
-                    if (valorLote.trim() === '') {
-                        valorLote = null;
-                    }
+                  function actualizarLote(idExiexportacion, valorLote) {
+                      if (valorLote.trim() === '') {
+                          valorLote = null;
+                      }
                     
                     console.log('Actualizando lote:', idExiexportacion, valorLote);
                     
@@ -667,10 +553,77 @@ if (isset($_POST)) {
                         error: function(xhr, status, error) {
                             console.error('Error AJAX:', status, error);
                             console.error('Respuesta:', xhr.responseText);
-                            alert('Error al actualizar el lote: ' + error);
-                        }
-                    });
-                }
+                          alert('Error al actualizar el lote: ' + error);
+                      }
+                  });
+              }
+
+                  function sincronizarCondicionEncabezado() {
+                      var valorEncabezado = document.getElementById("TESTADOSAG") ? document.getElementById("TESTADOSAG").value : '';
+
+                      document.querySelectorAll('.sag-condicion-hidden').forEach(function(input) {
+                          input.value = valorEncabezado;
+                      });
+
+                      document.querySelectorAll('.sag-condicion-select').forEach(function(select) {
+                          var locked = select.getAttribute('data-locked') === '1';
+                          if (!locked) {
+                              if (typeof jQuery !== 'undefined' && jQuery(select).data('select2')) {
+                                  jQuery(select).val(valorEncabezado).trigger('change');
+                              } else {
+                                  select.value = valorEncabezado;
+                              }
+                          }
+                      });
+                  }
+
+                  function actualizarVisibilidadCondicionSag() {
+                      var tinpsagSelect = document.getElementById("TINPSAG");
+                      var textoSeleccion = '';
+                      if (tinpsagSelect && tinpsagSelect.options[tinpsagSelect.selectedIndex]) {
+                          textoSeleccion = tinpsagSelect.options[tinpsagSelect.selectedIndex].text.toLowerCase();
+                      }
+
+                      var esMuestreo = textoSeleccion.indexOf('muestreo') !== -1;
+                      var encabezado = document.getElementById("sag-condicion-encabezado");
+
+                      if (encabezado) {
+                          encabezado.style.display = esMuestreo ? 'none' : '';
+                      }
+
+                      document.querySelectorAll('.sag-condicion-col-header').forEach(function(th) {
+                          th.style.display = esMuestreo ? 'table-cell' : 'none';
+                      });
+
+                      document.querySelectorAll('.sag-condicion-col').forEach(function(td) {
+                          td.style.display = esMuestreo ? 'table-cell' : 'none';
+                      });
+
+                      document.querySelectorAll('.sag-condicion-select').forEach(function(select) {
+                          var locked = select.getAttribute('data-locked') === '1';
+                          select.disabled = locked || !esMuestreo;
+                      });
+
+                      if (!esMuestreo) {
+                          sincronizarCondicionEncabezado();
+                      }
+                  }
+
+                  document.addEventListener('DOMContentLoaded', function() {
+                      actualizarVisibilidadCondicionSag();
+
+                      var tinpsag = document.getElementById('TINPSAG');
+                      if (tinpsag) {
+                          tinpsag.addEventListener('change', actualizarVisibilidadCondicionSag);
+                      }
+
+                      var condicionEncabezado = document.getElementById('TESTADOSAG');
+                      if (condicionEncabezado) {
+                          condicionEncabezado.addEventListener('change', function() {
+                              sincronizarCondicionEncabezado();
+                          });
+                      }
+                  });
              
             </script>
 
@@ -729,17 +682,14 @@ if (isset($_POST)) {
                                                 <input type="hidden" class="form-control" placeholder="OP DESPACHOEX" id="OPP" name="OPP" value="<?php echo $OP; ?>" />
                                                 <input type="hidden" class="form-control" placeholder="URL DESPACHOEX" id="URLP" name="URLP" value="registroInpsag" />
 
-                                                
                                                 <input type="hidden" class="form-control" id="ESTADO_INPSAG" name="ESTADO_INPSAG" value="<?php echo $ESTADO; ?>" />
-<label>Número Inspección</label>
+                                                <label>Número Inspección</label>
                                                 <input type="hidden" class="form-control" placeholder="Número Inspección" id="ID" name="ID" value="<?php echo $IDINPSAG; ?>" />
                                                 <input type="text" class="form-control" style="background-color: #eeeeee;" placeholder="Id Inpsag" id="IDINPSAG" name="IDINPSAG" value="<?php echo $NUMEROVER; ?>" disabled />
                                                 <label id="val_id" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-6 col-xl-1 col-lg-1 col-md-6 col-sm-6 col-6 col-xs-6">
-                                        </div>
-                                        <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-6 col-xs-6">
+                                        <div class="col-xxl-2 col-xl-2 col-lg-2 col-md-6 col-sm-6 col-6 col-xs-6">
                                             <div class="form-group">
                                                 <label>Fecha Ingreso</label>
                                                 <input type="hidden" class="form-control" placeholder="FECHA MODIFICACION" id="FECHAINGRESOINPSAGE" name="FECHAINGRESOINPSAGE" value="<?php echo $FECHAINGRESOINPSAG; ?>" />
@@ -747,7 +697,7 @@ if (isset($_POST)) {
                                                 <label id="val_fechai" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-6 col-xs-6">
+                                        <div class="col-xxl-2 col-xl-2 col-lg-2 col-md-6 col-sm-6 col-6 col-xs-6">
                                             <div class="form-group">
                                                 <label>Fecha Modificación</label>
                                                 <input type="hidden" class="form-control" placeholder="FECHA MODIFICACION" id="FECHAMODIFCIACIONINPSAGE" name="FECHAMODIFCIACIONINPSAGE" value="<?php echo $FECHAMODIFCIACIONINPSAG; ?>" />
@@ -755,17 +705,15 @@ if (isset($_POST)) {
                                                 <label id="val_fecham" class="validacion"> </label>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-xxl-2 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
+                                        <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6 col-xs-6">
                                             <div class="form-group">
                                                 <label>Fecha Inspección</label>
                                                 <input type="hidden" class="form-control" placeholder="Fecha Inspección Sag" id="FECHAINPSAGE" name="FECHAINPSAGE" value="<?php echo $FECHAINPSAG; ?>" />
                                                 <input type="date" class="form-control"  placeholder="Fecha Inspección " id="FECHAINPSAG" name="FECHAINPSAG" value="<?php echo $FECHAINPSAG; ?>" <?php echo $DISABLED2; ?>  />
                                                 <label id="val_fechar" class="validacion"> </label>
                                             </div>
-                                        </div> 
-                                        <div class="col-xxl-2 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
+                                        </div>
+                                        <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6 col-xs-6">
                                             <div class="form-group">
                                                 <label>Correlativo de Inspección</label>
                                                 <input type="hidden" class="form-control" placeholder="Correlativo de Inspección" id="CORRELATIVOINPSAGE" name="CORRELATIVOINPSAGE" value="<?php echo $CORRELATIVOINPSAG; ?>" />
@@ -773,7 +721,9 @@ if (isset($_POST)) {
                                                 <label id="val_correlativo" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-3 col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 col-xs-12">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12">
                                             <div class="form-group">
                                                 <label>Tipo Inspección </label>
                                                 <input type="hidden" class="form-control" placeholder="TINPSAGE" id="TINPSAGE" name="TINPSAGE" value="<?php echo $TINPSAG; ?>" />
@@ -792,8 +742,7 @@ if (isset($_POST)) {
                                                 <label id="val_tinpsag" class="validacion"> </label>
                                             </div>
                                         </div>
-
-                                        <div class="col-xxl-3 col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 col-xs-12">
+                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12">
                                             <div class="form-group">
                                                 <label>Tipo Manejo </label>
                                                 <input type="hidden" class="form-control" placeholder="TMANEJOE" id="TMANEJOE" name="TMANEJOE" value="<?php echo $TMANEJO; ?>" />
@@ -812,10 +761,30 @@ if (isset($_POST)) {
                                                 <label id="val_tmanejo" class="validacion"> </label>
                                             </div>
                                         </div>
-
-                                        <div class="col-xxl-3 col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 col-xs-12">
+                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12" id="sag-condicion-encabezado">
+                                            <div class="form-group">
+                                                <label>Condición SAG (Encabezado)</label>
+                                                <select class="form-control" id="TESTADOSAG" name="TESTADOSAG" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>
+                                                    <option value=""></option>
+                                                    <option value="1" <?php if ($TESTADOSAG == "1") echo "selected"; ?>>En Inspección</option>
+                                                    <option value="2" <?php if ($TESTADOSAG == "2") echo "selected"; ?>>Aprobado Origen</option>
+                                                    <option value="3" <?php if ($TESTADOSAG == "3") echo "selected"; ?>>Aprobado USDA</option>
+                                                    <option value="4" <?php if ($TESTADOSAG == "4") echo "selected"; ?>>Fumigado</option>
+                                                    <option value="5" <?php if ($TESTADOSAG == "5") echo "selected"; ?>>Rechazado</option>
+                                                </select>
                                             </div>
-                                        <div class="col-xxl-3 col-xl-5 col-lg-9 col-md-9 col-sm-9 col-9 col-xs-9">
+                                        </div>
+                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12">
+                                            <div class="form-group">
+                                                <label>Valor SIF </label>
+                                                <input type="hidden" class="form-control" placeholder="CIFE" id="CIFE" name="CIFE" value="<?php echo $CIF; ?>" />
+                                                <input type="number" class="form-control" placeholder="Valor SIF" id="CIF" name="CIF" value="<?php echo $CIF; ?>" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
+                                                <label id="val_cif" class="validacion"> </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xxl-4 col-xl-5 col-lg-6 col-md-9 col-sm-9 col-9 col-xs-9">
                                             <div class="form-group">
                                                 <label>Inspector</label>
                                                 <input type="hidden" class="form-control" placeholder="INPECTORE" id="INPECTORE" name="INPECTORE" value="<?php echo $INPECTOR; ?>" />
@@ -823,7 +792,7 @@ if (isset($_POST)) {
                                                     <option></option>
                                                     <?php foreach ($ARRAYINPECTOR as $r) : ?>
                                                         <?php if ($ARRAYINPECTOR) {    ?>
-                                                            <option value="<?php echo $r['ID_INPECTOR']; ?>" <?php if ($INPECTOR == $r['ID_INPECTOR']) {  echo "selected"; } ?>> 
+                                                            <option value="<?php echo $r['ID_INPECTOR']; ?>" <?php if ($INPECTOR == $r['ID_INPECTOR']) {  echo "selected"; } ?>>
                                                                 <?php echo $r['NOMBRE_INPECTOR'] ?>
                                                             </option>
                                                         <?php } else { ?>
@@ -834,7 +803,7 @@ if (isset($_POST)) {
                                                 <label id="val_inpector" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-1 col-xl-1 col-lg-3 col-md-3 col-sm-3 col-3 col-xs-3">
+                                        <div class="col-xxl-1 col-xl-1 col-lg-2 col-md-3 col-sm-3 col-3 col-xs-3">
                                             <div class="form-group">
                                                 <br>
                                                 <button type="button" class="btn btn-success btn-block" data-toggle="tooltip" title="Agregar Inpector" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> id="defecto" name="pop" Onclick="abrirVentana('registroPopInpector.php' ); ">
@@ -842,15 +811,7 @@ if (isset($_POST)) {
                                                 </button>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-2 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
-                                            <div class="form-group">
-                                                <label>Valor SIF </label>
-                                                <input type="hidden" class="form-control" placeholder="CIFE" id="CIFE" name="CIFE" value="<?php echo $CIF; ?>" />
-                                                <input type="number" class="form-control" placeholder="Valor SIF" id="CIF" name="CIF" value="<?php echo $CIF; ?>" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
-                                                <label id="val_cif" class="validacion"> </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-xxl-3 col-xl-5 col-lg-9 col-md-9 col-sm-9 col-9 col-xs-9">
+                                        <div class="col-xxl-4 col-xl-4 col-lg-5 col-md-6 col-sm-6 col-12 col-xs-12">
                                             <div class="form-group">
                                                 <label>Contraparte</label>
                                                 <input type="hidden" class="form-control" placeholder="CONTRAPARTEE" id="CONTRAPARTEE" name="CONTRAPARTEE" value="<?php echo $CONTRAPARTE; ?>" />
@@ -858,9 +819,9 @@ if (isset($_POST)) {
                                                     <option></option>
                                                     <?php foreach ($ARRAYCONTRAPARTE as $r) : ?>
                                                         <?php if ($ARRAYCONTRAPARTE) {    ?>
-                                                            <option value="<?php echo $r['ID_CONTRAPARTE']; ?>" <?php if ($CONTRAPARTE == $r['ID_CONTRAPARTE']) {  echo "selected";  } ?>> 
-                                                                <?php echo $r['NOMBRE_CONTRAPARTE'] ?> 
-                                                        </option>
+                                                            <option value="<?php echo $r['ID_CONTRAPARTE']; ?>" <?php if ($CONTRAPARTE == $r['ID_CONTRAPARTE']) {  echo "selected";  } ?>>
+                                                                <?php echo $r['NOMBRE_CONTRAPARTE'] ?>
+                                                            </option>
                                                         <?php } else { ?>
                                                             <option>No Hay Datos Registrados </option>
                                                         <?php } ?>
@@ -869,15 +830,7 @@ if (isset($_POST)) {
                                                 <label id="val_contraparte" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-1 col-xl-1 col-lg-3 col-md-3 col-sm-3 col-3 col-xs-3">
-                                            <div class="form-group">
-                                                <br>
-                                                <button type="button" class="btn btn-success btn-block" data-toggle="tooltip" title="Agregar Contraparte" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> id="defecto" name="pop" Onclick="abrirVentana('registroPopContraparte.php' ); ">
-                                                    <i class="glyphicon glyphicon-plus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="col-xxl-2 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
+                                        <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6 col-xs-6">
                                             <div class="form-group">
                                                 <label>Pais 1</label>
                                                 <input type="hidden" class="form-control" placeholder="PAIS1E" id="PAIS1E" name="PAIS1E" value="<?php echo $PAIS1; ?>" />
@@ -885,8 +838,8 @@ if (isset($_POST)) {
                                                     <option></option>
                                                     <?php foreach ($ARRAYPAIS as $r) : ?>
                                                         <?php if ($ARRAYPAIS) {    ?>
-                                                            <option value="<?php echo $r['ID_PAIS']; ?>" <?php if ($PAIS1 == $r['ID_PAIS']) {  echo "selected";  } ?>> 
-                                                                <?php echo $r['NOMBRE_PAIS'] ?> 
+                                                            <option value="<?php echo $r['ID_PAIS']; ?>" <?php if ($PAIS1 == $r['ID_PAIS']) { echo "selected";  } ?>>
+                                                                <?php echo $r['NOMBRE_PAIS'] ?>
                                                             </option>
                                                         <?php } else { ?>
                                                             <option>No Hay Datos Registrados </option>
@@ -896,7 +849,9 @@ if (isset($_POST)) {
                                                 <label id="val_pais1" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-2 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6 col-xs-6">
                                             <div class="form-group">
                                                 <label>Pais 2</label>
                                                 <input type="hidden" class="form-control" placeholder="PAIS2E" id="PAIS2E" name="PAIS2E" value="<?php echo $PAIS2; ?>" />
@@ -905,7 +860,7 @@ if (isset($_POST)) {
                                                     <?php foreach ($ARRAYPAIS as $r) : ?>
                                                         <?php if ($ARRAYPAIS) {    ?>
                                                             <option value="<?php echo $r['ID_PAIS']; ?>" <?php if ($PAIS2 == $r['ID_PAIS']) { echo "selected";  } ?>>
-                                                                <?php echo $r['NOMBRE_PAIS'] ?> 
+                                                                <?php echo $r['NOMBRE_PAIS'] ?>
                                                             </option>
                                                         <?php } else { ?>
                                                             <option>No Hay Datos Registrados </option>
@@ -915,7 +870,7 @@ if (isset($_POST)) {
                                                 <label id="val_pais2" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-2 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
+                                        <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6 col-xs-6">
                                             <div class="form-group">
                                                 <label>Pais 3</label>
                                                 <input type="hidden" class="form-control" placeholder="PAIS3E" id="PAIS3E" name="PAIS3E" value="<?php echo $PAIS3; ?>" />
@@ -934,7 +889,7 @@ if (isset($_POST)) {
                                                 <label id="val_pais3" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-2 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6 col-xs-6">
+                                        <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6 col-xs-6">
                                             <div class="form-group">
                                                 <label>Pais 4</label>
                                                 <input type="hidden" class="form-control" placeholder="PAIS4E" id="PAIS4E" name="PAIS4E" value="<?php echo $PAIS4; ?>" />
@@ -942,8 +897,8 @@ if (isset($_POST)) {
                                                     <option></option>
                                                     <?php foreach ($ARRAYPAIS as $r) : ?>
                                                         <?php if ($ARRAYPAIS) {    ?>
-                                                            <option value="<?php echo $r['ID_PAIS']; ?>" <?php if ($PAIS4 == $r['ID_PAIS']) { echo "selected";  } ?>> 
-                                                                <?php echo $r['NOMBRE_PAIS'] ?> 
+                                                            <option value="<?php echo $r['ID_PAIS']; ?>" <?php if ($PAIS4 == $r['ID_PAIS']) { echo "selected";  } ?>>
+                                                                <?php echo $r['NOMBRE_PAIS'] ?>
                                                             </option>
                                                         <?php } else { ?>
                                                             <option>No Hay Datos Registrados </option>
@@ -963,6 +918,7 @@ if (isset($_POST)) {
                                                 <label id="val_observacion" class="validacion"> </label>
                                             </div>
                                         </div>
+                                    </div>
                                     </div>
                                 </div>
                                 <!-- /.row -->
@@ -1107,7 +1063,7 @@ if (isset($_POST)) {
                                                                     </a>
                                                                 </th>
                                                                 <th class="text-center">Número de Lote</th>
-                                                                <th>Condición SAG</th>
+                                                                <th class="text-center sag-condicion-col-header">Condición SAG</th>
                                                                 <th class="text-center">Operaciónes</th>
                                                                 <th>Fecha Embalado </th>
                                                                 <th>Código Estandar</th>
@@ -1197,16 +1153,18 @@ if (isset($_POST)) {
                                                                                    <?php if ($ESTADO == 0) { echo "disabled";} ?> />
                                                                         </td>
 
-                                                                       <td>
+                                                                        <td class="sag-condicion-col">
                                                                             <!-- Input hidden para asegurar que el valor siempre se envíe -->
-                                                                            <input type="hidden" 
+                                                                            <input type="hidden"
+                                                                                   class="sag-condicion-hidden"
                                                                                    id="TESTADOSAG_HIDDEN_<?php echo $r['ID_EXIEXPORTACION']; ?>"
-                                                                                   name="TESTADOSAG_ROW[<?php echo $r['ID_EXIEXPORTACION']; ?>]" 
+                                                                                   name="TESTADOSAG_ROW[<?php echo $r['ID_EXIEXPORTACION']; ?>]"
                                                                                    value="<?php echo isset($r['TESTADOSAG']) ? $r['TESTADOSAG'] : ''; ?>" />
-                                                                            
-                                                                            <select class="form-control select2 estado-sag-select" 
-                                                                                    id="TESTADOSAG_<?php echo $r['ID_EXIEXPORTACION']; ?>" 
+
+                                                                            <select class="form-control select2 estado-sag-select sag-condicion-select"
+                                                                                    id="TESTADOSAG_<?php echo $r['ID_EXIEXPORTACION']; ?>"
                                                                                     data-target="TESTADOSAG_HIDDEN_<?php echo $r['ID_EXIEXPORTACION']; ?>"
+                                                                                    data-locked="<?php echo $ESTADO == 0 ? '1' : '0'; ?>"
                                                                                     style="width:100%;"
                                                                                     onchange="document.getElementById('TESTADOSAG_HIDDEN_<?php echo $r['ID_EXIEXPORTACION']; ?>').value = this.value;"
                                                                                     <?php if ($ESTADO == 0) { echo 'disabled style="pointer-events:none; opacity:0.6;"'; } ?>>
@@ -1673,15 +1631,23 @@ if (isset($_POST)) {
                 // Esto asegura que se envíen correctamente
                 
                 // 1. Eliminar cualquier input TESTADOSAG_ROW existente
-                var oldInputs = document.querySelectorAll('input[name^="TESTADOSAG_ROW"]');
-                console.log('Eliminando inputs antiguos:', oldInputs.length);
-                oldInputs.forEach(function(input) {
-                    input.remove();
-                });
-                
-                // 2. Buscar TODOS los selects de estado SAG
-                var selectsEstadoSag = document.querySelectorAll('.estado-sag-select');
-                console.log('Total selects estado SAG encontrados:', selectsEstadoSag.length);
+                  var oldInputs = document.querySelectorAll('input[name^="TESTADOSAG_ROW"]');
+                  console.log('Eliminando inputs antiguos:', oldInputs.length);
+                  oldInputs.forEach(function(input) {
+                      input.remove();
+                  });
+
+                  var celdaCondicion = document.querySelector('.sag-condicion-col');
+                  var columnaVisible = celdaCondicion ? window.getComputedStyle(celdaCondicion).display !== 'none' : false;
+
+                  if (!columnaVisible) {
+                      console.log('Condición SAG por fila oculta: se conserva valor de encabezado.');
+                      return;
+                  }
+
+                  // 2. Buscar TODOS los selects de estado SAG
+                  var selectsEstadoSag = document.querySelectorAll('.estado-sag-select');
+                  console.log('Total selects estado SAG encontrados:', selectsEstadoSag.length);
                 
                 if (selectsEstadoSag.length === 0) {
                     console.warn('⚠️ NO SE ENCONTRARON SELECTS con clase estado-sag-select');
