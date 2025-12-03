@@ -73,6 +73,7 @@ $TOTALBRUTO = "";
 $TOTALENVASE2 = "";
 $TOTALNETO2 = "";
 $TOTALBRUTO2 = "";
+$TOTALFOLIOS = 0;
 
 
 $IDEXIEXPORTACIONQUITAR = "";
@@ -185,6 +186,15 @@ if (isset($id_dato) && isset($accion_dato)) {
     $TOTALENVASE2 = $ARRAYDESPACHOTOTAL2[0]['ENVASE'];
     $TOTALNETO2 = $ARRAYDESPACHOTOTAL2[0]['NETO'];
     $TOTALBRUTO2 = $ARRAYDESPACHOTOTAL2[0]['BRUTO'];
+    if ($ARRAYTOMADO) {
+        $FOLIOS_UNICOS = array();
+        foreach ($ARRAYTOMADO as $registro) {
+            if (isset($registro['FOLIO_AUXILIAR_EXIEXPORTACION']) && $registro['FOLIO_AUXILIAR_EXIEXPORTACION'] !== '') {
+                $FOLIOS_UNICOS[$registro['FOLIO_AUXILIAR_EXIEXPORTACION']] = true;
+            }
+        }
+        $TOTALFOLIOS = count($FOLIOS_UNICOS);
+    }
     if(empty($ARRAYTOMADO)){
         $DISABLEDT="disabled";
     }else{
@@ -680,7 +690,7 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
         .action-group .btn {
             border-radius: 8px;
             padding: 0.55rem 1.1rem;
-            font-weight: 600;
+            font-weight: 500;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
             transition: transform 0.1s ease, box-shadow 0.1s ease;
         }
@@ -1104,8 +1114,18 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                                 <input type="text" class="form-control" placeholder="Total Neto" id="TOTALENVASEV" name="TOTALENVASEV" value="<?php echo $TOTALBRUTO2; ?>" disabled />
                                             </div>
                                         </div>
+                                        <div class="col-auto">
+                                            <label class="sr-only" for=""></label>
+                                            <div class="input-group mb-2">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">Total Folios</div>
+                                                </div>
+                                                <input type="hidden" class="form-control" id="TOTALFOLIOS" name="TOTALFOLIOS" value="<?php echo $TOTALFOLIOS; ?>" />
+                                                <input type="text" class="form-control" placeholder="Total Folios" value="<?php echo $TOTALFOLIOS; ?>" disabled />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>                                                     
+                                </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-12">
