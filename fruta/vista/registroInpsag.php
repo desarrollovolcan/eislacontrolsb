@@ -374,9 +374,6 @@ if (isset($_POST)) {
     if (isset($_REQUEST['INPECTOR'])) {
         $INPECTOR = "" . $_REQUEST['INPECTOR'];
     }
-    if (isset($_REQUEST['CIF'])) {
-        $CIF = "" . $_REQUEST['CIF'];
-    }
     if (isset($_REQUEST['CONTRAPARTE'])) {
         $CONTRAPARTE = "" . $_REQUEST['CONTRAPARTE'];
     }
@@ -458,17 +455,6 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                         return false
                     }
                     document.form_reg_dato.INPECTOR.style.borderColor = "#4AF575";
-
-                    /*
-                                        if (CIF == null || CIF == 0) {
-                                            document.form_reg_dato.CIF.focus();
-                                            document.form_reg_dato.INPECTOR.style.borderColor = "#FF0000";
-                                            document.getElementById('val_cif').innerHTML = "NO HA INGRESADO DATOS";
-                                            return false
-                                        }
-                                        document.form_reg_dato.CIF.style.borderColor = "#4AF575";
-                                        */
-                                       
 
                     if (CONTRAPARTE == null || CONTRAPARTE == 0) {
                         document.form_reg_dato.CONTRAPARTE.focus();
@@ -771,7 +757,7 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12">
+                                        <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12">
                                             <div class="form-group">
                                                 <label>Tipo Inspección </label>
                                                 <input type="hidden" class="form-control" placeholder="TINPSAGE" id="TINPSAGE" name="TINPSAGE" value="<?php echo $TINPSAG; ?>" />
@@ -790,7 +776,7 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                                 <label id="val_tinpsag" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12">
+                                        <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12">
                                             <div class="form-group">
                                                 <label>Tipo Manejo </label>
                                                 <input type="hidden" class="form-control" placeholder="TMANEJOE" id="TMANEJOE" name="TMANEJOE" value="<?php echo $TMANEJO; ?>" />
@@ -809,7 +795,7 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                                 <label id="val_tmanejo" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12" id="sag-condicion-encabezado" <?php echo $ES_MUESTREO_USDA ? 'style="display:none;"' : ''; ?>>
+                                        <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12" id="sag-condicion-encabezado" <?php echo $ES_MUESTREO_USDA ? 'style="display:none;"' : ''; ?>>
                                             <div class="form-group">
                                                 <label>Condición SAG</label>
                                                 <select class="form-control" id="TESTADOSAG" name="TESTADOSAG" <?php echo $DISABLED_CONDICION_SAG; ?>>
@@ -822,41 +808,34 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12">
-                                            <div class="form-group">
-                                                <label>Valor SIF </label>
-                                                <input type="hidden" class="form-control" placeholder="CIFE" id="CIFE" name="CIFE" value="<?php echo $CIF; ?>" />
-                                                <input type="number" class="form-control" placeholder="Valor SIF" id="CIF" name="CIF" value="<?php echo $CIF; ?>" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> />
-                                                <label id="val_cif" class="validacion"> </label>
-                                            </div>
-                                        </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-xxl-4 col-xl-5 col-lg-6 col-md-9 col-sm-9 col-9 col-xs-9">
+                                        <div class="col-xxl-5 col-xl-5 col-lg-6 col-md-8 col-sm-9 col-12 col-xs-12">
                                             <div class="form-group">
                                                 <label>Inspector</label>
-                                                <input type="hidden" class="form-control" placeholder="INPECTORE" id="INPECTORE" name="INPECTORE" value="<?php echo $INPECTOR; ?>" />
-                                                <select class="form-control select2" id="INPECTOR" name="INPECTOR" style="width: 100%;" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>
-                                                    <option></option>
-                                                    <?php foreach ($ARRAYINPECTOR as $r) : ?>
-                                                        <?php if ($ARRAYINPECTOR) {    ?>
-                                                            <option value="<?php echo $r['ID_INPECTOR']; ?>" <?php if ($INPECTOR == $r['ID_INPECTOR']) {  echo "selected"; } ?>>
-                                                                <?php echo $r['NOMBRE_INPECTOR'] ?>
-                                                            </option>
-                                                        <?php } else { ?>
-                                                            <option>No Hay Datos Registrados </option>
-                                                        <?php } ?>
-                                                    <?php endforeach; ?>
-                                                </select>
+                                                <div class="d-flex align-items-end">
+                                                    <div class="flex-grow-1">
+                                                        <input type="hidden" class="form-control" placeholder="INPECTORE" id="INPECTORE" name="INPECTORE" value="<?php echo $INPECTOR; ?>" />
+                                                        <select class="form-control select2" id="INPECTOR" name="INPECTOR" style="width: 100%;" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>
+                                                            <option></option>
+                                                            <?php foreach ($ARRAYINPECTOR as $r) : ?>
+                                                                <?php if ($ARRAYINPECTOR) {    ?>
+                                                                    <option value="<?php echo $r['ID_INPECTOR']; ?>" <?php if ($INPECTOR == $r['ID_INPECTOR']) {  echo "selected"; } ?>>
+                                                                        <?php echo $r['NOMBRE_INPECTOR'] ?>
+                                                                    </option>
+                                                                <?php } else { ?>
+                                                                    <option>No Hay Datos Registrados </option>
+                                                                <?php } ?>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="ml-2">
+                                                        <button type="button" class="btn btn-success" data-toggle="tooltip" title="Agregar Inspector" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> id="defecto" name="pop" Onclick="abrirVentana('registroPopInpector.php' ); ">
+                                                            <i class="glyphicon glyphicon-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                                 <label id="val_inpector" class="validacion"> </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-xxl-1 col-xl-1 col-lg-2 col-md-3 col-sm-3 col-3 col-xs-3">
-                                            <div class="form-group">
-                                                <br>
-                                                <button type="button" class="btn btn-success btn-block" data-toggle="tooltip" title="Agregar Inpector" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?> id="defecto" name="pop" Onclick="abrirVentana('registroPopInpector.php' ); ">
-                                                    <i class="glyphicon glyphicon-plus"></i>
-                                                </button>
                                             </div>
                                         </div>
                                         <div class="col-xxl-4 col-xl-4 col-lg-5 col-md-6 col-sm-6 col-12 col-xs-12">
@@ -1289,7 +1268,7 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                 $INPSAG->__SET('CORRELATIVO_INPSAG', $_REQUEST['CORRELATIVOINPSAG']);
                 $INPSAG->__SET('TESTADOSAG', isset($_REQUEST['TESTADOSAG']) ? $_REQUEST['TESTADOSAG'] : null);
                 $INPSAG->__SET('OBSERVACION_INPSAG', $_REQUEST['OBSERVACIONINPSAG']);
-                $INPSAG->__SET('CIF_INPSAG', $_REQUEST['CIF']);
+                $INPSAG->__SET('CIF_INPSAG', $CIF !== '' ? $CIF : null);
                 $INPSAG->__SET('ID_TINPSAG', $_REQUEST['TINPSAG']);
                 $INPSAG->__SET('ID_TMANEJO', $_REQUEST['TMANEJO']);
                 $INPSAG->__SET('ID_INPECTOR', $_REQUEST['INPECTOR']);
@@ -1359,7 +1338,7 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                 $INPSAG->__SET('KILOS_NETO_INPSAG', $_REQUEST['TOTALNETO']);
                 $INPSAG->__SET('KILOS_BRUTO_INPSAG', $_REQUEST['TOTALBRUTO']);
                 $INPSAG->__SET('OBSERVACION_INPSAG', $_REQUEST['OBSERVACIONINPSAG']);
-                $INPSAG->__SET('CIF_INPSAG', $_REQUEST['CIFE']);
+                $INPSAG->__SET('CIF_INPSAG', $CIF !== '' ? $CIF : null);
                 $INPSAG->__SET('TESTADOSAG', $condicionCabecera);
                 $INPSAG->__SET('ID_TINPSAG', $_REQUEST['TINPSAGE']);
                 $INPSAG->__SET('ID_TMANEJO', $_REQUEST['TMANEJOE']);
@@ -1527,7 +1506,7 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                         $INPSAG->__SET('KILOS_NETO_INPSAG', $_REQUEST['TOTALNETO']);
                         $INPSAG->__SET('KILOS_BRUTO_INPSAG', $_REQUEST['TOTALBRUTO']);
                         $INPSAG->__SET('OBSERVACION_INPSAG', $_REQUEST['OBSERVACIONINPSAG']);
-                        $INPSAG->__SET('CIF_INPSAG', $_REQUEST['CIFE']);
+                        $INPSAG->__SET('CIF_INPSAG', $CIF !== '' ? $CIF : null);
                         $INPSAG->__SET('TESTADOSAG', $_REQUEST['TESTADOSAG']);
                         $INPSAG->__SET('ID_TINPSAG', $_REQUEST['TINPSAGE']);
                         $INPSAG->__SET('ID_TMANEJO', $_REQUEST['TMANEJOE']);
