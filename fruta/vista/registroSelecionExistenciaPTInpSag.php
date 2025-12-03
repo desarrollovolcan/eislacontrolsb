@@ -73,9 +73,6 @@ $NODATOURL = "";
 
 $SINO = "";
 $SINO2 = "";
-$BUSCARFOLIO = "";
-
-
 //INICIALIZAR ARREGLOS
 $ARRAYEXIEXPORTACION = "";
 
@@ -89,7 +86,6 @@ $ARRAYVERFOLIOID = "";
 $ARRAYVERPCDESPACHO = "";
 $ARRAYBUSCARNUMEROFOLIOEXIEXPORTACION = "";
 $ARRAYTESTADOSAG = "";
-
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
 
@@ -123,18 +119,6 @@ if (isset($id_dato) && isset($accion_dato) && isset($urlo_dato)) {
     $ARRAYEXIEXPORTACION = $EXIEXPORTACION_ADO->buscarPorPlantaTemporadaEstadoSagNullInpsag($PLANTAS, $TEMPORADAS);
 }
 
-if (isset($_REQUEST["BUSCAR"])) {
-    $BUSCARFOLIO = trim($_REQUEST["FOLIO"]);
-    $ARRAYEXIEXPORTACION = $EXIEXPORTACION_ADO->buscarPorPlantaTemporadaEstadoSagNullInpsag($PLANTAS, $TEMPORADAS);
-    if ($BUSCARFOLIO != "") {
-        $ARRAYEXIEXPORTACION = $EXIEXPORTACION_ADO->buscarPorPlantaTemporadaEstadoSagNullInpsagFolio($PLANTAS, $TEMPORADAS, $BUSCARFOLIO);
-        if (!$ARRAYEXIEXPORTACION) {
-            $MENSAJE = "No se encontraron existencias con el folio solicitado.";
-        }
-    } else {
-        $MENSAJE = "Debe ingresar un folio para realizar la búsqueda.";
-    }
-}
 include_once "../../assest/config/validarDatosUrlD.php";
 
 
@@ -211,36 +195,6 @@ include_once "../../assest/config/validarDatosUrlD.php";
                                     <input type="hidden" class="form-control" placeholder="ID EMPRESA" id="EMPRESA" name="EMPRESA" value="<?php echo $EMPRESAS; ?>" />
                                     <input type="hidden" class="form-control" placeholder="ID PLANTA" id="PLANTA" name="PLANTA" value="<?php echo $PLANTAS; ?>" />
                                     <input type="hidden" class="form-control" placeholder="ID TEMPORADA" id="TEMPORADA" name="TEMPORADA" value="<?php echo $TEMPORADAS; ?>" />
-                                    <div class="row">
-                                        <div class="col-xxl-8 col-xl-8 col-lg-10 col-md-12 col-sm-12 col-12 col-xs-12">
-                                            <div class="form-group">
-                                                <label>Buscar por folio</label>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" placeholder="Ingrese folio" id="FOLIO" name="FOLIO" value="<?php echo htmlspecialchars($BUSCARFOLIO, ENT_QUOTES, 'UTF-8'); ?>">
-                                                    <div class="input-group-append">
-                                                        <button class="btn btn-primary" type="submit" name="BUSCAR" value="BUSCAR">
-                                                            <i class="ti-search"></i> Buscar
-                                                        </button>
-                                                        <button class="btn btn-secondary" type="button" onclick="irPagina('registroSelecionExistenciaPTInpSag.php?op&id=<?php echo $id_dato; ?>&a=<?php echo $accion_dato; ?>&urlo=<?php echo $urlo_dato; ?>');">
-                                                            <i class="ti-reload"></i> Limpiar
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php if ($MENSAJE) : ?>
-                                        <div class="row">
-                                            <div class="col-xxl-8 col-xl-8 col-lg-10 col-md-12 col-sm-12 col-12 col-xs-12">
-                                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                                    <?php echo $MENSAJE; ?>
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endif; ?>
                                     <div clas="row">
                                         <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 col-xs-12">
                                             <div class="table-responsive">
