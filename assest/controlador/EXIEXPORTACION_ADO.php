@@ -3784,6 +3784,30 @@ LEFT JOIN fruta_exiexportacion FEX ON RC.Folioex = FEX.FOLIO_EXIEXPORTACION
         }
     }
 
+    public function obtenerDetallePorPlantaTemporadaFolio($PLANTA, $TEMPORADA, $FOLIO)
+    {
+        try {
+
+            $datos = $this->conexion->prepare(" SELECT ID_EXIEXPORTACION, ESTADO, ESTADO_REGISTRO, ID_INPSAG, TESTADOSAG, ID_DESPACHOEX, ID_DESPACHO, ID_DESPACHO2
+                                                FROM fruta_exiexportacion
+                                                WHERE ID_PLANTA = :PLANTA
+                                                AND ID_TEMPORADA = :TEMPORADA
+                                                AND FOLIO_AUXILIAR_EXIEXPORTACION = :FOLIO
+                                                        ;");
+            $datos->execute(array(
+                ':PLANTA' => $PLANTA,
+                ':TEMPORADA' => $TEMPORADA,
+                ':FOLIO' => $FOLIO
+            ));
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
     public function buscarPorEmpresaPlantaTemporadaPcDespachoNullNotNullInpsag($EMPRESA, $PLANTA, $TEMPORADA)
     {
         try {

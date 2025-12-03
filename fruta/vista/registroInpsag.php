@@ -239,35 +239,13 @@ if (isset($id_dato) && isset($accion_dato)) {
                         })
                     </script>';
                 } else {
-                    $existenciasDisponibles = $EXIEXPORTACION_ADO->buscarPorPlantaTemporadaEstadoSagNullInpsagFolio($PLANTAS, $TEMPORADAS, $folioSolicitado);
-
-                    if ($existenciasDisponibles) {
-                        foreach ($existenciasDisponibles as $existencia) :
-                            $EXIEXPORTACION->__SET('ID_INPSAG', $id_dato);
-                            $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $existencia['ID_EXIEXPORTACION']);
-                            $EXIEXPORTACION_ADO->actualizarSelecionarSagCambiarEstado($EXIEXPORTACION);
-
-                            $AUSUARIO_ADO->agregarAusuario2("NULL",1,2,"".$_SESSION["NOMBRE_USUARIO"].", Se agrego la Existencia de producto terminado a la Inspección SAG por folio.","fruta_exiexportacion", "NULL" ,$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'], $_SESSION['ID_PLANTA'],$_SESSION['ID_TEMPORADA'] );
-                        endforeach;
-
-                        echo '<script>
-                            Swal.fire({
-                                icon:"success",
-                                title:"Folio agregado",
-                                text:"Se agregó el folio a la inspección.",
-                                showConfirmButton: true,
-                                confirmButtonText:"Volver a Inspección",
-                                closeOnConfirm:false
-                            }).then((result)=>{
-                                location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
-                            })
-                        </script>';
-                    } else {
+                    $detalleFolio = $EXIEXPORTACION_ADO->obtenerDetallePorPlantaTemporadaFolio($PLANTAS, $TEMPORADAS, $folioSolicitado);
+                    if (!$detalleFolio) {
                         echo '<script>
                             Swal.fire({
                                 icon:"warning",
-                                title:"Folio no disponible",
-                                text:"No se encontraron existencias disponibles con el folio ingresado.",
+                                title:"Folio no encontrado",
+                                text:"El folio ingresado no existe en la planta y temporada seleccionadas.",
                                 showConfirmButton: true,
                                 confirmButtonText:"Cerrar",
                                 closeOnConfirm:false
@@ -275,6 +253,99 @@ if (isset($id_dato) && isset($accion_dato)) {
                                 location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
                             })
                         </script>';
+                    } else {
+                        $folioDatos = $detalleFolio[0];
+                        if ($folioDatos['ID_INPSAG'] !== null) {
+                            echo '<script>
+                                Swal.fire({
+                                    icon:"warning",
+                                    title:"Folio con inspección",
+                                    text:"El folio ya está asignado a una inspección, no se puede volver a ingresar.",
+                                    showConfirmButton: true,
+                                    confirmButtonText:"Cerrar",
+                                    closeOnConfirm:false
+                                }).then((result)=>{
+                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                })
+                            </script>';
+                        } elseif ($folioDatos['TESTADOSAG'] !== null) {
+                            echo '<script>
+                                Swal.fire({
+                                    icon:"warning",
+                                    title:"Condición SAG",
+                                    text:"El folio tiene una condición SAG y no puede agregarse a la inspección.",
+                                    showConfirmButton: true,
+                                    confirmButtonText:"Cerrar",
+                                    closeOnConfirm:false
+                                }).then((result)=>{
+                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                })
+                            </script>';
+                        } elseif ($folioDatos['ID_DESPACHOEX'] !== null || $folioDatos['ID_DESPACHO'] !== null || $folioDatos['ID_DESPACHO2'] !== null) {
+                            echo '<script>
+                                Swal.fire({
+                                    icon:"warning",
+                                    title:"Folio despachado",
+                                    text:"El folio ya fue despachado y no puede agregarse a la inspección.",
+                                    showConfirmButton: true,
+                                    confirmButtonText:"Cerrar",
+                                    closeOnConfirm:false
+                                }).then((result)=>{
+                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                })
+                            </script>';
+                        } elseif ($folioDatos['ESTADO'] != 2 || $folioDatos['ESTADO_REGISTRO'] != 1) {
+                            echo '<script>
+                                Swal.fire({
+                                    icon:"warning",
+                                    title:"Folio no vigente",
+                                    text:"El folio no está vigente, por lo que no puede añadirse a la inspección.",
+                                    showConfirmButton: true,
+                                    confirmButtonText:"Cerrar",
+                                    closeOnConfirm:false
+                                }).then((result)=>{
+                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                })
+                            </script>';
+                        } else {
+                            $existenciasDisponibles = $EXIEXPORTACION_ADO->buscarPorPlantaTemporadaEstadoSagNullInpsagFolio($PLANTAS, $TEMPORADAS, $folioSolicitado);
+
+                            if ($existenciasDisponibles) {
+                                foreach ($existenciasDisponibles as $existencia) :
+                                    $EXIEXPORTACION->__SET('ID_INPSAG', $id_dato);
+                                    $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $existencia['ID_EXIEXPORTACION']);
+                                    $EXIEXPORTACION_ADO->actualizarSelecionarSagCambiarEstado($EXIEXPORTACION);
+
+                                    $AUSUARIO_ADO->agregarAusuario2("NULL",1,2,"".$_SESSION["NOMBRE_USUARIO"].", Se agrego la Existencia de producto terminado a la Inspección SAG por folio.","fruta_exiexportacion", "NULL" ,$_SESSION["ID_USUARIO"],$_SESSION['ID_EMPRESA'], $_SESSION['ID_PLANTA'],$_SESSION['ID_TEMPORADA'] );
+                                endforeach;
+
+                                echo '<script>
+                                    Swal.fire({
+                                        icon:"success",
+                                        title:"Folio agregado",
+                                        text:"Se agregó el folio a la inspección.",
+                                        showConfirmButton: true,
+                                        confirmButtonText:"Volver a Inspección",
+                                        closeOnConfirm:false
+                                    }).then((result)=>{
+                                        location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                    })
+                                </script>';
+                            } else {
+                                echo '<script>
+                                    Swal.fire({
+                                        icon:"warning",
+                                        title:"Folio sin existencias",
+                                        text:"El folio no tiene existencias disponibles para agregar.",
+                                        showConfirmButton: true,
+                                        confirmButtonText:"Cerrar",
+                                        closeOnConfirm:false
+                                    }).then((result)=>{
+                                        location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
+                                    })
+                                </script>';
+                            }
+                        }
                     }
                 }
             }
