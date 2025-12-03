@@ -117,6 +117,8 @@ if ($PRODUCTORESASOCIADOS) {
             .compact-card { display: flex; flex-direction: column; height: 100%; }
             .compact-card .box-body { padding: 12px; flex: 1; display: flex; flex-direction: column; }
             .compact-card .box-header { padding: 10px 12px; }
+            .compact-card.h-100 { display: flex; flex-direction: column; }
+            .compact-card.h-100 .box-body { flex: 1; display: flex; flex-direction: column; }
 
             .compact-table th, .compact-table td { padding: 8px 6px; font-size: 13px; vertical-align: middle; }
             .compact-table th { font-weight: 600; }
