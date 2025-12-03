@@ -93,8 +93,7 @@ if ($PRODUCTORESASOCIADOS) {
                 height: 100%;
             }
 
-            .collage-card { height: 100%; background-color: #fff; display: flex; flex-direction: column; }
-            .collage-card .box-body { flex: 1; display: flex; flex-direction: column; }
+            .collage-card { background-color: #fff; }
             .collage-card .box-body > *:last-child { margin-bottom: 0; }
 
             .dashboard-row { margin-bottom: 12px; }
@@ -108,12 +107,15 @@ if ($PRODUCTORESASOCIADOS) {
 
             .row .col-xl-4th { display: flex; }
 
+            .row-stretch > [class*='col-'] { display: flex; }
+
             .bg-gradient-sky { background: linear-gradient(135deg, #1d8cf8 0%, #5ac8fa 100%); }
             .bg-gradient-dusk { background: linear-gradient(135deg, #7b42f6 0%, #b06ab3 100%); }
             .bg-gradient-emerald { background: linear-gradient(135deg, #2ecc71 0%, #58d68d 100%); }
             .bg-gradient-amber { background: linear-gradient(135deg, #f5a623 0%, #f7c46c 100%); }
 
-            .compact-card .box-body { padding: 12px; }
+            .compact-card { display: flex; flex-direction: column; height: 100%; }
+            .compact-card .box-body { padding: 12px; flex: 1; display: flex; flex-direction: column; }
             .compact-card .box-header { padding: 10px 12px; }
             .compact-card.h-100 { display: flex; flex-direction: column; }
             .compact-card.h-100 .box-body { flex: 1; display: flex; flex-direction: column; }
@@ -228,7 +230,7 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
                         </div>
 
-                        <div class="row dashboard-row collage-row align-items-stretch">
+                        <div class="row dashboard-row collage-row align-items-stretch row-stretch">
                             <div class="col-xl-4 col-12">
                                 <div class="box compact-card collage-card h-100">
                                     <div class="box-header with-border">
@@ -393,9 +395,9 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
                         </div>
 
-                        <div class="row dashboard-row">
+                        <div class="row dashboard-row row-stretch">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
+                                <div class="box compact-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Procesos por semana</h4>
@@ -408,7 +410,7 @@ if ($PRODUCTORESASOCIADOS) {
                                 </div>
                             </div>
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
+                                <div class="box compact-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Recepciones por semana</h4>
@@ -422,7 +424,7 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
                         </div>
 
-                        <div class="row dashboard-row">
+                        <div class="row dashboard-row row-stretch">
                             <div class="col-lg-6 col-12 mb-15">
                                 <div class="box compact-card h-100">
                                     <div class="box-header with-border">
@@ -464,7 +466,7 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
 
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
+                                <div class="box compact-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Kilos por CSP y variedad</h4>
