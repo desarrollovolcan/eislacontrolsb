@@ -93,7 +93,20 @@ if ($PRODUCTORESASOCIADOS) {
                 height: 100%;
             }
 
-            .collage-card { height: 100%; }
+            .collage-card { height: 100%; background-color: #fff; display: flex; flex-direction: column; }
+            .collage-card .box-body { flex: 1; }
+
+            .process-card { height: 100%; background: #f6fbff; border: 1px solid #e4eef7; border-radius: 12px; box-shadow: 0 10px 25px rgba(13, 110, 253, 0.08); display: flex; flex-direction: column; }
+            .process-card__header { padding: 14px 16px; border-bottom: 1px solid #e4eef7; display: flex; justify-content: space-between; align-items: center; }
+            .process-card__header h4 { margin: 0; font-weight: 700; color: #1f2937; }
+            .process-card__badge { background: #e0f2fe; color: #0ea5e9; border-radius: 10px; font-weight: 700; padding: 6px 10px; font-size: 12px; }
+            .process-card__body { padding: 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+            .process-stat { display: flex; flex-direction: column; gap: 2px; }
+            .process-stat__label { color: #6b7280; font-size: 13px; }
+            .process-stat__value { font-size: 26px; font-weight: 700; color: #1d4ed8; }
+            .process-highlight { display: flex; justify-content: space-between; align-items: center; background: #e7f1ff; border: 1px solid #d5e6ff; border-radius: 10px; padding: 10px 12px; font-weight: 700; color: #1f2937; }
+            .process-highlight__value { background: #0ea5e9; color: #fff; padding: 8px 10px; border-radius: 8px; min-width: 110px; text-align: center; }
+            .process-card__note { margin-top: auto; color: #6b7280; font-size: 12px; line-height: 1.4; }
 
             .dashboard-row { margin-bottom: 12px; }
 
@@ -420,38 +433,31 @@ if ($PRODUCTORESASOCIADOS) {
 
                         <div class="row dashboard-row">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card h-100">
-                                    <div class="box-header with-border bg-primary" style="border-radius: 3px 3px 0 0;">
-                                        <div class="d-flex justify-content-between align-items-center text-white">
-                                            <h4 class="box-title mb-0">Información de proceso</h4>
-                                            <span class="badge badge-light">Neto entrada</span>
-                                        </div>
+                                <div class="process-card">
+                                    <div class="process-card__header">
+                                        <h4 class="box-title mb-0">Indicadores operacionales</h4>
+                                        <span class="process-card__badge">Corte día previo</span>
                                     </div>
-                                    <div class="box-body">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <span class="badge badge-pill badge-primary mr-2"><i class="icon-Incoming-mail"></i></span>
-                                            <div>
-                                                <div class="text-muted small">Procesado acumulado</div>
-                                                <div class="h5 mb-0"><?php echo number_format((float)$KILOSPROCESOACUMULADOS, 2, ',', '.'); ?> kg</div>
-                                            </div>
+                                    <div class="process-card__body">
+                                        <div class="process-stat">
+                                            <span class="process-stat__label">Recepciones registradas</span>
+                                            <span class="process-stat__value"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></span>
                                         </div>
-                                        <div class="d-flex align-items-center mb-3">
-                                            <span class="badge badge-pill badge-info mr-2"><i class="icon-Alarm-clock"></i></span>
-                                            <div>
-                                                <div class="text-muted small">Procesado día anterior</div>
-                                                <div class="h5 mb-0"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</div>
-                                            </div>
+                                        <div class="process-stat">
+                                            <span class="process-stat__label">Kilos netos por productor</span>
+                                            <span class="process-stat__value"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</span>
                                         </div>
-                                        <div class="bg-light p-3 rounded mb-2">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="text-muted small">Relación proceso / recepción</span>
-                                                <span class="badge badge-secondary"><?php echo number_format((float)$RELACIONPROCESO, 0, ',', '.'); ?>%</span>
-                                            </div>
-                                            <div class="progress progress-xxs mt-2 mb-0">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $RELACIONPROCESOBARRA; ?>%" aria-valuenow="<?php echo $RELACIONPROCESO; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
+
+                                        <div class="process-highlight">
+                                            <span>Kilos recepcionados (día previo)</span>
+                                            <span class="process-highlight__value"><?php echo number_format((float)$KILOSRECEPCIONHOY, 2, ',', '.'); ?> kg</span>
                                         </div>
-                                        <div class="text-muted small">Totales alineados a <strong>listarProductorProceso.php</strong> con corte al día previo.</div>
+                                        <div class="process-highlight">
+                                            <span>Procesos cerrados (día previo)</span>
+                                            <span class="process-highlight__value"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</span>
+                                        </div>
+
+                                        <p class="process-card__note mb-0">Totales alineados a <strong>Agrupado de proceso</strong> con corte al día previo.</p>
                                     </div>
                                 </div>
                             </div>
