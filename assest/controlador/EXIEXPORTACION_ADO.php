@@ -3698,7 +3698,7 @@ LEFT JOIN fruta_exiexportacion FEX ON RC.Folioex = FEX.FOLIO_EXIEXPORTACION
     {
         try {
 
-            $datos = $this->conexion->prepare(" SELECT *,           
+            $datos = $this->conexion->prepare(" SELECT *,
                                                     DATE_FORMAT(FECHA_EMBALADO_EXIEXPORTACION, '%d-%m-%Y') AS 'EMBALADO',               
                                                     FORMAT(IFNULL(CANTIDAD_ENVASE_EXIEXPORTACION,0),0,'de_DE') AS 'ENVASE', 
                                                     FORMAT(IFNULL(KILOS_NETO_EXIEXPORTACION,0),2,'de_DE') AS 'NETO',
@@ -3737,6 +3737,73 @@ LEFT JOIN fruta_exiexportacion FEX ON RC.Folioex = FEX.FOLIO_EXIEXPORTACION
             //	print_r($resultado);
             //	var_dump($resultado);
 
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function buscarPorPlantaTemporadaEstadoSagNullInpsagFolio($PLANTA, $TEMPORADA, $FOLIO)
+    {
+        try {
+
+            $datos = $this->conexion->prepare(" SELECT *,
+                                                    DATE_FORMAT(FECHA_EMBALADO_EXIEXPORTACION, '%d-%m-%Y') AS 'EMBALADO',
+
+                                                    FORMAT(IFNULL(CANTIDAD_ENVASE_EXIEXPORTACION,0),0,'de_DE') AS 'ENVASE',
+                                                    FORMAT(IFNULL(KILOS_NETO_EXIEXPORTACION,0),2,'de_DE') AS 'NETO',
+                                                    FORMAT(IFNULL(KILOS_DESHIRATACION_EXIEXPORTACION,0),2,'de_DE') AS 'DESHIRATACION',
+                                                FORMAT(IFNULL(PDESHIDRATACION_EXIEXPORTACION,0),2,'de_DE') AS 'PORCENTAJE',
+                                                FORMAT(IFNULL(KILOS_BRUTO_EXIEXPORTACION,0),2,'de_DE') AS 'BRUTO',
+                                                IF(STOCK = '0','Sin Datos',STOCK ) AS 'STOCKR'
+                                            FROM fruta_exiexportacion
+                                            WHERE  ESTADO = 2
+                                            AND ESTADO_REGISTRO = 1
+                                            AND ID_PLANTA = :PLANTA
+                                            AND ID_TEMPORADA = :TEMPORADA
+                                            AND ID_INPSAG  IS  NULL
+                                            AND TESTADOSAG IS  NULL
+                                            AND ID_DESPACHOEX IS NULL
+                                            AND ID_DESPACHO IS NULL
+                                            AND ID_DESPACHO2 IS NULL
+                                            AND FOLIO_AUXILIAR_EXIEXPORTACION = :FOLIO
+                                                    ;");
+            $datos->execute(array(
+                ':PLANTA' => $PLANTA,
+                ':TEMPORADA' => $TEMPORADA,
+                ':FOLIO' => $FOLIO
+            ));
+            $resultado = $datos->fetchAll();
+            $datos=null;
+
+            //  print_r($resultado);
+            //  var_dump($resultado);
+
+
+            return $resultado;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function obtenerDetallePorPlantaTemporadaFolio($PLANTA, $TEMPORADA, $FOLIO)
+    {
+        try {
+
+            $datos = $this->conexion->prepare(" SELECT ID_EXIEXPORTACION, ESTADO, ESTADO_REGISTRO, ID_INPSAG, TESTADOSAG, ID_DESPACHOEX, ID_DESPACHO, ID_DESPACHO2
+                                                FROM fruta_exiexportacion
+                                                WHERE ID_PLANTA = :PLANTA
+                                                AND ID_TEMPORADA = :TEMPORADA
+                                                AND FOLIO_AUXILIAR_EXIEXPORTACION = :FOLIO
+                                                        ;");
+            $datos->execute(array(
+                ':PLANTA' => $PLANTA,
+                ':TEMPORADA' => $TEMPORADA,
+                ':FOLIO' => $FOLIO
+            ));
+            $resultado = $datos->fetchAll();
+            $datos=null;
 
             return $resultado;
         } catch (Exception $e) {
