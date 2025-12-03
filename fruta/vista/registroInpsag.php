@@ -255,74 +255,36 @@ if (isset($id_dato) && isset($accion_dato)) {
                             })
                         </script>';
                     } else {
-                        $bloqueadoPorInspeccion = false;
-                        $bloqueadoPorCondicion = false;
-                        $bloqueadoPorDespacho = false;
-                        $bloqueadoPorVigencia = false;
+                        $motivoBloqueo = '';
 
                         foreach ($detalleFolio as $folioEstado) {
+                            if ($folioEstado['ID_DESPACHOEX'] !== null || $folioEstado['ID_DESPACHO'] !== null || $folioEstado['ID_DESPACHO2'] !== null) {
+                                $motivoBloqueo = 'El folio ya está despachado.';
+                                break;
+                            }
+
                             if ($folioEstado['ID_INPSAG'] !== null) {
-                                $bloqueadoPorInspeccion = true;
+                                $motivoBloqueo = 'El folio ya está asignado a una inspección.';
+                                break;
                             }
 
                             if ($folioEstado['TESTADOSAG'] !== null) {
-                                $bloqueadoPorCondicion = true;
-                            }
-
-                            if ($folioEstado['ID_DESPACHOEX'] !== null || $folioEstado['ID_DESPACHO'] !== null || $folioEstado['ID_DESPACHO2'] !== null) {
-                                $bloqueadoPorDespacho = true;
+                                $motivoBloqueo = 'El folio tiene una condición SAG vigente.';
+                                break;
                             }
 
                             if (!($folioEstado['ESTADO'] == 2 && $folioEstado['ESTADO_REGISTRO'] == 1)) {
-                                $bloqueadoPorVigencia = true;
+                                $motivoBloqueo = 'El folio no está vigente.';
+                                break;
                             }
                         }
 
-                        if ($bloqueadoPorInspeccion) {
+                        if ($motivoBloqueo !== '') {
                             echo '<script>
                                 Swal.fire({
                                     icon:"warning",
-                                    title:"Folio con inspección",
-                                    text:"El folio ya está asignado a una inspección, no se puede volver a ingresar.",
-                                    showConfirmButton: true,
-                                    confirmButtonText:"Cerrar",
-                                    closeOnConfirm:false
-                                }).then((result)=>{
-                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
-                                })
-                            </script>';
-                        } elseif ($bloqueadoPorCondicion) {
-                            echo '<script>
-                                Swal.fire({
-                                    icon:"warning",
-                                    title:"Condición SAG",
-                                    text:"El folio tiene una condición SAG y no puede agregarse a la inspección.",
-                                    showConfirmButton: true,
-                                    confirmButtonText:"Cerrar",
-                                    closeOnConfirm:false
-                                }).then((result)=>{
-                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
-                                })
-                            </script>';
-                        } elseif ($bloqueadoPorDespacho) {
-                            echo '<script>
-                                Swal.fire({
-                                    icon:"warning",
-                                    title:"Folio despachado",
-                                    text:"El folio ya fue despachado y no puede agregarse a la inspección.",
-                                    showConfirmButton: true,
-                                    confirmButtonText:"Cerrar",
-                                    closeOnConfirm:false
-                                }).then((result)=>{
-                                    location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
-                                })
-                            </script>';
-                        } elseif ($bloqueadoPorVigencia) {
-                            echo '<script>
-                                Swal.fire({
-                                    icon:"warning",
-                                    title:"Folio no vigente",
-                                    text:"El folio no está vigente, por lo que no puede añadirse a la inspección.",
+                                    title:"Folio no agregado",
+                                    text:"' . $motivoBloqueo . '",
                                     showConfirmButton: true,
                                     confirmButtonText:"Cerrar",
                                     closeOnConfirm:false
