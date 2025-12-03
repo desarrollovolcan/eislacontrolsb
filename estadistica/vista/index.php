@@ -91,10 +91,23 @@ if ($PRODUCTORESASOCIADOS) {
                 border: 0;
                 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
                 height: 100%;
+                min-height: 150px;
             }
 
             .collage-card { background-color: #fff; }
             .collage-card .box-body > *:last-child { margin-bottom: 0; }
+
+            .collage-card,
+            .compact-card {
+                min-height: 380px;
+            }
+
+            @media (max-width: 991px) {
+                .collage-card,
+                .compact-card {
+                    min-height: auto;
+                }
+            }
 
             .dashboard-row { margin-bottom: 15px; }
             .dashboard-row > [class*='col-'] { margin-bottom: 15px; }
@@ -120,11 +133,11 @@ if ($PRODUCTORESASOCIADOS) {
             .compact-card { display: flex; flex-direction: column; height: 100%; }
             .compact-card .box-header { padding: 10px 12px; flex-shrink: 0; }
             .compact-card .box-body {
-                padding: 12px;
+                padding: 14px;
                 flex: 1;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 14px;
             }
 
             .compact-card .table-responsive { flex: 1; }
