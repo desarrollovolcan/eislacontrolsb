@@ -30,6 +30,8 @@ $KILOSRECEPCIONACUMULADOS = 0;
 $KILOSRECEPCIONHOY = 0;
 $KILOSPROCESOACUMULADOS = 0;
 $KILOSPROCESOHOY = 0;
+$RELACIONPROCESO = 0;
+$RELACIONPROCESOBARRA = 0;
 
 $ARRAYEMPRESAPRODUCTOR = $EMPRESAPRODUCTOR_ADO->buscarEmpresaProductorPorUsuarioCBX($IDUSUARIOS);
 if ($ARRAYEMPRESAPRODUCTOR) {
@@ -50,6 +52,11 @@ if ($PRODUCTORESASOCIADOS) {
     $KILOSRECEPCIONHOY = $CONSULTA_ADO->kilosRecepcionadosHoyProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $KILOSPROCESOACUMULADOS = $CONSULTA_ADO->kilosProcesadosProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
     $KILOSPROCESOHOY = $CONSULTA_ADO->kilosProcesadosHoyProductor($TEMPORADAS, $ESPECIE, $PRODUCTORESASOCIADOS);
+
+    $RELACIONPROCESO = $KILOSRECEPCIONACUMULADOS > 0
+        ? ($KILOSPROCESOACUMULADOS / $KILOSRECEPCIONACUMULADOS) * 100
+        : 0;
+    $RELACIONPROCESOBARRA = $RELACIONPROCESO > 100 ? 100 : $RELACIONPROCESO;
 
     $DOCUMENTOSPORVENCER = $productorController->documentosPorVencerProductores($PRODUCTORESASOCIADOS, $ESPECIE, 5, 60);
 
@@ -413,54 +420,38 @@ if ($PRODUCTORESASOCIADOS) {
 
                         <div class="row dashboard-row">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
-                                    <div class="box-header with-border">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="box-title mb-0">Detalle por productor y CSP</h4>
-                                            <span class="badge badge-outline badge-primary">Recepciones</span>
+                                <div class="box compact-card h-100">
+                                    <div class="box-header with-border bg-primary" style="border-radius: 3px 3px 0 0;">
+                                        <div class="d-flex justify-content-between align-items-center text-white">
+                                            <h4 class="box-title mb-0">Información de proceso</h4>
+                                            <span class="badge badge-light">Neto entrada</span>
                                         </div>
                                     </div>
-                                    <div class="box-body p-0">
-                                        <div class="table-responsive">
-                                                <table class="table table-hover table-compact mb-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Productor</th>
-                                                            <th>CSP</th>
-                                                            <th class="text-right">Kilos netos</th>
-                                                            <th class="text-right">Envases</th>
-                                                            <th class="text-right">Recepciones</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    <?php if ($DETALLEPRODUCTOR) { ?>
-                                                        <?php foreach ($DETALLEPRODUCTOR as $productor) { ?>
-                                                            <tr>
-                                                                <td><?php echo htmlspecialchars($productor['NOMBRE']); ?></td>
-                                                                <td><?php echo $productor['CSP'] ? $productor['CSP'] : 'Sin dato'; ?></td>
-                                                                <td class="text-right"><?php echo number_format((float)$productor['TOTAL'], 2, ',', '.'); ?> kg</td>
-                                                                <td class="text-right"><?php echo number_format((float)$productor['ENVASES'], 0, ',', '.'); ?></td>
-                                                                <td class="text-right"><?php echo number_format((float)$productor['RECEPCIONES'], 0, ',', '.'); ?></td>
-                                                            </tr>
-                                                        <?php } ?>
-                                                    <?php } else { ?>
-                                                        <tr>
-                                                            <td colspan="4" class="text-center text-muted">Sin información disponible.</td>
-                                                        </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                                <?php if ($DETALLEPRODUCTOR) { ?>
-                                                    <tfoot>
-                                                        <tr>
-                                                            <td colspan="2">Totales</td>
-                                                            <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</td>
-                                                            <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORENVASES, 0, ',', '.'); ?></td>
-                                                            <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></td>
-                                                        </tr>
-                                                    </tfoot>
-                                                <?php } ?>
-                                            </table>
+                                    <div class="box-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <span class="badge badge-pill badge-primary mr-2"><i class="icon-Incoming-mail"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Procesado acumulado</div>
+                                                <div class="h5 mb-0"><?php echo number_format((float)$KILOSPROCESOACUMULADOS, 2, ',', '.'); ?> kg</div>
+                                            </div>
                                         </div>
+                                        <div class="d-flex align-items-center mb-3">
+                                            <span class="badge badge-pill badge-info mr-2"><i class="icon-Alarm-clock"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Procesado día anterior</div>
+                                                <div class="h5 mb-0"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-light p-3 rounded mb-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="text-muted small">Relación proceso / recepción</span>
+                                                <span class="badge badge-secondary"><?php echo number_format((float)$RELACIONPROCESO, 0, ',', '.'); ?>%</span>
+                                            </div>
+                                            <div class="progress progress-xxs mt-2 mb-0">
+                                                <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $RELACIONPROCESOBARRA; ?>%" aria-valuenow="<?php echo $RELACIONPROCESO; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small">Totales alineados a <strong>listarProductorProceso.php</strong> con corte al día previo.</div>
                                     </div>
                                 </div>
                             </div>
@@ -484,6 +475,69 @@ if ($PRODUCTORESASOCIADOS) {
                                                             <th class="text-right">Kilos netos</th>
                                                             <th class="text-right">Envases</th>
                                                         </tr>
+                                                    <?php } ?>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="3" class="text-right">Total documentos: <?php echo number_format((float)$TOTALDOCUMENTOS, 0, ',', '.'); ?></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row dashboard-row">
+                            <div class="col-lg-6 col-12 mb-15">
+                                <div class="box compact-card">
+                                    <div class="box-header with-border">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="box-title mb-0">Procesos por semana</h4>
+                                            <span class="badge badge-outline badge-success">Neto de proceso</span>
+                                        </div>
+                                    </div>
+                                    <div class="box-body">
+                                        <div id="chartProcesoSemanal" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-12 mb-15">
+                                <div class="box compact-card">
+                                    <div class="box-header with-border">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="box-title mb-0">Recepciones por semana</h4>
+                                            <span class="badge badge-outline badge-info">Neto recepcionado</span>
+                                        </div>
+                                    </div>
+                                    <div class="box-body">
+                                        <div id="chartSemanas" class="chart-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row dashboard-row">
+                            <div class="col-lg-6 col-12 mb-15">
+                                <div class="box compact-card">
+                                    <div class="box-header with-border">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="box-title mb-0">Detalle por productor y CSP</h4>
+                                            <span class="badge badge-outline badge-primary">Recepciones</span>
+                                        </div>
+                                    </div>
+                                    <div class="box-body p-0">
+                                        <div class="table-responsive">
+                                                <table class="table table-hover table-compact mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Productor</th>
+                                                            <th>CSP</th>
+                                                            <th class="text-right">Kilos netos</th>
+                                                            <th class="text-right">Envases</th>
+                                                            <th class="text-right">Recepciones</th>
+                                                    </tr>
                                                     </thead>
                                                     <tbody>
                                                         <?php if ($DETALLECSPVARIEDAD) { ?>
