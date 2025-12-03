@@ -112,6 +112,8 @@ $DISABLED3 = "";
 $DISABLED4 = "";
 $DISABLEDSTYLE = "";
 
+$ES_MUESTREO_USDA = false;
+
 $MENSAJE = "";
 $MENSAJEVALIDATO = "";
 $FOLIOAGREGAR = "";
@@ -400,6 +402,17 @@ if (isset($_POST)) {
         $TEMPORADA = "" . $_REQUEST['TEMPORADA'];
     }
 }
+
+// Determina si el tipo de inspección seleccionado es Muestreo (USDA) para definir
+// la visibilidad inicial de la Condición SAG en cabecera o por fila.
+if ($TINPSAG && $ARRAYTINPSAG) {
+    foreach ($ARRAYTINPSAG as $tipo) {
+        if ($tipo['ID_TINPSAG'] == $TINPSAG && stripos($tipo['NOMBRE_TINPSAG'], 'muestreo') !== false) {
+            $ES_MUESTREO_USDA = true;
+            break;
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -414,6 +427,7 @@ if (isset($_POST)) {
         <?php include_once "../../assest/config/urlHead.php"; ?>
         <!- FUNCIONES BASES -!>
             <script type="text/javascript">
+                var ES_MUESTREO_INICIAL = <?php echo $ES_MUESTREO_USDA ? 'true' : 'false'; ?>;
                 //VALIDACION DE FORMULARIO
                 function validacion() {
                      
@@ -585,6 +599,9 @@ if (isset($_POST)) {
                       }
 
                       var esMuestreo = textoSeleccion.indexOf('muestreo') !== -1;
+                      if (textoSeleccion === '' && typeof ES_MUESTREO_INICIAL !== 'undefined') {
+                          esMuestreo = ES_MUESTREO_INICIAL;
+                      }
                       var encabezado = document.getElementById("sag-condicion-encabezado");
 
                       if (encabezado) {
@@ -601,7 +618,12 @@ if (isset($_POST)) {
 
                       document.querySelectorAll('.sag-condicion-select').forEach(function(select) {
                           var locked = select.getAttribute('data-locked') === '1';
-                          select.disabled = locked || !esMuestreo;
+                          var disabled = locked || !esMuestreo;
+                          select.disabled = disabled;
+
+                          if (typeof jQuery !== 'undefined' && jQuery(select).data('select2')) {
+                              jQuery(select).prop('disabled', disabled);
+                          }
                       });
 
                       if (!esMuestreo) {
@@ -761,9 +783,9 @@ if (isset($_POST)) {
                                                 <label id="val_tmanejo" class="validacion"> </label>
                                             </div>
                                         </div>
-                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12" id="sag-condicion-encabezado">
+                                        <div class="col-xxl-3 col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 col-xs-12" id="sag-condicion-encabezado" <?php echo $ES_MUESTREO_USDA ? 'style="display:none;"' : ''; ?>>
                                             <div class="form-group">
-                                                <label>Condición SAG (Encabezado)</label>
+                                                <label>Condición SAG</label>
                                                 <select class="form-control" id="TESTADOSAG" name="TESTADOSAG" <?php echo $DISABLED; ?> <?php echo $DISABLED3; ?>>
                                                     <option value=""></option>
                                                     <option value="1" <?php if ($TESTADOSAG == "1") echo "selected"; ?>>En Inspección</option>
@@ -1063,7 +1085,7 @@ if (isset($_POST)) {
                                                                     </a>
                                                                 </th>
                                                                 <th class="text-center">Número de Lote</th>
-                                                                <th class="text-center sag-condicion-col-header">Condición SAG</th>
+                                                                <th class="text-center sag-condicion-col-header" <?php echo $ES_MUESTREO_USDA ? '' : 'style="display:none;"'; ?>>Condición SAG</th>
                                                                 <th class="text-center">Operaciónes</th>
                                                                 <th>Fecha Embalado </th>
                                                                 <th>Código Estandar</th>
@@ -1153,13 +1175,13 @@ if (isset($_POST)) {
                                                                                    <?php if ($ESTADO == 0) { echo "disabled";} ?> />
                                                                         </td>
 
-                                                                        <td class="sag-condicion-col">
+                                                                        <td class="sag-condicion-col" <?php echo $ES_MUESTREO_USDA ? '' : 'style="display:none;"'; ?>>
                                                                             <!-- Input hidden para asegurar que el valor siempre se envíe -->
                                                                             <input type="hidden"
-                                                                                   class="sag-condicion-hidden"
-                                                                                   id="TESTADOSAG_HIDDEN_<?php echo $r['ID_EXIEXPORTACION']; ?>"
-                                                                                   name="TESTADOSAG_ROW[<?php echo $r['ID_EXIEXPORTACION']; ?>]"
-                                                                                   value="<?php echo isset($r['TESTADOSAG']) ? $r['TESTADOSAG'] : ''; ?>" />
+                                                                                  class="sag-condicion-hidden"
+                                                                                  id="TESTADOSAG_HIDDEN_<?php echo $r['ID_EXIEXPORTACION']; ?>"
+                                                                                  name="TESTADOSAG_ROW[<?php echo $r['ID_EXIEXPORTACION']; ?>]"
+                                                                                  value="<?php echo $ES_MUESTREO_USDA ? (isset($r['TESTADOSAG']) ? $r['TESTADOSAG'] : '') : $TESTADOSAG; ?>" />
 
                                                                             <select class="form-control select2 estado-sag-select sag-condicion-select"
                                                                                     id="TESTADOSAG_<?php echo $r['ID_EXIEXPORTACION']; ?>"
@@ -1167,7 +1189,7 @@ if (isset($_POST)) {
                                                                                     data-locked="<?php echo $ESTADO == 0 ? '1' : '0'; ?>"
                                                                                     style="width:100%;"
                                                                                     onchange="document.getElementById('TESTADOSAG_HIDDEN_<?php echo $r['ID_EXIEXPORTACION']; ?>').value = this.value;"
-                                                                                    <?php if ($ESTADO == 0) { echo 'disabled style="pointer-events:none; opacity:0.6;"'; } ?>>
+                                                                                    <?php echo (!$ES_MUESTREO_USDA || $ESTADO == 0) ? 'disabled style="pointer-events:none; opacity:0.6;"' : ''; ?>>
                                                                                 <option value=""></option>
                                                                                 <option value="1" <?php if (isset($r['TESTADOSAG']) && $r['TESTADOSAG'] == "1") echo "selected"; ?>>En Inspección</option>
                                                                                 <option value="2" <?php if (isset($r['TESTADOSAG']) && $r['TESTADOSAG'] == "2") echo "selected"; ?>>Aprobado Origen</option>
