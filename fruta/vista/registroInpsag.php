@@ -116,6 +116,7 @@ $ES_MUESTREO_USDA = false;
 
 $MENSAJE = "";
 $MENSAJEVALIDATO = "";
+$FOLIOAGREGAR = "";
 
 
 //INICIALIZAR ARREGLOS
@@ -343,6 +344,10 @@ if (isset($id_dato) && isset($accion_dato)) {
 }
 //PROCESO PARA OBTENER LOS DATOS DEL FORMULARIO  Y MANTENERLO AL ACTUALIZACION QUE REALIZA EL SELECT DE CONDUCTOR
 if (isset($_POST)) {
+
+    if (isset($_REQUEST['FOLIOAGREGAR'])) {
+        $FOLIOAGREGAR = "" . $_REQUEST['FOLIOAGREGAR'];
+    }
 
     if (isset($_REQUEST['FECHAINPSAG'])) {
         $FECHAINPSAG = "" . $_REQUEST['FECHAINPSAG'];
@@ -1046,6 +1051,26 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                                                 </button>
                                             </div>
                                         </form>
+                                        <form method="post" class="col-auto" id="form_agregar_folio">
+                                            <input type="hidden" name="IDP" value="<?php echo $IDOP; ?>" />
+                                            <input type="hidden" name="OPP" value="<?php echo $OP; ?>" />
+                                            <div class="input-group mb-2">
+                                                <input type="text"
+                                                       class="form-control"
+                                                       placeholder="Ingresar folio"
+                                                       id="FOLIOAGREGAR"
+                                                       name="FOLIOAGREGAR"
+                                                       value="<?php echo htmlspecialchars($FOLIOAGREGAR, ENT_QUOTES, 'UTF-8'); ?>"
+                                                       <?php echo $DISABLED2; ?>
+                                                       <?php if ($ESTADO == 0) { echo "disabled style='background-color: #eeeeee;'"; } ?>
+                                                />
+                                                <div class="input-group-append">
+                                                    <button type="submit" class="btn btn-primary" name="AGREGARFOLIO" id="AGREGARFOLIO" <?php echo $DISABLED2; ?> <?php if ($ESTADO == 0) { echo "disabled";} ?>>
+                                                        Agregar folio
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
                                         <div class="col-auto">
                                             <label class="sr-only" for=""></label>
                                             <div class="input-group mb-2">
@@ -1403,6 +1428,30 @@ $DISABLED_CONDICION_SAG = ($ESTADO == 0 || $DISABLED2 == "disabled") ? "disabled
                             }
                         }
 
+                    }
+                } else {
+                    if ($condicionCabecera !== '') {
+                        $ARRAYDETALLE_INPSAG = $EXIEXPORTACION_ADO->verExistenciaPorInpSag($_REQUEST['IDP']);
+                        if ($ARRAYDETALLE_INPSAG) {
+                            foreach ($ARRAYDETALLE_INPSAG as $detalle) {
+                                $EXIEXPORTACION->__SET('ID_EXIEXPORTACION', $detalle['ID_EXIEXPORTACION']);
+                                $EXIEXPORTACION->__SET('TESTADOSAG', $condicionCabecera);
+                                $EXIEXPORTACION_ADO->actualizarEstadoSag($EXIEXPORTACION);
+
+                                $AUSUARIO_ADO->agregarAusuario2(
+                                    "NULL",
+                                    1,
+                                    2,
+                                    "" . $_SESSION["NOMBRE_USUARIO"] . ", Condición SAG de encabezado aplicada a folio ID: " . $detalle['ID_EXIEXPORTACION'] . ".",
+                                    "fruta_exiexportacion",
+                                    $detalle['ID_EXIEXPORTACION'],
+                                    $_SESSION["ID_USUARIO"],
+                                    $_SESSION['ID_EMPRESA'],
+                                    $_SESSION['ID_PLANTA'],
+                                    $_SESSION['ID_TEMPORADA']
+                                );
+                            }
+                        }
                     }
                 } else {
                     if ($condicionCabecera !== '') {
