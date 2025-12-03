@@ -594,11 +594,13 @@ if ($TINPSAG && $ARRAYTINPSAG) {
                   function actualizarVisibilidadCondicionSag() {
                       var tinpsagSelect = document.getElementById("TINPSAG");
                       var textoSeleccion = '';
+                      var esMuestreo = false;
                       if (tinpsagSelect && tinpsagSelect.options[tinpsagSelect.selectedIndex]) {
-                          textoSeleccion = tinpsagSelect.options[tinpsagSelect.selectedIndex].text.toLowerCase();
+                          var opcionSeleccionada = tinpsagSelect.options[tinpsagSelect.selectedIndex];
+                          textoSeleccion = opcionSeleccionada.text ? opcionSeleccionada.text.toLowerCase() : '';
+                          esMuestreo = opcionSeleccionada.getAttribute('data-muestreo') === '1';
                       }
 
-                      var esMuestreo = textoSeleccion.indexOf('muestreo') !== -1;
                       if (textoSeleccion === '' && typeof ES_MUESTREO_INICIAL !== 'undefined') {
                           esMuestreo = ES_MUESTREO_INICIAL;
                       }
@@ -636,14 +638,26 @@ if ($TINPSAG && $ARRAYTINPSAG) {
 
                       var tinpsag = document.getElementById('TINPSAG');
                       var tinpsagHidden = document.getElementById('TINPSAGE');
+                      var manejandoCambioTipo = false;
+                      var handlerCambioTipo = function() {
+                          if (tinpsagHidden) {
+                              tinpsagHidden.value = tinpsag.value;
+                          }
+                          actualizarVisibilidadCondicionSag();
+                          if (!manejandoCambioTipo) {
+                              manejandoCambioTipo = true;
+                              setTimeout(function() {
+                                  manejandoCambioTipo = false;
+                                  refrescar();
+                              }, 0);
+                          }
+                      };
+
                       if (tinpsag) {
-                          tinpsag.addEventListener('change', function() {
-                              if (tinpsagHidden) {
-                                  tinpsagHidden.value = tinpsag.value;
-                              }
-                              actualizarVisibilidadCondicionSag();
-                              refrescar();
-                          });
+                          tinpsag.addEventListener('change', handlerCambioTipo);
+                          if (typeof jQuery !== 'undefined') {
+                              jQuery(tinpsag).on('select2:select', handlerCambioTipo);
+                          }
                       }
 
                       var condicionEncabezado = document.getElementById('TESTADOSAG');
@@ -760,7 +774,7 @@ if ($TINPSAG && $ARRAYTINPSAG) {
                                                     <option></option>
                                                     <?php foreach ($ARRAYTINPSAG as $r) : ?>
                                                         <?php if ($ARRAYTINPSAG) {    ?>
-                                                            <option value="<?php echo $r['ID_TINPSAG']; ?>" <?php if ($TINPSAG == $r['ID_TINPSAG']) {  echo "selected";  } ?>>
+                                                            <option value="<?php echo $r['ID_TINPSAG']; ?>" data-muestreo="<?php echo stripos($r['NOMBRE_TINPSAG'], 'muestreo') !== false ? '1' : '0'; ?>" <?php if ($TINPSAG == $r['ID_TINPSAG']) {  echo "selected";  } ?>>
                                                                 <?php echo $r['NOMBRE_TINPSAG'] ?>
                                                             </option>
                                                         <?php } else { ?>
