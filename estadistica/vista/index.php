@@ -94,7 +94,8 @@ if ($PRODUCTORESASOCIADOS) {
             }
 
             .collage-card { height: 100%; background-color: #fff; display: flex; flex-direction: column; }
-            .collage-card .box-body { flex: 1; }
+            .collage-card .box-body { flex: 1; display: flex; flex-direction: column; }
+            .collage-card .box-body > *:last-child { margin-bottom: 0; }
 
             .dashboard-row { margin-bottom: 12px; }
 
@@ -114,6 +115,8 @@ if ($PRODUCTORESASOCIADOS) {
 
             .compact-card .box-body { padding: 12px; }
             .compact-card .box-header { padding: 10px 12px; }
+            .compact-card.h-100 { display: flex; flex-direction: column; }
+            .compact-card.h-100 .box-body { flex: 1; display: flex; flex-direction: column; }
 
             .compact-table th, .compact-table td { padding: 8px 6px; font-size: 13px; vertical-align: middle; }
             .compact-table th { font-weight: 600; }
@@ -227,7 +230,7 @@ if ($PRODUCTORESASOCIADOS) {
 
                         <div class="row dashboard-row collage-row align-items-stretch">
                             <div class="col-xl-4 col-12">
-                                <div class="box compact-card collage-card">
+                                <div class="box compact-card collage-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Indicadores operacionales</h4>
@@ -266,7 +269,7 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
 
                             <div class="col-xl-4 col-12">
-                                <div class="box compact-card collage-card">
+                                <div class="box compact-card collage-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Kilos por productor (CSP)</h4>
@@ -330,7 +333,7 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
 
                             <div class="col-xl-4 col-12">
-                                <div class="box compact-card collage-card">
+                                <div class="box compact-card collage-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Documentos próximos a vencer</h4>
