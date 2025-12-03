@@ -93,7 +93,8 @@ if ($PRODUCTORESASOCIADOS) {
                 height: 100%;
             }
 
-            .collage-card { height: 100%; }
+            .collage-card { height: 100%; background-color: #fff; display: flex; flex-direction: column; }
+            .collage-card .box-body { flex: 1; }
 
             .dashboard-row { margin-bottom: 12px; }
 
@@ -420,11 +421,11 @@ if ($PRODUCTORESASOCIADOS) {
 
                         <div class="row dashboard-row">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card h-100">
-                                    <div class="box-header with-border bg-primary" style="border-radius: 3px 3px 0 0;">
-                                        <div class="d-flex justify-content-between align-items-center text-white">
+                                <div class="box compact-card collage-card h-100">
+                                    <div class="box-header with-border">
+                                        <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Información de proceso</h4>
-                                            <span class="badge badge-light">Neto entrada</span>
+                                            <span class="badge badge-outline badge-primary">Neto entrada</span>
                                         </div>
                                     </div>
                                     <div class="box-body">
@@ -451,7 +452,7 @@ if ($PRODUCTORESASOCIADOS) {
                                                 <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $RELACIONPROCESOBARRA; ?>%" aria-valuenow="<?php echo $RELACIONPROCESO; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
-                                        <div class="text-muted small">Totales alineados a <strong>listarProductorProceso.php</strong> con corte al día previo.</div>
+                                        <div class="text-muted small">Totales alineados a <strong>Agrupado de proceso</strong> con corte al día previo.</div>
                                     </div>
                                 </div>
                             </div>
