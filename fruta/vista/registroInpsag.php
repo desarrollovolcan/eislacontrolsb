@@ -240,6 +240,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                     </script>';
                 } else {
                     $detalleFolio = $EXIEXPORTACION_ADO->obtenerDetallePorPlantaTemporadaFolio($PLANTAS, $TEMPORADAS, $folioSolicitado);
+
                     if (!$detalleFolio) {
                         echo '<script>
                             Swal.fire({
@@ -254,8 +255,30 @@ if (isset($id_dato) && isset($accion_dato)) {
                             })
                         </script>';
                     } else {
-                        $folioDatos = $detalleFolio[0];
-                        if ($folioDatos['ID_INPSAG'] !== null) {
+                        $bloqueadoPorInspeccion = true;
+                        $bloqueadoPorCondicion = true;
+                        $bloqueadoPorDespacho = true;
+                        $bloqueadoPorVigencia = true;
+
+                        foreach ($detalleFolio as $folioEstado) {
+                            if ($folioEstado['ID_INPSAG'] === null) {
+                                $bloqueadoPorInspeccion = false;
+                            }
+
+                            if ($folioEstado['TESTADOSAG'] === null) {
+                                $bloqueadoPorCondicion = false;
+                            }
+
+                            if ($folioEstado['ID_DESPACHOEX'] === null && $folioEstado['ID_DESPACHO'] === null && $folioEstado['ID_DESPACHO2'] === null) {
+                                $bloqueadoPorDespacho = false;
+                            }
+
+                            if ($folioEstado['ESTADO'] == 2 && $folioEstado['ESTADO_REGISTRO'] == 1) {
+                                $bloqueadoPorVigencia = false;
+                            }
+                        }
+
+                        if ($bloqueadoPorInspeccion) {
                             echo '<script>
                                 Swal.fire({
                                     icon:"warning",
@@ -268,7 +291,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                                     location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
                                 })
                             </script>';
-                        } elseif ($folioDatos['TESTADOSAG'] !== null) {
+                        } elseif ($bloqueadoPorCondicion) {
                             echo '<script>
                                 Swal.fire({
                                     icon:"warning",
@@ -281,7 +304,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                                     location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
                                 })
                             </script>';
-                        } elseif ($folioDatos['ID_DESPACHOEX'] !== null || $folioDatos['ID_DESPACHO'] !== null || $folioDatos['ID_DESPACHO2'] !== null) {
+                        } elseif ($bloqueadoPorDespacho) {
                             echo '<script>
                                 Swal.fire({
                                     icon:"warning",
@@ -294,7 +317,7 @@ if (isset($id_dato) && isset($accion_dato)) {
                                     location.href = "registroInpsag.php?op&id='.$id_dato.'&a='.$accion_dato.'";
                                 })
                             </script>';
-                        } elseif ($folioDatos['ESTADO'] != 2 || $folioDatos['ESTADO_REGISTRO'] != 1) {
+                        } elseif ($bloqueadoPorVigencia) {
                             echo '<script>
                                 Swal.fire({
                                     icon:"warning",
