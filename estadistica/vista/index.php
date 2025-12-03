@@ -91,11 +91,26 @@ if ($PRODUCTORESASOCIADOS) {
                 border: 0;
                 box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
                 height: 100%;
+                min-height: 150px;
             }
 
-            .collage-card { height: 100%; }
+            .collage-card { background-color: #fff; }
+            .collage-card .box-body > *:last-child { margin-bottom: 0; }
 
-            .dashboard-row { margin-bottom: 12px; }
+            .collage-card,
+            .compact-card {
+                min-height: 380px;
+            }
+
+            @media (max-width: 991px) {
+                .collage-card,
+                .compact-card {
+                    min-height: auto;
+                }
+            }
+
+            .dashboard-row { margin-bottom: 15px; }
+            .dashboard-row > [class*='col-'] { margin-bottom: 15px; }
 
             .collage-row { margin-left: -8px; margin-right: -8px; }
             .collage-row > [class*='col-'] { padding-left: 8px; padding-right: 8px; }
@@ -106,13 +121,26 @@ if ($PRODUCTORESASOCIADOS) {
 
             .row .col-xl-4th { display: flex; }
 
+            .row-stretch { align-items: stretch; }
+            .row-stretch > [class*='col-'] { display: flex; }
+            .row-stretch > [class*='col-'] > .box { flex: 1; display: flex; flex-direction: column; }
+
             .bg-gradient-sky { background: linear-gradient(135deg, #1d8cf8 0%, #5ac8fa 100%); }
             .bg-gradient-dusk { background: linear-gradient(135deg, #7b42f6 0%, #b06ab3 100%); }
             .bg-gradient-emerald { background: linear-gradient(135deg, #2ecc71 0%, #58d68d 100%); }
             .bg-gradient-amber { background: linear-gradient(135deg, #f5a623 0%, #f7c46c 100%); }
 
-            .compact-card .box-body { padding: 12px; }
-            .compact-card .box-header { padding: 10px 12px; }
+            .compact-card { display: flex; flex-direction: column; height: 100%; }
+            .compact-card .box-header { padding: 10px 12px; flex-shrink: 0; }
+            .compact-card .box-body {
+                padding: 14px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .compact-card .table-responsive { flex: 1; }
 
             .compact-table th, .compact-table td { padding: 8px 6px; font-size: 13px; vertical-align: middle; }
             .compact-table th { font-weight: 600; }
@@ -174,7 +202,7 @@ if ($PRODUCTORESASOCIADOS) {
                     <section class="content">
                         <p class="text-muted mb-15">Datos filtrados por productores asociados, temporada y especie seleccionada. Los acumulados consideran información hasta el cierre del día anterior.</p>
 
-                        <div class="row dashboard-row">
+                        <div class="row dashboard-row row-stretch">
                             <div class="col-xl-4th col-lg-6 col-12">
                                 <div class="box box-body dashboard-card bg-gradient-sky">
                                     <div class="flexbox align-items-center">
@@ -224,9 +252,9 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
                         </div>
 
-                        <div class="row dashboard-row collage-row align-items-stretch">
+                        <div class="row dashboard-row collage-row align-items-stretch row-stretch">
                             <div class="col-xl-4 col-12">
-                                <div class="box compact-card collage-card">
+                                <div class="box compact-card collage-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Indicadores operacionales</h4>
@@ -234,21 +262,21 @@ if ($PRODUCTORESASOCIADOS) {
                                         </div>
                                     </div>
                                     <div class="box-body">
-                                        <div class="d-flex align-items-center mb-3">
+                                        <div class="d-flex align-items-center">
                                             <span class="badge badge-pill badge-info mr-2"><i class="icon-Notes"></i></span>
                                             <div>
-                                            <div class="text-muted small">Recepciones registradas</div>
-                                            <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></div>
+                                                <div class="text-muted small">Recepciones registradas</div>
+                                                <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-3">
-                                        <span class="badge badge-pill badge-success mr-2"><i class="icon-Gear"></i></span>
-                                        <div>
-                                            <div class="text-muted small">Kilos netos por productor</div>
-                                            <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</div>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge badge-pill badge-success mr-2"><i class="icon-Gear"></i></span>
+                                            <div>
+                                                <div class="text-muted small">Kilos netos por productor</div>
+                                                <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                        <div class="bg-light p-2 rounded mb-2">
+                                        <div class="bg-light p-2 rounded">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <span class="text-muted small">Kilos recepcionados (día previo)</span>
                                                 <span class="badge badge-primary"><?php echo number_format((float)$KILOSRECEPCIONHOY, 2, ',', '.'); ?> kg</span>
@@ -265,7 +293,7 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
 
                             <div class="col-xl-4 col-12">
-                                <div class="box compact-card collage-card">
+                                <div class="box compact-card collage-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Kilos por productor (CSP)</h4>
@@ -329,7 +357,7 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
 
                             <div class="col-xl-4 col-12">
-                                <div class="box compact-card collage-card">
+                                <div class="box compact-card collage-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Documentos próximos a vencer</h4>
@@ -389,9 +417,9 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
                         </div>
 
-                        <div class="row dashboard-row">
+                        <div class="row dashboard-row row-stretch">
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
+                                <div class="box compact-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Procesos por semana</h4>
@@ -404,7 +432,7 @@ if ($PRODUCTORESASOCIADOS) {
                                 </div>
                             </div>
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
+                                <div class="box compact-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Recepciones por semana</h4>
@@ -418,46 +446,46 @@ if ($PRODUCTORESASOCIADOS) {
                             </div>
                         </div>
 
-                        <div class="row dashboard-row">
+                        <div class="row dashboard-row row-stretch">
                             <div class="col-lg-6 col-12 mb-15">
                                 <div class="box compact-card h-100">
-                                    <div class="box-header with-border bg-primary" style="border-radius: 3px 3px 0 0;">
-                                        <div class="d-flex justify-content-between align-items-center text-white">
-                                            <h4 class="box-title mb-0">Información de proceso</h4>
-                                            <span class="badge badge-light">Neto entrada</span>
+                                    <div class="box-header with-border">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="box-title mb-0">Indicadores operacionales</h4>
+                                            <span class="badge badge-outline badge-info">Corte día previo</span>
                                         </div>
                                     </div>
                                     <div class="box-body">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <span class="badge badge-pill badge-primary mr-2"><i class="icon-Incoming-mail"></i></span>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
                                             <div>
-                                                <div class="text-muted small">Procesado acumulado</div>
-                                                <div class="h5 mb-0"><?php echo number_format((float)$KILOSPROCESOACUMULADOS, 2, ',', '.'); ?> kg</div>
+                                                <div class="text-muted small">Kilos procesados acumulados</div>
+                                                <div class="h4 mb-0 font-weight-700"><?php echo number_format((float)$KILOSPROCESOACUMULADOS, 2, ',', '.'); ?> kg</div>
                                             </div>
+                                            <span class="badge badge-success badge-slim">Proceso</span>
                                         </div>
-                                        <div class="d-flex align-items-center mb-3">
-                                            <span class="badge badge-pill badge-info mr-2"><i class="icon-Alarm-clock"></i></span>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
                                             <div>
-                                                <div class="text-muted small">Procesado día anterior</div>
-                                                <div class="h5 mb-0"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</div>
+                                                <div class="text-muted small">Procesos (día previo)</div>
+                                                <div class="h4 mb-0 font-weight-700"><?php echo number_format((float)$KILOSPROCESOHOY, 2, ',', '.'); ?> kg</div>
                                             </div>
+                                            <span class="badge badge-info badge-slim">Cierre diario</span>
                                         </div>
-                                        <div class="bg-light p-3 rounded mb-2">
-                                            <div class="d-flex justify-content-between align-items-center">
+                                        <div class="bg-light p-2 rounded mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <span class="text-muted small">Relación proceso / recepción</span>
-                                                <span class="badge badge-secondary"><?php echo number_format((float)$RELACIONPROCESO, 0, ',', '.'); ?>%</span>
+                                                <span class="badge badge-secondary"><?php echo number_format((float)$RELACIONPROCESO, 1, ',', '.'); ?>%</span>
                                             </div>
-                                            <div class="progress progress-xxs mt-2 mb-0">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $RELACIONPROCESOBARRA; ?>%" aria-valuenow="<?php echo $RELACIONPROCESO; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <div class="progress progress-xxs mb-0">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: <?php echo $RELACIONPROCESOBARRA; ?>%" aria-valuenow="<?php echo $RELACIONPROCESOBARRA; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
-                                        <div class="text-muted small">Totales alineados a <strong>listarProductorProceso.php</strong> con corte al día previo.</div>
+                                        <p class="text-muted small mb-0">Totales alineados a <strong>Agrupado de proceso</strong> con corte al día previo.</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-lg-6 col-12 mb-15">
-                                <div class="box compact-card">
+                                <div class="box compact-card h-100">
                                     <div class="box-header with-border">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="box-title mb-0">Kilos por CSP y variedad</h4>
