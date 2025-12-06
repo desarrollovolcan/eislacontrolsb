@@ -265,9 +265,12 @@ class CONSULTA_ADO
     {
         try {
 
-            $datos = $this->conexion->prepare("SELECT SUM(DR.KILOS_NETO_DRECEPCION)AS TOTAL FROM fruta_recepcionmp R 
-            JOIN fruta_drecepcionmp DR ON DR.ID_RECEPCION = R.ID_RECEPCION 
-            WHERE R.ID_PLANTA = '".$PLANTA."' AND R.ID_EMPRESA = '".$EMPRESA."' AND R.ESTADO = 0 AND R.ID_TEMPORADA = '".$TEMPORADA."'");
+            $datos = $this->conexion->prepare("SELECT IFNULL(SUM(R.KILOS_NETO_RECEPCION),0) AS TOTAL
+                                                FROM fruta_recepcionmp R
+                                                WHERE R.ID_PLANTA = '".$PLANTA."'
+                                                AND R.ID_EMPRESA = '".$EMPRESA."'
+                                                AND R.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND R.ESTADO_REGISTRO = 1");
             $datos->execute();
             $resultado = $datos->fetchAll();
             $datos=null;
