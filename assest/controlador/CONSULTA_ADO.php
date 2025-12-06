@@ -988,6 +988,39 @@ class CONSULTA_ADO
         }
     }
 
+    public function kilosMateriaPrimaIndustrialProductorPorEmpresa($TEMPORADA, $ESPECIE, $ASOCIACIONES)
+    {
+        try {
+            if (empty($ASOCIACIONES)) {
+                return 0;
+            }
+
+            $total = 0;
+
+            foreach ($ASOCIACIONES as $asociacion) {
+                $datos = $this->conexion->prepare("SELECT IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
+                                                    FROM fruta_recepcionind recepcion
+                                                    INNER JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                    LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
+                                                    WHERE recepcion.ESTADO_REGISTRO = 1
+                                                    AND detalle.ESTADO_REGISTRO = 1
+                                                    AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
+                                                    AND recepcion.ID_EMPRESA = '".$asociacion["ID_EMPRESA"]."'
+                                                    AND recepcion.ID_PRODUCTOR = '".$asociacion["ID_PRODUCTOR"]."'
+                                                    AND V.ID_ESPECIES = '".$ESPECIE."';");
+                $datos->execute();
+                $resultado = $datos->fetchAll();
+                $datos=null;
+
+                $total += $resultado ? (float) $resultado[0]['TOTAL'] : 0;
+            }
+
+            return $total;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
     public function kilosProcesadosProductor($TEMPORADA, $ESPECIE, $PRODUCTORES)
     {
         try {
@@ -1128,6 +1161,40 @@ class CONSULTA_ADO
             $datos=null;
 
             return $resultado ? $resultado[0]['TOTAL'] : 0;
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public function kilosRecepcionadosHoyIndustrialProductorPorEmpresa($TEMPORADA, $ESPECIE, $ASOCIACIONES)
+    {
+        try {
+            if (empty($ASOCIACIONES)) {
+                return 0;
+            }
+
+            $total = 0;
+
+            foreach ($ASOCIACIONES as $asociacion) {
+                $datos = $this->conexion->prepare("SELECT IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
+                                                    FROM fruta_recepcionind recepcion
+                                                    INNER JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                    LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
+                                                    WHERE recepcion.ESTADO_REGISTRO = 1
+                                                    AND detalle.ESTADO_REGISTRO = 1
+                                                    AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
+                                                    AND recepcion.ID_EMPRESA = '".$asociacion["ID_EMPRESA"]."'
+                                                    AND recepcion.ID_PRODUCTOR = '".$asociacion["ID_PRODUCTOR"]."'
+                                                    AND V.ID_ESPECIES = '".$ESPECIE."'
+                                                    AND DATE(recepcion.FECHA_RECEPCION) = CURRENT_DATE; ");
+                $datos->execute();
+                $resultado = $datos->fetchAll();
+                $datos=null;
+
+                $total += $resultado ? (float) $resultado[0]['TOTAL'] : 0;
+            }
+
+            return $total;
         } catch (Exception $e) {
             die($e->getMessage());
         }
