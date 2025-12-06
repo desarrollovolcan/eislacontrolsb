@@ -705,15 +705,13 @@ class CONSULTA_ADO
 
             $datos = $this->conexion->prepare("SELECT V.NOMBRE_VESPECIES AS NOMBRE,
                                                     IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
-                                                FROM fruta_recepcionmp recepcion
-                                                LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                FROM fruta_recepcionind recepcion
+                                                INNER JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
                                                 LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
                                                 WHERE recepcion.ESTADO_REGISTRO = 1
-                                                AND recepcion.ESTADO = 0
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
                                                 GROUP BY detalle.ID_VESPECIES
                                                 ORDER BY TOTAL DESC;");
@@ -739,15 +737,13 @@ class CONSULTA_ADO
 
             $datos = $this->conexion->prepare("SELECT WEEK(recepcion.FECHA_RECEPCION,3) AS SEMANA,
                                                     IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
-                                                FROM fruta_recepcionmp recepcion
-                                                LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                FROM fruta_recepcionind recepcion
+                                                INNER JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
                                                 LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
                                                 WHERE recepcion.ESTADO_REGISTRO = 1
-                                                AND recepcion.ESTADO = 0
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
                                                 GROUP BY SEMANA
                                                 ORDER BY SEMANA;");
@@ -810,16 +806,14 @@ class CONSULTA_ADO
                                                         IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL,
                                                         IFNULL(SUM(detalle.CANTIDAD_ENVASE_DRECEPCION),0) AS ENVASES,
                                                         COUNT(DISTINCT recepcion.ID_RECEPCION) AS RECEPCIONES
-                                                FROM fruta_recepcionmp recepcion
-                                                LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                FROM fruta_recepcionind recepcion
+                                                INNER JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
                                                 LEFT JOIN fruta_productor PR ON recepcion.ID_PRODUCTOR = PR.ID_PRODUCTOR
                                                 LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
                                                 WHERE recepcion.ESTADO_REGISTRO = 1
-                                                AND recepcion.ESTADO = 0
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
                                                 GROUP BY recepcion.ID_PRODUCTOR
                                                 ORDER BY TOTAL DESC;");
@@ -1154,7 +1148,7 @@ class CONSULTA_ADO
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND DATE(recepcion.FECHA_RECEPCION) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+                                                AND DATE(recepcion.FECHA_RECEPCION) = CURDATE()
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
@@ -1186,7 +1180,7 @@ class CONSULTA_ADO
                                                     AND recepcion.ID_EMPRESA = '".$asociacion["ID_EMPRESA"]."'
                                                     AND recepcion.ID_PRODUCTOR = '".$asociacion["ID_PRODUCTOR"]."'
                                                     AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                    AND DATE(recepcion.FECHA_RECEPCION) = DATE_SUB(CURDATE(), INTERVAL 1 DAY); ");
+                                                    AND DATE(recepcion.FECHA_RECEPCION) = CURDATE();");
                 $datos->execute();
                 $resultado = $datos->fetchAll();
                 $datos=null;
@@ -1214,16 +1208,14 @@ class CONSULTA_ADO
                                                         V.NOMBRE_VESPECIES AS VARIEDAD,
                                                         IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL,
                                                         IFNULL(SUM(detalle.CANTIDAD_ENVASE_DRECEPCION),0) AS ENVASES
-                                                FROM fruta_recepcionmp recepcion
-                                                LEFT JOIN fruta_drecepcionmp detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                FROM fruta_recepcionind recepcion
+                                                INNER JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
                                                 LEFT JOIN fruta_productor PR ON recepcion.ID_PRODUCTOR = PR.ID_PRODUCTOR
                                                 LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
                                                 WHERE recepcion.ESTADO_REGISTRO = 1
-                                                AND recepcion.ESTADO = 0
                                                 AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND recepcion.FECHA_RECEPCION < CURRENT_DATE
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."')
                                                 GROUP BY recepcion.ID_PRODUCTOR, detalle.ID_VESPECIES
                                                 ORDER BY PRODUCTOR ASC, VARIEDAD ASC;");
