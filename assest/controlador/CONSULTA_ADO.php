@@ -1000,10 +1000,9 @@ class CONSULTA_ADO
             foreach ($ASOCIACIONES as $asociacion) {
                 $datos = $this->conexion->prepare("SELECT IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
                                                     FROM fruta_recepcionind recepcion
-                                                    INNER JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                    LEFT JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
                                                     LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
                                                     WHERE recepcion.ESTADO_REGISTRO = 1
-                                                    AND detalle.ESTADO_REGISTRO = 1
                                                     AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                     AND recepcion.ID_EMPRESA = '".$asociacion["ID_EMPRESA"]."'
                                                     AND recepcion.ID_PRODUCTOR = '".$asociacion["ID_PRODUCTOR"]."'
@@ -1148,13 +1147,12 @@ class CONSULTA_ADO
 
             $datos = $this->conexion->prepare("SELECT IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
                                                 FROM fruta_recepcionind recepcion
-                                                INNER JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                LEFT JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
                                                 LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
                                                 WHERE recepcion.ESTADO_REGISTRO = 1
-                                                AND detalle.ESTADO_REGISTRO = 1
                                                 AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                 AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                AND DATE(recepcion.FECHA_RECEPCION) = CURRENT_DATE
+                                                AND DATE(recepcion.FECHA_RECEPCION) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
                                                 AND recepcion.ID_PRODUCTOR IN ('".$productoresIn."');");
             $datos->execute();
             $resultado = $datos->fetchAll();
@@ -1178,15 +1176,14 @@ class CONSULTA_ADO
             foreach ($ASOCIACIONES as $asociacion) {
                 $datos = $this->conexion->prepare("SELECT IFNULL(SUM(detalle.KILOS_NETO_DRECEPCION),0) AS TOTAL
                                                     FROM fruta_recepcionind recepcion
-                                                    INNER JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
+                                                    LEFT JOIN fruta_drecepcionind detalle ON recepcion.ID_RECEPCION = detalle.ID_RECEPCION
                                                     LEFT JOIN fruta_vespecies V ON detalle.ID_VESPECIES = V.ID_VESPECIES
                                                     WHERE recepcion.ESTADO_REGISTRO = 1
-                                                    AND detalle.ESTADO_REGISTRO = 1
                                                     AND recepcion.ID_TEMPORADA = '".$TEMPORADA."'
                                                     AND recepcion.ID_EMPRESA = '".$asociacion["ID_EMPRESA"]."'
                                                     AND recepcion.ID_PRODUCTOR = '".$asociacion["ID_PRODUCTOR"]."'
                                                     AND V.ID_ESPECIES = '".$ESPECIE."'
-                                                    AND DATE(recepcion.FECHA_RECEPCION) = CURRENT_DATE; ");
+                                                    AND DATE(recepcion.FECHA_RECEPCION) = DATE_SUB(CURDATE(), INTERVAL 1 DAY); ");
                 $datos->execute();
                 $resultado = $datos->fetchAll();
                 $datos=null;
