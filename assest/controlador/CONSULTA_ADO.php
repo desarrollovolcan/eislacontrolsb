@@ -670,14 +670,17 @@ class CONSULTA_ADO
         try {
 
             $datos = $this->conexion->prepare("SELECT V.NOMBRE_VESPECIES AS NOMBRE,
-                                                    IFNULL(SUM(EXI.KILOS_NETO_EXIEXPORTACION),0) AS TOTAL
-                                                FROM fruta_exiexportacion EXI
-                                                LEFT JOIN fruta_vespecies V ON EXI.ID_VESPECIES = V.ID_VESPECIES
-                                                WHERE EXI.ESTADO_REGISTRO = 1
-                                                AND EXI.ID_TEMPORADA = '".$TEMPORADA."'
-                                                AND EXI.ID_EMPRESA = '".$EMPRESA."'
-                                                AND EXI.ID_PLANTA = '".$PLANTA."'
-                                                GROUP BY EXI.ID_VESPECIES
+                                                    IFNULL(SUM(DR.KILOS_NETO_DRECEPCION),0) AS TOTAL
+                                                FROM fruta_recepcionmp R
+                                                JOIN fruta_drecepcionmp DR ON DR.ID_RECEPCION = R.ID_RECEPCION
+                                                LEFT JOIN fruta_vespecies V ON DR.ID_VESPECIES = V.ID_VESPECIES
+                                                WHERE R.ESTADO_REGISTRO = 1
+                                                AND DR.ESTADO_REGISTRO = 1
+                                                AND R.ESTADO = 0
+                                                AND R.ID_TEMPORADA = '".$TEMPORADA."'
+                                                AND R.ID_EMPRESA = '".$EMPRESA."'
+                                                AND R.ID_PLANTA = '".$PLANTA."'
+                                                GROUP BY DR.ID_VESPECIES
                                                 ORDER BY TOTAL DESC
                                                 LIMIT 5");
             $datos->execute();
