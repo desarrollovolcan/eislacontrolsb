@@ -6080,20 +6080,15 @@ $(function () {
             */  
             //PRIMERA FORMA DE OBTENER TOTTALES,SI DESCUENTA LO FILTRADO
             'drawCallback':function(){
-                var api =this.api();  
-                var totalnetoeconsolidado = new Intl.NumberFormat('de-DE').format(parseFloat(api.column(10,{page:'current'}).data().sum()).toFixed(2));            
-                var totalnetoexpoconsolidado = new Intl.NumberFormat('de-DE').format(parseFloat(api.column(11,{page:'current'}).data().sum()).toFixed(2));            
-                var totalnetoexpodconsolidado2 = new Intl.NumberFormat('de-DE').format(parseFloat(api.column(13,{page:'current'}).data().sum()).toFixed(2));            
-                var totalnetoindconsolidado = new Intl.NumberFormat('de-DE').format(parseFloat(api.column(18,{page:'current'}).data().sum()).toFixed(2));           
-                console.log("neto entrada: "+  totalnetoeconsolidado);            
-                console.log("neto expo: "+  totalnetoexpoconsolidado);           
-                console.log("neto expo: "+  totalnetoexpodconsolidado2);           
-                console.log("neto expo: "+  totalnetoindconsolidado); 
+                var api = this.api();
+                var totalnetoeconsolidado = new Intl.NumberFormat('de-DE').format(parseFloat(api.column(11,{page:'current'}).data().sum()).toFixed(2));
+                var totalnetoexpoconsolidado = new Intl.NumberFormat('de-DE').format(parseFloat(api.column(12,{page:'current'}).data().sum()).toFixed(2));
+                var totalnetoexpodconsolidado2 = new Intl.NumberFormat('de-DE').format(parseFloat(api.column(14,{page:'current'}).data().sum()).toFixed(2));
+                var totalnetoindconsolidado = new Intl.NumberFormat('de-DE').format(parseFloat(api.column(19,{page:'current'}).data().sum()).toFixed(2));
                 $("#TOTALNETOEV").text(totalnetoeconsolidado);
                 $("#TOTALNETOEXPOV").text(totalnetoexpoconsolidado);
                 $("#TOTALNETOEXPODV").text(totalnetoexpodconsolidado2);
                 $("#TOTALNETOINDV").text(totalnetoindconsolidado);
-                
             },
             "scrollY": 450,
             "scrollX": true,

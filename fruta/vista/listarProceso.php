@@ -30,9 +30,10 @@ $PROCESO_ADO =  new PROCESO_ADO();
 
 $TOTALENVASE = "";
 $TOTALNETO = "";
-$TOTALNETOENTRADA = "";
-$TOTALINDUSTRIAL = "";
-$TOTALEXPORTACION = "";
+$TOTALNETOENTRADA = 0;
+$TOTALINDUSTRIAL = 0;
+$TOTALEXPORTACION = 0;
+$TOTALDESHIDRATADO = 0;
 $TURNO = "";
 $NETOENTRADA="";
 
@@ -49,6 +50,14 @@ $ARRAYPROCESO = "";
 $ARRAYTOTALPROCESO = "";
 $ARRAYTOTALPROCESOENTRADA = "";
 $ARRAYEXISMATERIPRIMAPROCESO = "";
+$ARRAYCACHEVESPECIES = [];
+$ARRAYCACHEESPECIES = [];
+$ARRAYCACHEPRODUCTOR = [];
+$ARRAYCACHETPROCESO = [];
+$ARRAYCACHEEMPRESA = [];
+$ARRAYCACHEPLANTA = [];
+$ARRAYCACHETEMPORADA = [];
+$ARRAYCACHEEMBOLSADO = [];
 
 
 //DEFINIR ARREGLOS CON LOS DATOS OBTENIDOS DE LAS FUNCIONES DE LOS CONTROLADORES
@@ -217,18 +226,28 @@ include_once "../../assest/config/datosUrLP.php";
                                                 <?php foreach ($ARRAYPROCESO as $r) : ?>
 
                                                     <?php
-                                                    $ARRAYTOTALENVASESEMBOLSADO=$PROCESO_ADO->obtenerTotalEnvasesEmbolsado($r['ID_PROCESO']);
-                                                    $ENVASESEMBOLSADO=$ARRAYTOTALENVASESEMBOLSADO[0]["ENVASE"];
+                                                    if (!isset($ARRAYCACHEEMBOLSADO[$r['ID_PROCESO']])) {
+                                                        $ARRAYCACHEEMBOLSADO[$r['ID_PROCESO']] = $PROCESO_ADO->obtenerTotalEnvasesEmbolsado($r['ID_PROCESO']);
+                                                    }
+                                                    $ENVASESEMBOLSADO = $ARRAYCACHEEMBOLSADO[$r['ID_PROCESO']][0]["ENVASE"];
+
                                                     $ARRAYEXISMATERIPRIMAPROCESO = $EXIMATERIAPRIMA_ADO->obtenerTotalesProceso2($r['ID_PROCESO']);
                                                     if ($ARRAYEXISMATERIPRIMAPROCESO) {
                                                         $NETOENTRADA = $ARRAYEXISMATERIPRIMAPROCESO[0]['NETOSF'];
                                                     }
 
-                                                    $ARRAYVERVESPECIESID = $VESPECIES_ADO->verVespecies($r['ID_VESPECIES']);
+                                                    if (!isset($ARRAYCACHEVESPECIES[$r['ID_VESPECIES']])) {
+                                                        $ARRAYCACHEVESPECIES[$r['ID_VESPECIES']] = $VESPECIES_ADO->verVespecies($r['ID_VESPECIES']);
+                                                    }
+                                                    $ARRAYVERVESPECIESID = $ARRAYCACHEVESPECIES[$r['ID_VESPECIES']];
                                                     if ($ARRAYVERVESPECIESID) {
                                                         $NOMBREVESPECIES = $ARRAYVERVESPECIESID[0]['NOMBRE_VESPECIES'];
-                                                        $ARRAYVERESPECIESID = $ESPECIES_ADO->verEspecies($ARRAYVERVESPECIESID[0]['ID_ESPECIES']);
-                                                        if ($ARRAYVERVESPECIESID) {
+                                                        $IDESPECIE = $ARRAYVERVESPECIESID[0]['ID_ESPECIES'];
+                                                        if (!isset($ARRAYCACHEESPECIES[$IDESPECIE])) {
+                                                            $ARRAYCACHEESPECIES[$IDESPECIE] = $ESPECIES_ADO->verEspecies($IDESPECIE);
+                                                        }
+                                                        $ARRAYVERESPECIESID = $ARRAYCACHEESPECIES[$IDESPECIE];
+                                                        if ($ARRAYVERESPECIESID) {
                                                             $NOMBRESPECIES = $ARRAYVERESPECIESID[0]['NOMBRE_ESPECIES'];
                                                         } else {
                                                             $NOMBRESPECIES = "Sin Datos";
@@ -237,9 +256,11 @@ include_once "../../assest/config/datosUrLP.php";
                                                         $NOMBREVESPECIES = "Sin Datos";
                                                         $NOMBRESPECIES = "Sin Datos";
                                                     }
-                                                    $ARRAYVERPRODUCTORID = $PRODUCTOR_ADO->verProductor($r['ID_PRODUCTOR']);
+                                                    if (!isset($ARRAYCACHEPRODUCTOR[$r['ID_PRODUCTOR']])) {
+                                                        $ARRAYCACHEPRODUCTOR[$r['ID_PRODUCTOR']] = $PRODUCTOR_ADO->verProductor($r['ID_PRODUCTOR']);
+                                                    }
+                                                    $ARRAYVERPRODUCTORID = $ARRAYCACHEPRODUCTOR[$r['ID_PRODUCTOR']];
                                                     if ($ARRAYVERPRODUCTORID) {
-
                                                         $CSGPRODUCTOR = $ARRAYVERPRODUCTORID[0]['CSG_PRODUCTOR'];
                                                         $NOMBREPRODUCTOR = $ARRAYVERPRODUCTORID[0]['NOMBRE_PRODUCTOR'];
                                                     } else {
@@ -247,7 +268,10 @@ include_once "../../assest/config/datosUrLP.php";
                                                         $NOMBREPRODUCTOR = "Sin Datos";
                                                     }
 
-                                                    $ARRAYTPROCESO = $TPROCESO_ADO->verTproceso($r['ID_TPROCESO']);
+                                                    if (!isset($ARRAYCACHETPROCESO[$r['ID_TPROCESO']])) {
+                                                        $ARRAYCACHETPROCESO[$r['ID_TPROCESO']] = $TPROCESO_ADO->verTproceso($r['ID_TPROCESO']);
+                                                    }
+                                                    $ARRAYTPROCESO = $ARRAYCACHETPROCESO[$r['ID_TPROCESO']];
                                                     if ($ARRAYTPROCESO) {
                                                         $TPROCESO = $ARRAYTPROCESO[0]['NOMBRE_TPROCESO'];
                                                     } else {
@@ -263,19 +287,28 @@ include_once "../../assest/config/datosUrLP.php";
                                                     } else {
                                                         $TURNO = "Sin Datos";
                                                     }
-                                                    $ARRAYEMPRESA = $EMPRESA_ADO->verEmpresa($r['ID_EMPRESA']);
+                                                    if (!isset($ARRAYCACHEEMPRESA[$r['ID_EMPRESA']])) {
+                                                        $ARRAYCACHEEMPRESA[$r['ID_EMPRESA']] = $EMPRESA_ADO->verEmpresa($r['ID_EMPRESA']);
+                                                    }
+                                                    $ARRAYEMPRESA = $ARRAYCACHEEMPRESA[$r['ID_EMPRESA']];
                                                     if ($ARRAYEMPRESA) {
                                                         $NOMBREEMPRESA = $ARRAYEMPRESA[0]['NOMBRE_EMPRESA'];
                                                     } else {
                                                         $NOMBREEMPRESA = "Sin Datos";
                                                     }
-                                                    $ARRAYPLANTA = $PLANTA_ADO->verPlanta($r['ID_PLANTA']);
+                                                    if (!isset($ARRAYCACHEPLANTA[$r['ID_PLANTA']])) {
+                                                        $ARRAYCACHEPLANTA[$r['ID_PLANTA']] = $PLANTA_ADO->verPlanta($r['ID_PLANTA']);
+                                                    }
+                                                    $ARRAYPLANTA = $ARRAYCACHEPLANTA[$r['ID_PLANTA']];
                                                     if ($ARRAYPLANTA) {
                                                         $NOMBREPLANTA = $ARRAYPLANTA[0]['NOMBRE_PLANTA'];
                                                     } else {
                                                         $NOMBREPLANTA = "Sin Datos";
                                                     }
-                                                    $ARRAYTEMPORADA = $TEMPORADA_ADO->verTemporada($r['ID_TEMPORADA']);
+                                                    if (!isset($ARRAYCACHETEMPORADA[$r['ID_TEMPORADA']])) {
+                                                        $ARRAYCACHETEMPORADA[$r['ID_TEMPORADA']] = $TEMPORADA_ADO->verTemporada($r['ID_TEMPORADA']);
+                                                    }
+                                                    $ARRAYTEMPORADA = $ARRAYCACHETEMPORADA[$r['ID_TEMPORADA']];
                                                     if ($ARRAYTEMPORADA) {
                                                         $NOMBRETEMPORADA = $ARRAYTEMPORADA[0]['NOMBRE_TEMPORADA'];
                                                     } else {
@@ -283,6 +316,11 @@ include_once "../../assest/config/datosUrLP.php";
                                                     }
 
                                                     $esProcesoBajoExportacion = $r['PDEXPORTACION_PROCESO'] < 85;
+
+                                                    $TOTALNETOENTRADA += (float)$r['ENTRADA'];
+                                                    $TOTALNETO += (float)$r['NETO'];
+                                                    $TOTALDESHIDRATADO += (float)$r['EXPORTACION'];
+                                                    $TOTALINDUSTRIAL += (float)$r['SUMA_INDUSTRIAL_INFO'];
                                                     ?>
                                                     <tr class="text-center">
                                                         <td>
@@ -394,7 +432,8 @@ include_once "../../assest/config/datosUrLP.php";
                                             <div class="input-group mb-2">
                                                 <div class="input-group-prepend">
                                                     <div class="input-group-text">Total Kg. Neto Entrada</div>
-                                                    <button class="btn   btn-default" id="TOTALNETOEV" name="TOTALNETOEV" >                                                           
+                                                    <button class="btn   btn-default" id="TOTALNETOEV" name="TOTALNETOEV" >
+                                                        <?php echo number_format($TOTALNETOENTRADA, 2, ",", "."); ?>
                                                     </button>
                                                 </div>
                                             </div>
@@ -403,7 +442,8 @@ include_once "../../assest/config/datosUrLP.php";
                                             <div class="input-group mb-2">
                                                 <div class="input-group-prepend">
                                                     <div class="input-group-text">Total Kg. Neto Expo</div>
-                                                    <button class="btn   btn-default" id="TOTALNETOEXPOV" name="TOTALNETOEXPOV" >                                                           
+                                                    <button class="btn   btn-default" id="TOTALNETOEXPOV" name="TOTALNETOEXPOV" >
+                                                        <?php echo number_format($TOTALNETO, 2, ",", "."); ?>
                                                     </button>
                                                 </div>
                                             </div>
@@ -412,7 +452,8 @@ include_once "../../assest/config/datosUrLP.php";
                                             <div class="input-group mb-2">
                                                 <div class="input-group-prepend">
                                                     <div class="input-group-text">Total Kg. Con Deshi.</div>
-                                                    <button class="btn   btn-default" id="TOTALNETOEXPODV" name="TOTALNETOEXPODV" >                                                           
+                                                    <button class="btn   btn-default" id="TOTALNETOEXPODV" name="TOTALNETOEXPODV" >
+                                                        <?php echo number_format($TOTALDESHIDRATADO, 2, ",", "."); ?>
                                                     </button>
                                                 </div>
                                             </div>
@@ -421,7 +462,8 @@ include_once "../../assest/config/datosUrLP.php";
                                             <div class="input-group mb-2">
                                                 <div class="input-group-prepend">
                                                     <div class="input-group-text">Total Kg. Industrial</div>
-                                                    <button class="btn   btn-default" id="TOTALNETOINDV" name="TOTALNETOINDV" >                                                           
+                                                    <button class="btn   btn-default" id="TOTALNETOINDV" name="TOTALNETOINDV" >
+                                                        <?php echo number_format($TOTALINDUSTRIAL, 2, ",", "."); ?>
                                                     </button>
                                                 </div>
                                             </div>
