@@ -591,7 +591,109 @@ $totalProductores = count($porProductor);
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="mt-3">
+                                        <p class="mb-1 text-muted">Temperatura promedio</p>
+                                        <h4 class="mb-0"><?php echo $promedioTemperatura !== null ? number_format($promedioTemperatura, 1, ',', '.') . ' °C' : 'Sin datos'; ?></h4>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-12">
+                            <div class="box">
+                                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                                    <h4 class="box-title panel-title mb-0">Control de calidad</h4>
+                                    <span class="badge-soft bg-light text-danger">Alertas</span>
+                                </div>
+                                <div class="box-body">
+                                    <div id="chartDiferencias" style="min-height:280px;"></div>
+                                    <p class="mt-3 mb-1 text-muted">Alertas automáticas</p>
+                                    <ul class="mb-0">
+                                        <li>Se resalta en rojo cuando la diferencia supera el 7%.</li>
+                                        <li>Variación moderada entre 3% y 7% en amarillo.</li>
+                                        <li>Óptimo bajo 3% en verde.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="box">
+                        <div class="box-header with-border d-flex justify-content-between align-items-center">
+                            <h4 class="box-title panel-title mb-0">Detallado de recepciones</h4>
+                            <div>
+                                <input type="search" class="form-control" placeholder="Buscar folio" onkeyup="buscarFolio(this.value)">
+                            </div>
+                        </div>
+                        <div class="box-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0" id="tablaDetalle">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th>N° Folio</th>
+                                            <th>Fecha Cosecha</th>
+                                            <th>Código Estándar</th>
+                                            <th>Envase / Estándar</th>
+                                            <th>CSG</th>
+                                            <th>Productor</th>
+                                            <th>Especie</th>
+                                            <th>Variedad</th>
+                                            <th>Cantidad Envase</th>
+                                            <th>Kilo Neto</th>
+                                            <th>Kilo Bruto</th>
+                                            <th>Kilos Declarados</th>
+                                            <th>Diferencia</th>
+                                            <th>Rango</th>
+                                            <th>Diferencia Declarada</th>
+                                            <th>Fecha Recepción</th>
+                                            <th>Número Guía</th>
+                                            <th>Temperatura</th>
+                                            <th>Cámara</th>
+                                            <th>Observaciones</th>
+                                            <th>Tipo de Productor</th>
+                                            <th>Patente Camión</th>
+                                            <th>Patente Carro</th>
+                                            <th>Semana Recepción</th>
+                                            <th>Semana Guía</th>
+                                            <th>Empresa</th>
+                                            <th>Planta</th>
+                                            <th>Temporada</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($detalleRecepciones as $detalle) { ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($detalle['FOLIO']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['FECHA_COSECHA']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['CODIGO_ESTANDAR']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['CODIGO_ESTANDAR']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['CSG']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['PRODUCTOR']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['ESPECIE']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['VARIEDAD']); ?></td>
+                                                <td class="text-right"><?php echo number_format($detalle['ENVASE'], 0, ',', '.'); ?></td>
+                                                <td class="text-right"><?php echo number_format($detalle['KILO_NETO'], 2, ',', '.'); ?></td>
+                                                <td class="text-right"><?php echo number_format($detalle['KILO_BRUTO'], 2, ',', '.'); ?></td>
+                                                <td class="text-right"><?php echo number_format($detalle['KILO_DECLARADO'], 2, ',', '.'); ?></td>
+                                                <td class="text-right text-<?php echo $detalle['DIFERENCIA'] <= 0 ? 'success' : 'danger'; ?>"><?php echo number_format($detalle['DIFERENCIA'], 2, ',', '.'); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['RANGO']); ?></td>
+                                                <td class="text-right"><?php echo number_format($detalle['DIFERENCIA_DECLARADA'], 2, ',', '.'); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['FECHA_RECEPCION']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['NUMERO_GUIA']); ?></td>
+                                                <td><?php echo $detalle['TEMPERATURA'] !== null ? number_format($detalle['TEMPERATURA'], 1, ',', '.') : 'N/D'; ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['CAMARA']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['OBSERVACIONES']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['TIPO_PRODUCTOR']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['PATENTE_CAMION']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['PATENTE_CARRO']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['SEMANA_RECEPCION']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['SEMANA_GUIA']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['EMPRESA']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['PLANTA']); ?></td>
+                                                <td><?php echo htmlspecialchars($detalle['TEMPORADA']); ?></td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
