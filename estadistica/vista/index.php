@@ -27,6 +27,8 @@ $PRODUCTORESASOCIADOS = [];
 $cacheProductores = [];
 $cacheVariedades = [];
 $cacheEspecies = [];
+$variedadesAsociadas = [];
+$resumenProductorVariedad = [];
 $detalleRecepciones = [];
 
 // Resumen general
@@ -101,7 +103,11 @@ if ($ARRAYEMPRESAPRODUCTOR) {
                 $variedadData = $cacheVariedades[$vespecieId];
                 $especieId = $variedadData ? $variedadData['ID_ESPECIES'] : null;
 
-                if ($filtroVariedad && $vespecieId != $filtroVariedad && stripos($variedadData['NOMBRE_VESPECIES'] ?? '', $filtroVariedad) === false) {
+                if ($variedadData) {
+                    $variedadesAsociadas[$vespecieId] = $variedadData['NOMBRE_VESPECIES'];
+                }
+
+                if ($filtroVariedad && $vespecieId != $filtroVariedad) {
                     continue;
                 }
 
@@ -147,9 +153,11 @@ if ($ARRAYEMPRESAPRODUCTOR) {
                             'NOMBRE' => $variedadNombre,
                             'ESPECIE' => $especieData['NOMBRE_ESPECIES'] ?? 'N/D',
                             'NETO' => 0,
+                            'ENVASES' => 0,
                         ];
                     }
                     $porVariedad[$vespecieId]['NETO'] += $neto;
+                    $porVariedad[$vespecieId]['ENVASES'] += $envases;
                 }
 
                 if ($especieData) {
@@ -177,6 +185,19 @@ if ($ARRAYEMPRESAPRODUCTOR) {
                 }
                 $porEnvase[$codigoEstandar]['NETO'] += $neto;
                 $porEnvase[$codigoEstandar]['ENVASES'] += $envases;
+
+                $claveProdVar = $productorId . '_' . $vespecieId;
+                if (!isset($resumenProductorVariedad[$claveProdVar])) {
+                    $resumenProductorVariedad[$claveProdVar] = [
+                        'CSG' => $csg,
+                        'PRODUCTOR' => $nombreProductor,
+                        'VARIEDAD' => $variedadData['NOMBRE_VESPECIES'] ?? 'N/D',
+                        'NETO' => 0,
+                        'ENVASES' => 0,
+                    ];
+                }
+                $resumenProductorVariedad[$claveProdVar]['NETO'] += $neto;
+                $resumenProductorVariedad[$claveProdVar]['ENVASES'] += $envases;
 
                 $detalleRecepciones[] = [
                     'FOLIO' => $detalle['FOLIO_DRECEPCION'] ?? $detalle['ID_DRECEPCION'],
@@ -233,6 +254,12 @@ usort($porEspecie, fn($a, $b) => $b['NETO'] <=> $a['NETO']);
 
 $porEnvase = array_values($porEnvase);
 usort($porEnvase, fn($a, $b) => $b['NETO'] <=> $a['NETO']);
+
+$resumenProductorVariedad = array_values($resumenProductorVariedad);
+usort($resumenProductorVariedad, fn($a, $b) => $b['NETO'] <=> $a['NETO']);
+
+$listaVariedades = $variedadesAsociadas;
+asort($listaVariedades);
 
 $merma = $resumen['kilos_declarados'] > 0 ? (($resumen['kilos_declarados'] - $resumen['kilos_neto']) / max($resumen['kilos_declarados'], 1)) * 100 : 0;
 $totalVariedades = count($porVariedad);
@@ -342,7 +369,14 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
                         <form method="GET" class="row g-2 align-items-end">
                             <div class="col-lg-4 col-md-6">
                                 <label class="form-label mb-1">Variedad</label>
-                                <input type="text" name="variedad" value="<?php echo htmlspecialchars($filtroVariedad); ?>" class="form-control" placeholder="ID o nombre de variedad">
+                                <select name="variedad" class="form-control">
+                                    <option value="">Todas las variedades</option>
+                                    <?php foreach ($listaVariedades as $idVariedad => $nombreVariedad) : ?>
+                                        <option value="<?php echo htmlspecialchars($idVariedad); ?>" <?php echo $filtroVariedad == $idVariedad ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($nombreVariedad); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <div class="col-lg-3 col-md-6">
                                 <label class="form-label mb-1">Fecha cosecha desde</label>
@@ -472,15 +506,32 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
                                     <span class="badge badge-soft badge-success">Variedades <?php echo number_format($totalVariedades, 0, ',', '.'); ?></span>
                                 </div>
                                 <div id="chartVariedad" style="height: 220px;"></div>
-                            </div>
-                            <div class="panel-card p-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <h5 class="mb-0">Distribución por especie</h5>
-                                        <small class="text-muted">Participación porcentual</small>
-                                    </div>
+                                <div class="table-responsive mt-2">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Variedad</th>
+                                                <th class="text-right">Especie</th>
+                                                <th class="text-right">Kilos netos</th>
+                                                <th class="text-right">Envases</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if ($porVariedad) : ?>
+                                                <?php foreach (array_slice($porVariedad, 0, 8) as $var) : ?>
+                                                    <tr>
+                                                        <td><?php echo htmlspecialchars($var['NOMBRE']); ?></td>
+                                                        <td class="text-right"><?php echo htmlspecialchars($var['ESPECIE']); ?></td>
+                                                        <td class="text-right"><?php echo number_format($var['NETO'], 2, ',', '.'); ?> kg</td>
+                                                        <td class="text-right"><?php echo number_format($var['ENVASES'], 0, ',', '.'); ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php else : ?>
+                                                <tr><td colspan="4" class="text-center text-muted">Sin datos en el rango seleccionado</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div id="chartEspecie" style="height: 220px;"></div>
                             </div>
                         </div>
                     </div>
@@ -494,6 +545,73 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
                                         <small class="text-muted">Nombres de estándar visibles</small>
                                     </div>
                                     <span class="badge badge-soft badge-info">Total envases <?php echo number_format($resumen['envases'], 0, ',', '.'); ?></span>
+                                </div>
+                                <div id="chartEnvase" style="height: 260px;"></div>
+                                <div class="table-responsive mt-2">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Estandar</th>
+                                                <th class="text-right">Kilos netos</th>
+                                                <th class="text-right">Envases</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if ($porEnvase) : ?>
+                                                <?php foreach (array_slice($porEnvase, 0, 8) as $env) : ?>
+                                                    <tr>
+                                                        <td><?php echo htmlspecialchars($env['NOMBRE']); ?></td>
+                                                        <td class="text-right"><?php echo number_format($env['NETO'], 2, ',', '.'); ?> kg</td>
+                                                        <td class="text-right"><?php echo number_format($env['ENVASES'], 0, ',', '.'); ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php else : ?>
+                                                <tr><td colspan="3" class="text-center text-muted">Sin datos en el rango seleccionado</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-3">
+                        <div class="col-xl-12">
+                            <div class="panel-card p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <h5 class="mb-0">Resumen productor / variedad</h5>
+                                        <small class="text-muted">CSG, productor y desempeño por variedad</small>
+                                    </div>
+                                    <span class="badge badge-soft badge-primary">Registros <?php echo number_format(count($resumenProductorVariedad), 0, ',', '.'); ?></span>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>CSG</th>
+                                                <th>Productor</th>
+                                                <th>Variedad</th>
+                                                <th class="text-right">Kilos netos</th>
+                                                <th class="text-right">Envases</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if ($resumenProductorVariedad) : ?>
+                                                <?php foreach (array_slice($resumenProductorVariedad, 0, 12) as $fila) : ?>
+                                                    <tr>
+                                                        <td><?php echo htmlspecialchars($fila['CSG']); ?></td>
+                                                        <td><?php echo htmlspecialchars($fila['PRODUCTOR']); ?></td>
+                                                        <td><?php echo htmlspecialchars($fila['VARIEDAD']); ?></td>
+                                                        <td class="text-right"><?php echo number_format($fila['NETO'], 2, ',', '.'); ?> kg</td>
+                                                        <td class="text-right"><?php echo number_format($fila['ENVASES'], 0, ',', '.'); ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php else : ?>
+                                                <tr><td colspan="5" class="text-center text-muted">Sin datos para mostrar</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
                                 </div>
                                 <div id="chartEnvase" style="height: 260px;"></div>
                             </div>
@@ -512,7 +630,6 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
     <script>
         const datosProductor = <?php echo json_encode($porProductor); ?>;
         const datosVariedad = <?php echo json_encode($porVariedad); ?>;
-        const datosEspecie = <?php echo json_encode($porEspecie); ?>;
         const datosEnvase = <?php echo json_encode($porEnvase); ?>;
 
         (function generarCharts() {
@@ -556,16 +673,6 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
             });
 
             c3.generate({
-                bindto: '#chartEspecie',
-                data: {
-                    columns: datosEspecie.map(e => [e.NOMBRE, parseFloat(e.NETO || 0)]),
-                    type: 'donut',
-                    colors: { ...datosEspecie.reduce((acc, e, i) => ({ ...acc, [e.NOMBRE]: d3.schemeSet2[i % 8] }), {}) }
-                },
-                donut: { title: 'Especies' }
-            });
-
-            c3.generate({
                 bindto: '#chartEnvase',
                 data: {
                     columns: datosEnvase.map(e => [e.NOMBRE, parseFloat(e.NETO || 0)]),
@@ -577,32 +684,6 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
                     y: { label: 'Kilos netos' }
                 },
                 bar: { width: { ratio: 0.6 } }
-            });
-
-            const tendenciaPorFecha = datosDetalle.reduce((acc, item) => {
-                if (!acc[item.FECHA_RECEPCION]) {
-                    acc[item.FECHA_RECEPCION] = 0;
-                }
-                acc[item.FECHA_RECEPCION] += parseFloat(item.KILO_NETO || 0);
-                return acc;
-            }, {});
-            const fechasOrdenadas = Object.keys(tendenciaPorFecha).sort();
-
-            c3.generate({
-                bindto: '#chartTendencia',
-                data: {
-                    x: 'x',
-                    columns: [
-                        ['x', ...fechasOrdenadas],
-                        ['Kilos netos', ...fechasOrdenadas.map(f => tendenciaPorFecha[f])]
-                    ],
-                    type: 'spline',
-                    colors: { 'Kilos netos': '#2563eb' }
-                },
-                axis: {
-                    x: { type: 'category', tick: { rotate: 45 } },
-                    y: { label: 'Kilos netos' }
-                }
             });
 
             c3.generate({
