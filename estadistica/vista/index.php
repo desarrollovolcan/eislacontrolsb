@@ -601,6 +601,27 @@ $totalProductores = count($porProductor);
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="mt-3">
+                                        <p class="mb-1 text-muted">Temperatura promedio</p>
+                                        <h4 class="mb-0"><?php echo $promedioTemperatura !== null ? number_format($promedioTemperatura, 1, ',', '.') . ' °C' : 'Sin datos'; ?></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-12">
+                            <div class="box">
+                                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                                    <h4 class="box-title panel-title mb-0">Control de calidad</h4>
+                                    <span class="badge-soft bg-light text-danger">Alertas</span>
+                                </div>
+                                <div class="box-body">
+                                    <div id="chartDiferencias" style="min-height:280px;"></div>
+                                    <p class="mt-3 mb-1 text-muted">Alertas automáticas</p>
+                                    <ul class="mb-0">
+                                        <li>Se resalta en rojo cuando la diferencia supera el 7%.</li>
+                                        <li>Variación moderada entre 3% y 7% en amarillo.</li>
+                                        <li>Óptimo bajo 3% en verde.</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
