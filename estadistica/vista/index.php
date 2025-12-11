@@ -1,56 +1,63 @@
 <?php
 require_once __DIR__ . "/../../assest/config/validarUsuarioOpera.php";
 
-// LLAMADA ARCHIVOS NECESARIOS PARA LAS OPERACIONES
-require_once __DIR__ . "/../../assest/controlador/RECEPCIONIND_ADO.php";
-require_once __DIR__ . "/../../assest/controlador/DRECEPCIONIND_ADO.php";
+// Controladores requeridos para la data de materia prima
+require_once __DIR__ . "/../../assest/controlador/RECEPCIONMP_ADO.php";
+require_once __DIR__ . "/../../assest/controlador/DRECEPCIONMP_ADO.php";
 require_once __DIR__ . "/../../assest/controlador/VESPECIES_ADO.php";
+require_once __DIR__ . "/../../assest/controlador/ESPECIES_ADO.php";
 require_once __DIR__ . "/../../assest/controlador/PRODUCTOR_ADO.php";
 require_once __DIR__ . "/../../assest/controlador/EMPRESAPRODUCTOR_ADO.php";
-require_once __DIR__ . "/../../assest/controlador/productor_controller.php";
 
-// INICIALIZAR CONTROLADORES
-$RECEPCIONIND_ADO = new RECEPCIONIND_ADO();
-$DRECEPCIONIND_ADO = new DRECEPCIONIND_ADO();
+// Inicialización de controladores
+$RECEPCIONMP_ADO = new RECEPCIONMP_ADO();
+$DRECEPCIONMP_ADO = new DRECEPCIONMP_ADO();
 $VESPECIES_ADO = new VESPECIES_ADO();
+$ESPECIES_ADO = new ESPECIES_ADO();
 $PRODUCTOR_ADO = new PRODUCTOR_ADO();
 $EMPRESAPRODUCTOR_ADO = new EMPRESAPRODUCTOR_ADO();
-$productorController = new ProductorController();
 
-// INICIALIZAR ARREGLOS
-$PRODUCTORESASOCIADOS = array();
-$KILOSVARIEDAD = array();
-$KILOSSEMANA = array();
-$DETALLEPRODUCTOR = array();
-$DETALLECSPVARIEDAD = array();
-$DOCUMENTOSPORVENCER = array();
+// Parámetros y filtros
+$fechaDesde = isset($_GET['fecha_desde']) && $_GET['fecha_desde'] !== '' ? $_GET['fecha_desde'] : (new DateTime('-30 days'))->format('Y-m-d');
+$fechaHasta = isset($_GET['fecha_hasta']) && $_GET['fecha_hasta'] !== '' ? $_GET['fecha_hasta'] : (new DateTime('yesterday'))->format('Y-m-d');
+$filtroVariedad = isset($_GET['variedad']) ? trim($_GET['variedad']) : '';
 
-$TOTALNETO = 0;
-$TOTALBRUTO = 0;
-$TOTALENVASES = 0;
-$TOTALKILOSAYER = 0;
-$TOTALPRODUCTORECEPCIONES = 0;
-$TOTALPRODUCTORKILOS = 0;
-$TOTALPRODUCTORENVASES = 0;
-$TOTALCSPVARIEDAD = 0;
-$TOTALCSPVARIEDADENVASES = 0;
-$TOTALDOCUMENTOS = 0;
-
-$fechaAyer = (new DateTime('yesterday'))->format('Y-m-d');
+// Variables de ayuda
+$PRODUCTORESASOCIADOS = [];
 $cacheProductores = [];
 $cacheVariedades = [];
+$cacheEspecies = [];
+$detalleRecepciones = [];
 
+// Resumen general
+$resumen = [
+    'kilos_neto' => 0,
+    'kilos_declarados' => 0,
+    'envases' => 0,
+    'folios' => 0,
+];
+
+// Agrupaciones para gráficos y tablas
+$porProductor = [];
+$porVariedad = [];
+$porEspecie = [];
+$porEnvase = [];
+$recepcionesProcesadas = 0;
+$recepcionesConObservaciones = 0;
+
+// Obtener productores asociados al usuario
 $ARRAYEMPRESAPRODUCTOR = $EMPRESAPRODUCTOR_ADO->buscarEmpresaProductorPorUsuarioCBX($IDUSUARIOS);
 if ($ARRAYEMPRESAPRODUCTOR) {
     foreach ($ARRAYEMPRESAPRODUCTOR as $registroProductor) {
-        $PRODUCTORESASOCIADOS[] = $registroProductor["ID_PRODUCTOR"];
+        $PRODUCTORESASOCIADOS[] = $registroProductor['ID_PRODUCTOR'];
     }
     $PRODUCTORESASOCIADOS = array_unique($PRODUCTORESASOCIADOS);
 }
 
-if ($PRODUCTORESASOCIADOS) {
+// Recopilar recepciones y detalles
+if ($ARRAYEMPRESAPRODUCTOR) {
     foreach ($ARRAYEMPRESAPRODUCTOR as $registroProductor) {
-        $recepciones = $RECEPCIONIND_ADO->listarRecepcionEmpresaPlantaTemporadaCBXProductor(
+        $recepciones = $RECEPCIONMP_ADO->listarRecepcionEmpresaPlantaTemporadaCBXProductor(
             $registroProductor['ID_EMPRESA'],
             $registroProductor['ID_PRODUCTOR'],
             $TEMPORADAS,
@@ -58,8 +65,33 @@ if ($PRODUCTORESASOCIADOS) {
         );
 
         foreach ($recepciones as $recepcion) {
-            $detalles = $DRECEPCIONIND_ADO->buscarPorRecepcion($recepcion['ID_RECEPCION']);
+            $fechaRecepcion = $recepcion['FECHA_RECEPCION'];
+            if ($fechaRecepcion < $fechaDesde || $fechaRecepcion > $fechaHasta) {
+                continue;
+            }
 
+            $productorId = $recepcion['ID_PRODUCTOR'];
+            $observacionRecepcion = trim($recepcion['OBSERVACION_RECEPCION'] ?? '');
+            $tieneDetalle = false;
+
+            if ($observacionRecepcion !== '') {
+                $recepcionesConObservaciones++;
+            }
+
+            if (!isset($cacheProductores[$productorId])) {
+                $prodData = $PRODUCTOR_ADO->verProductor($productorId);
+                $cacheProductores[$productorId] = $prodData ? $prodData[0] : null;
+            }
+            $productorData = $cacheProductores[$productorId];
+            $nombreProductor = $productorData ? $productorData['NOMBRE_PRODUCTOR'] : 'Productor sin nombre';
+            $csg = $productorData ? $productorData['CSG_PRODUCTOR'] : '';
+            $tipoProductor = $productorData ? $productorData['TIPO_PRODUCTOR'] : '';
+
+            $kilosDeclaradosRecepcion = isset($recepcion['TOTAL_KILOS_GUIA_RECEPCION']) ? (float)$recepcion['TOTAL_KILOS_GUIA_RECEPCION'] : 0;
+            $acumNetoRecepcion = 0;
+            $acumEnvasesRecepcion = 0;
+
+            $detalles = $DRECEPCIONMP_ADO->buscarPorRecepcion($recepcion['ID_RECEPCION']);
             foreach ($detalles as $detalle) {
                 $vespecieId = $detalle['ID_VESPECIES'];
                 if (!isset($cacheVariedades[$vespecieId])) {
@@ -67,319 +99,221 @@ if ($PRODUCTORESASOCIADOS) {
                     $cacheVariedades[$vespecieId] = $variedad ? $variedad[0] : null;
                 }
                 $variedadData = $cacheVariedades[$vespecieId];
-                if (!$variedadData || $variedadData['ID_ESPECIES'] != $ESPECIE) {
+                $especieId = $variedadData ? $variedadData['ID_ESPECIES'] : null;
+
+                if ($filtroVariedad && $vespecieId != $filtroVariedad && stripos($variedadData['NOMBRE_VESPECIES'] ?? '', $filtroVariedad) === false) {
                     continue;
                 }
 
-                $productorId = $detalle['ID_PRODUCTOR'];
-                if (!isset($cacheProductores[$productorId])) {
-                    $prodData = $PRODUCTOR_ADO->verProductor($productorId);
-                    $cacheProductores[$productorId] = $prodData ? $prodData[0] : null;
+                if ($especieId && !isset($cacheEspecies[$especieId])) {
+                    $especie = $ESPECIES_ADO->verEspecies($especieId);
+                    $cacheEspecies[$especieId] = $especie ? $especie[0] : null;
                 }
-                $productorData = $cacheProductores[$productorId];
+                $especieData = $cacheEspecies[$especieId] ?? null;
 
-                $neto = (float) $detalle['NETO'];
-                $envase = (int) $detalle['ENVASE'];
-                $bruto = isset($detalle['BRUTO']) ? (float) $detalle['BRUTO'] : 0;
+                $neto = (float)$detalle['NETO'];
+                $bruto = (float)$detalle['BRUTO'];
+                $envases = (int)$detalle['ENVASE'];
+                $folios = 1;
+                $tieneDetalle = true;
 
-                $TOTALNETO += $neto;
-                $TOTALENVASES += $envase;
-                $TOTALBRUTO += $bruto;
+                $acumNetoRecepcion += $neto;
+                $acumEnvasesRecepcion += $envases;
 
-                if ($recepcion['FECHA'] === $fechaAyer) {
-                    $TOTALKILOSAYER += $neto;
-                }
+                $semanaRecepcion = (new DateTime($fechaRecepcion))->format('W');
 
-                // Kilos por variedad
-                $variedadNombre = $variedadData ? $variedadData['NOMBRE_VESPECIES'] : 'Sin datos';
-                if (!isset($KILOSVARIEDAD[$vespecieId])) {
-                    $KILOSVARIEDAD[$vespecieId] = [
-                        'VARIEDAD' => $variedadNombre,
-                        'TOTAL' => 0,
-                        'ENVASES' => 0,
-                    ];
-                }
-                $KILOSVARIEDAD[$vespecieId]['TOTAL'] += $neto;
-                $KILOSVARIEDAD[$vespecieId]['ENVASES'] += $envase;
+                $resumen['kilos_neto'] += $neto;
+                $resumen['envases'] += $envases;
+                $resumen['folios'] += $folios;
 
-                // Kilos por semana
-                $semana = $recepcion['SEMANA'];
-                if (!isset($KILOSSEMANA[$semana])) {
-                    $KILOSSEMANA[$semana] = [
-                        'SEMANA' => $semana,
-                        'TOTAL' => 0,
-                    ];
-                }
-                $KILOSSEMANA[$semana]['TOTAL'] += $neto;
-
-                // Kilos por productor
-                $nombreProductor = $productorData ? $productorData['NOMBRE_PRODUCTOR'] : 'Sin datos';
-                $csp = $productorData ? $productorData['CSG_PRODUCTOR'] : null;
-
-                if (!isset($DETALLEPRODUCTOR[$productorId])) {
-                    $DETALLEPRODUCTOR[$productorId] = [
-                        'ID' => $productorId,
+                if (!isset($porProductor[$productorId])) {
+                    $porProductor[$productorId] = [
                         'NOMBRE' => $nombreProductor,
-                        'CSP' => $csp,
-                        'TOTAL' => 0,
+                        'CSG' => $csg,
+                        'TIPO' => $tipoProductor,
+                        'NETO' => 0,
                         'ENVASES' => 0,
-                        'RECEPCIONES' => array(),
+                        'DECLARADO' => 0,
+                        'DIFERENCIA' => 0,
                     ];
                 }
-                $DETALLEPRODUCTOR[$productorId]['TOTAL'] += $neto;
-                $DETALLEPRODUCTOR[$productorId]['ENVASES'] += $envase;
-                $DETALLEPRODUCTOR[$productorId]['RECEPCIONES'][$recepcion['ID_RECEPCION']] = true;
+                $porProductor[$productorId]['NETO'] += $neto;
+                $porProductor[$productorId]['ENVASES'] += $envases;
 
-                // Kilos por CSP y variedad
-                $cspKey = $productorId . '-' . $vespecieId;
-                if (!isset($DETALLECSPVARIEDAD[$cspKey])) {
-                    $DETALLECSPVARIEDAD[$cspKey] = [
-                        'PRODUCTOR' => $nombreProductor,
-                        'CSP' => $csp,
-                        'VARIEDAD' => $variedadNombre,
-                        'TOTAL' => 0,
+                if ($variedadData) {
+                    $variedadNombre = $variedadData['NOMBRE_VESPECIES'];
+                    if (!isset($porVariedad[$vespecieId])) {
+                        $porVariedad[$vespecieId] = [
+                            'NOMBRE' => $variedadNombre,
+                            'ESPECIE' => $especieData['NOMBRE_ESPECIES'] ?? 'N/D',
+                            'NETO' => 0,
+                        ];
+                    }
+                    $porVariedad[$vespecieId]['NETO'] += $neto;
+                }
+
+                if ($especieData) {
+                    $especieNombre = $especieData['NOMBRE_ESPECIES'];
+                    if (!isset($porEspecie[$especieId])) {
+                        $porEspecie[$especieId] = [
+                            'NOMBRE' => $especieNombre,
+                            'NETO' => 0,
+                        ];
+                    }
+                    $porEspecie[$especieId]['NETO'] += $neto;
+                }
+
+                $codigoEstandar = $detalle['ID_ESTANDAR'] ?? 'N/D';
+                $nombreEstandar = isset($detalle['NOMBRE_ESTANDAR']) && $detalle['NOMBRE_ESTANDAR'] !== ''
+                    ? $detalle['NOMBRE_ESTANDAR']
+                    : 'Estándar ' . $codigoEstandar;
+                if (!isset($porEnvase[$codigoEstandar])) {
+                    $porEnvase[$codigoEstandar] = [
+                        'CODIGO' => $codigoEstandar,
+                        'NOMBRE' => $nombreEstandar,
+                        'NETO' => 0,
                         'ENVASES' => 0,
                     ];
                 }
-                $DETALLECSPVARIEDAD[$cspKey]['TOTAL'] += $neto;
-                $DETALLECSPVARIEDAD[$cspKey]['ENVASES'] += $envase;
+                $porEnvase[$codigoEstandar]['NETO'] += $neto;
+                $porEnvase[$codigoEstandar]['ENVASES'] += $envases;
+
+                $detalleRecepciones[] = [
+                    'FOLIO' => $detalle['FOLIO_DRECEPCION'] ?? $detalle['ID_DRECEPCION'],
+                    'FECHA_COSECHA' => $detalle['COSECHA'],
+                    'CODIGO_ESTANDAR' => $codigoEstandar,
+                    'ENVASE' => $envases,
+                    'CSG' => $csg,
+                    'PRODUCTOR' => $nombreProductor,
+                    'ESPECIE' => $especieData['NOMBRE_ESPECIES'] ?? 'N/D',
+                    'VARIEDAD' => $variedadData['NOMBRE_VESPECIES'] ?? 'N/D',
+                    'KILO_NETO' => $neto,
+                    'KILO_BRUTO' => $bruto,
+                    'KILO_DECLARADO' => $kilosDeclaradosRecepcion,
+                    'DIFERENCIA' => $kilosDeclaradosRecepcion - $neto,
+                    'RANGO' => $semanaRecepcion,
+                    'DIFERENCIA_DECLARADA' => $kilosDeclaradosRecepcion,
+                    'FECHA_RECEPCION' => $fechaRecepcion,
+                    'NUMERO_GUIA' => $recepcion['NUMERO_GUIA_RECEPCION'] ?? '',
+                    'TEMPERATURA' => $recepcion['TEMPERATURA_RECEPCION'] ?? '',
+                    'CAMARA' => $recepcion['CAMARA_RECEPCION'] ?? '',
+                    'OBSERVACIONES' => $observacionRecepcion,
+                    'TIPO_PRODUCTOR' => $tipoProductor,
+                    'PATENTE_CAMION' => $recepcion['PATENTE_CAMION'] ?? '',
+                    'PATENTE_CARRO' => $recepcion['PATENTE_CARRO'] ?? '',
+                    'SEMANA_RECEPCION' => $semanaRecepcion,
+                    'SEMANA_GUIA' => isset($recepcion['FECHA_GUIA_RECEPCION']) ? (new DateTime($recepcion['FECHA_GUIA_RECEPCION']))->format('W') : '',
+                    'EMPRESA' => $recepcion['EMPRESA'] ?? '',
+                    'PLANTA' => $recepcion['PLANTA'] ?? '',
+                    'TEMPORADA' => $recepcion['TEMPORADA'] ?? '',
+                ];
+            }
+
+            if ($tieneDetalle && ($acumNetoRecepcion > 0 || $acumEnvasesRecepcion > 0)) {
+                $recepcionesProcesadas++;
+                $resumen['kilos_declarados'] += $kilosDeclaradosRecepcion;
+                if (isset($porProductor[$productorId])) {
+                    $porProductor[$productorId]['DECLARADO'] += $kilosDeclaradosRecepcion;
+                    $porProductor[$productorId]['DIFERENCIA'] = $porProductor[$productorId]['DECLARADO'] - $porProductor[$productorId]['NETO'];
+                }
             }
         }
     }
-
-    // Calcular totales derivados
-    $DETALLEPRODUCTOR = array_values(array_map(function ($prod) {
-        $prod['RECEPCIONES'] = count($prod['RECEPCIONES']);
-        return $prod;
-    }, $DETALLEPRODUCTOR));
-
-    $TOTALPRODUCTORKILOS = array_sum(array_column($DETALLEPRODUCTOR, 'TOTAL'));
-    $TOTALPRODUCTORECEPCIONES = array_sum(array_column($DETALLEPRODUCTOR, 'RECEPCIONES'));
-    $TOTALPRODUCTORENVASES = array_sum(array_column($DETALLEPRODUCTOR, 'ENVASES'));
-
-    $DETALLECSPVARIEDAD = array_values($DETALLECSPVARIEDAD);
-    $TOTALCSPVARIEDAD = array_sum(array_column($DETALLECSPVARIEDAD, 'TOTAL'));
-    $TOTALCSPVARIEDADENVASES = array_sum(array_column($DETALLECSPVARIEDAD, 'ENVASES'));
-
-    usort($DETALLEPRODUCTOR, function ($a, $b) {
-        return $b['TOTAL'] <=> $a['TOTAL'];
-    });
-
-    usort($DETALLECSPVARIEDAD, function ($a, $b) {
-        return $b['TOTAL'] <=> $a['TOTAL'];
-    });
-
-    $KILOSVARIEDAD = array_values($KILOSVARIEDAD);
-    usort($KILOSVARIEDAD, function ($a, $b) {
-        return $b['TOTAL'] <=> $a['TOTAL'];
-    });
-    $KILOSVARIEDAD = array_slice($KILOSVARIEDAD, 0, 5);
-
-    $KILOSSEMANA = array_values($KILOSSEMANA);
-    usort($KILOSSEMANA, function ($a, $b) {
-        return $a['SEMANA'] <=> $b['SEMANA'];
-    });
-
-    $DOCUMENTOSPORVENCER = $productorController->documentosPorVencerProductores($PRODUCTORESASOCIADOS, $ESPECIE, 5, 60);
-    $TOTALDOCUMENTOS = $DOCUMENTOSPORVENCER ? count($DOCUMENTOSPORVENCER) : 0;
 }
+
+// Preparar datos para front
+$porProductor = array_values($porProductor);
+usort($porProductor, fn($a, $b) => $b['NETO'] <=> $a['NETO']);
+
+$porVariedad = array_values($porVariedad);
+usort($porVariedad, fn($a, $b) => $b['NETO'] <=> $a['NETO']);
+
+$porEspecie = array_values($porEspecie);
+usort($porEspecie, fn($a, $b) => $b['NETO'] <=> $a['NETO']);
+
+$porEnvase = array_values($porEnvase);
+usort($porEnvase, fn($a, $b) => $b['NETO'] <=> $a['NETO']);
+
+$merma = $resumen['kilos_declarados'] > 0 ? (($resumen['kilos_declarados'] - $resumen['kilos_neto']) / max($resumen['kilos_declarados'], 1)) * 100 : 0;
+$totalVariedades = count($porVariedad);
+$totalProductores = count($porProductor);
+$kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-    <title>Dashboard</title>
+    <title>Dashboard materia prima</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <!-- LLAMADA DE LOS ARCHIVOS NECESARIOS PARA DISEÑO Y FUNCIONES BASE DE LA VISTA -->
     <?php include_once "../../assest/config/urlHead.php"; ?>
     <link rel="stylesheet" href="../../api/cryptioadmin10/html/assets/vendor_components/c3/c3.min.css">
     <style>
-        .dashboard-card {
-            color: #fff;
-            border: 0;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            height: 100%;
-            min-height: 150px;
+        body {
+            background: #f5f7fb;
         }
 
-        .collage-card {
-            background-color: #fff;
-        }
-
-        .collage-card .box-body>*:last-child {
-            margin-bottom: 0;
-        }
-
-        .collage-card,
-        .compact-card {
-            min-height: 380px;
-        }
-
-        @media (max-width: 991px) {
-            .collage-card,
-            .compact-card {
-                min-height: auto;
-            }
-        }
-
-        .dashboard-row {
-            margin-bottom: 15px;
-        }
-
-        .dashboard-row>[class*='col-'] {
-            margin-bottom: 15px;
-        }
-
-        .collage-row {
-            margin-left: -8px;
-            margin-right: -8px;
-        }
-
-        .collage-row>[class*='col-'] {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-
-        @media (min-width: 1200px) {
-            .col-xl-4th {
-                flex: 0 0 25%;
-                max-width: 25%;
-            }
-        }
-
-        .row .col-xl-4th {
-            display: flex;
-        }
-
-        .row-stretch {
-            align-items: stretch;
-        }
-
-        .row-stretch>[class*='col-'] {
-            display: flex;
-        }
-
-        .row-stretch>[class*='col-']>.box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .bg-gradient-sky {
-            background: linear-gradient(135deg, #1d8cf8 0%, #5ac8fa 100%);
-        }
-
-        .bg-gradient-dusk {
-            background: linear-gradient(135deg, #7b42f6 0%, #b06ab3 100%);
-        }
-
-        .bg-gradient-emerald {
-            background: linear-gradient(135deg, #2ecc71 0%, #58d68d 100%);
-        }
-
-        .bg-gradient-amber {
-            background: linear-gradient(135deg, #f5a623 0%, #f7c46c 100%);
-        }
-
-        .compact-card {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .compact-card .box-header {
-            padding: 10px 12px;
-            flex-shrink: 0;
-        }
-
-        .compact-card .box-body {
-            padding: 14px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .compact-card .table-responsive {
-            flex: 1;
-        }
-
-        .compact-table th,
-        .compact-table td {
-            padding: 8px 6px;
+        .header-note {
             font-size: 13px;
-            vertical-align: middle;
+            color: #6b7280;
         }
 
-        .compact-table th {
-            font-weight: 600;
+        .page-title {
+            margin-bottom: 4px;
+            font-weight: 700;
+            color: #0f172a;
         }
 
-        .mini-progress {
-            height: 6px;
+        .panel-card {
+            border: 0;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
         }
 
-        .badge-slim {
-            padding: 2px 6px;
-            font-size: 11px;
+        .filter-bar {
+            border-radius: 12px;
+            padding: 16px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
         }
 
-        section.content {
-            padding-top: 10px;
+        .kpi-card {
+            background: linear-gradient(135deg, #e0f2fe, #eff6ff);
+            border-radius: 14px;
+            border: 1px solid #dbeafe;
+            padding: 16px;
+            height: 100%;
         }
 
-        .content-header {
-            margin-bottom: 12px;
+        .kpi-title {
+            font-size: 13px;
+            color: #6b7280;
         }
 
-        .chart-container {
-            min-height: 320px;
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
         }
 
-        tfoot tr td {
-            font-weight: 600;
-            background: #f8fafc;
+        .kpi-hint {
+            font-size: 12px;
+            color: #16a34a;
         }
 
-        .main-sidebar {
-            height: 100vh;
-            overflow-y: auto;
-        }
-
-        .sidebar-menu>li.active>a,
-        .sidebar-menu>li.menu-open>a,
-        .sidebar-menu>li:hover>a {
-            background: transparent !important;
-            color: #0d6efd !important;
-        }
-
-        .sidebar-menu>li>a {
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-
-        .doc-chip {
-            padding: 4px 8px;
+        .badge-soft {
+            padding: 6px 10px;
             border-radius: 10px;
             font-weight: 600;
-            background: #eef2ff;
-            color: #4338ca;
+            font-size: 12px;
         }
 
-        .doc-chip.near {
-            background: #fff7ed;
-            color: #c2410c;
+        .table-sm td {
+            padding: 6px 10px;
         }
     </style>
-    <script type="text/javascript">
-        function irPagina(url) {
-            location.href = "" + url;
-        }
-    </script>
 </head>
 
 <body class="hold-transition light-skin fixed sidebar-mini theme-primary">
@@ -388,314 +322,177 @@ if ($PRODUCTORESASOCIADOS) {
         <div class="content-wrapper">
             <div class="container-full">
                 <div class="content-header">
-                    <div class="d-flex align-items-center">
-                        <div class="mr-auto">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <div>
                             <h3 class="page-title">Dashboard de productor</h3>
-                            <div class="d-inline-block align-items-center">
-                                <nav>
-                                    <ol class="breadcrumb">
-                                        <li class="breadcrumb-item"><a href="#"><i class="mdi mdi-home-outline"></i></a></li>
-                                        <li class="breadcrumb-item" aria-current="page">Estadísticas</li>
-                                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                                    </ol>
-                                </nav>
-                            </div>
+                            <p class="header-note">Información basada en productores asociados, temporada y especies seleccionadas.</p>
                         </div>
-                        <?php include_once "../../assest/config/verIndicadorEconomico.php"; ?>
+                        <div class="text-right">
+                            <span class="badge badge-primary badge-soft">Temporada <?php echo htmlspecialchars($TEMPORADAS); ?></span>
+                            <div class="header-note">Rango: <?php echo htmlspecialchars($fechaDesde); ?> al <?php echo htmlspecialchars($fechaHasta); ?></div>
+                        </div>
                     </div>
                 </div>
+
                 <section class="content">
-                    <p class="text-muted mb-15">Datos filtrados por productores asociados, temporada y especie seleccionada. Todas las métricas provienen del listado detallado de recepciones industriales.</p>
-
-                    <div class="row dashboard-row row-stretch">
-                        <div class="col-xl-4th col-lg-6 col-12">
-                            <div class="box box-body dashboard-card bg-gradient-sky">
-                                <div class="flexbox align-items-center">
-                                    <div>
-                                        <p class="mb-0 text-white-50">Kilos recepcionados acumulados</p>
-                                        <h3 class="mt-0 mb-0 text-white"><?php echo number_format((float)$TOTALNETO, 2, ',', '.'); ?> kg</h3>
-                                    </div>
-                                    <span class="icon-Add-cart fs-40 text-white"></span>
+                    <div class="filter-bar mb-4">
+                        <form method="GET" class="row g-2 align-items-end">
+                            <div class="col-lg-4 col-md-6">
+                                <label class="form-label mb-1">Variedad</label>
+                                <input type="text" name="variedad" value="<?php echo htmlspecialchars($filtroVariedad); ?>" class="form-control" placeholder="ID o nombre de variedad">
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <label class="form-label mb-1">Fecha cosecha desde</label>
+                                <input type="date" name="fecha_desde" value="<?php echo htmlspecialchars($fechaDesde); ?>" class="form-control">
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <label class="form-label mb-1">Fecha cosecha hasta</label>
+                                <input type="date" name="fecha_hasta" value="<?php echo htmlspecialchars($fechaHasta); ?>" class="form-control">
+                            </div>
+                            <div class="col-lg-2 col-md-6 d-flex align-items-end justify-content-end">
+                                <div>
+                                    <button type="submit" class="btn btn-primary btn-sm mr-2"><i class="mdi mdi-filter-outline"></i> Aplicar</button>
+                                    <a href="index.php" class="btn btn-light btn-sm">Limpiar</a>
                                 </div>
                             </div>
-                        </div>
+                        </form>
+                    </div>
 
-                        <div class="col-xl-4th col-lg-6 col-12">
-                            <div class="box box-body dashboard-card bg-gradient-dusk">
-                                <div class="flexbox align-items-center">
-                                    <div>
-                                        <p class="mb-0 text-white-50">Kilos recepcionados día anterior</p>
-                                        <h3 class="mt-0 mb-0 text-white"><?php echo number_format((float)$TOTALKILOSAYER, 2, ',', '.'); ?> kg</h3>
-                                    </div>
-                                    <span class="icon-Alarm-clock fs-40 text-white"></span>
-                                </div>
+                    <div class="row g-3">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="kpi-card">
+                                <div class="kpi-title">Materia prima recepcionada acumulado</div>
+                                <div class="kpi-value"><?php echo number_format($resumen['kilos_neto'], 2, ',', '.'); ?> kg</div>
+                                <div class="kpi-hint">Productores activos: <?php echo number_format($totalProductores, 0, ',', '.'); ?></div>
                             </div>
                         </div>
-
-                        <div class="col-xl-4th col-lg-6 col-12">
-                            <div class="box box-body dashboard-card bg-gradient-emerald">
-                                <div class="flexbox align-items-center">
-                                    <div>
-                                        <p class="mb-0 text-white-50">Total envases recepcionados</p>
-                                        <h3 class="mt-0 mb-0 text-white"><?php echo number_format((float)$TOTALENVASES, 0, ',', '.'); ?></h3>
-                                    </div>
-                                    <span class="icon-Incoming-mail fs-40 text-white"></span>
-                                </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="kpi-card">
+                                <div class="kpi-title">Kilos recepcionados acumulados</div>
+                                <div class="kpi-value"><?php echo number_format($resumen['kilos_declarados'], 2, ',', '.'); ?> kg</div>
+                                <div class="kpi-hint text-<?php echo $kilosDiferencia >= 0 ? 'success' : 'danger'; ?>">Diferencia: <?php echo number_format($kilosDiferencia, 2, ',', '.'); ?> kg</div>
                             </div>
                         </div>
-
-                        <div class="col-xl-4th col-lg-6 col-12">
-                            <div class="box box-body dashboard-card bg-gradient-amber">
-                                <div class="flexbox align-items-center">
-                                    <div>
-                                        <p class="mb-0 text-white-50">Kilos brutos acumulados</p>
-                                        <h3 class="mt-0 mb-0 text-white"><?php echo number_format((float)$TOTALBRUTO, 2, ',', '.'); ?> kg</h3>
-                                    </div>
-                                    <span class="icon-Outcoming-mail fs-40 text-white"></span>
-                                </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="kpi-card">
+                                <div class="kpi-title">Kilos netos acumulados</div>
+                                <div class="kpi-value"><?php echo number_format($resumen['kilos_neto'], 2, ',', '.'); ?> kg</div>
+                                <div class="kpi-hint">Variedades activas: <?php echo number_format($totalVariedades, 0, ',', '.'); ?></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="kpi-card">
+                                <div class="kpi-title">Recepciones procesadas a la fecha</div>
+                                <div class="kpi-value"><?php echo number_format($recepcionesProcesadas, 0, ',', '.'); ?></div>
+                                <div class="kpi-hint text-primary">Con observaciones: <?php echo number_format($recepcionesConObservaciones, 0, ',', '.'); ?></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row dashboard-row collage-row align-items-stretch row-stretch">
-                        <div class="col-xl-4 col-12">
-                            <div class="box compact-card collage-card h-100">
-                                <div class="box-header with-border">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Indicadores operacionales</h4>
-                                        <span class="badge badge-outline badge-info">Recepción</span>
-                                    </div>
-                                </div>
-                                <div class="box-body">
-                                    <div class="d-flex align-items-center">
-                                        <span class="badge badge-pill badge-info mr-2"><i class="icon-Notes"></i></span>
-                                        <div>
-                                            <div class="text-muted small">Recepciones registradas</div>
-                                            <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <span class="badge badge-pill badge-success mr-2"><i class="icon-Gear"></i></span>
-                                        <div>
-                                            <div class="text-muted small">Kilos netos por productor</div>
-                                            <div class="h5 mb-0"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</div>
-                                        </div>
-                                    </div>
-                                    <div class="bg-light p-2 rounded">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-muted small">Total envases</span>
-                                            <span class="badge badge-primary"><?php echo number_format((float)$TOTALPRODUCTORENVASES, 0, ',', '.'); ?></span>
-                                        </div>
-                                    </div>
-                                    <div class="bg-light p-2 rounded">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-muted small">Documentos por vencer</span>
-                                            <span class="badge badge-info"><?php echo number_format((float)$TOTALDOCUMENTOS, 0, ',', '.'); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="kpi-card" style="background: linear-gradient(135deg,#ecfccb,#fef9c3); border-color: #eab308;">
+                                <div class="kpi-title">Envases acumulados</div>
+                                <div class="kpi-value"><?php echo number_format($resumen['envases'], 0, ',', '.'); ?></div>
+                                <div class="kpi-hint text-warning">Folios procesados: <?php echo number_format($resumen['folios'], 0, ',', '.'); ?></div>
                             </div>
                         </div>
-
-                        <div class="col-xl-4 col-12">
-                            <div class="box compact-card collage-card h-100">
-                                <div class="box-header with-border">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Kilos por productor (CSP)</h4>
-                                        <span class="badge badge-outline badge-success">Materia prima</span>
-                                    </div>
-                                </div>
-                                <div class="box-body">
-                                    <?php if ($DETALLEPRODUCTOR) { ?>
-                                        <div class="d-flex justify-content-between align-items-center text-muted small mb-1">
-                                            <span>Total productores</span>
-                                            <span class="badge badge-secondary"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</span>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-striped mb-0 compact-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Productor</th>
-                                                        <th class="text-right">Kg netos</th>
-                                                        <th class="text-right">Envases</th>
-                                                        <th class="text-right">Recepciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach ($DETALLEPRODUCTOR as $productor) {
-                                                        $totalProd = round($productor['TOTAL'], 2);
-                                                        $porcentaje = $TOTALPRODUCTORKILOS > 0 ? ($totalProd / $TOTALPRODUCTORKILOS) * 100 : 0;
-                                                    ?>
-                                                        <tr>
-                                                            <td>
-                                                                <div class="font-weight-600"><?php echo htmlspecialchars($productor['NOMBRE']); ?></div>
-                                                                <div class="text-muted small">CSP: <?php echo $productor['CSP'] ? $productor['CSP'] : 'Sin dato'; ?></div>
-                                                            </td>
-                                                            <td class="text-right"><?php echo number_format($totalProd, 2, ',', '.'); ?> kg</td>
-                                                            <td class="text-right"><?php echo number_format((float)$productor['ENVASES'], 0, ',', '.'); ?></td>
-                                                            <td class="text-right"><?php echo number_format((float)$productor['RECEPCIONES'], 0, ',', '.'); ?></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="4">
-                                                                <div class="progress progress-xxs mb-0">
-                                                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $porcentaje; ?>%" aria-valuenow="<?php echo $porcentaje; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td>Totales</td>
-                                                        <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORKILOS, 2, ',', '.'); ?> kg</td>
-                                                        <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORENVASES, 0, ',', '.'); ?></td>
-                                                        <td class="text-right"><?php echo number_format((float)$TOTALPRODUCTORECEPCIONES, 0, ',', '.'); ?></td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    <?php } else { ?>
-                                        <div class="text-center text-muted">Sin información disponible.</div>
-                                    <?php } ?>
-                                </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="kpi-card" style="background: linear-gradient(135deg,#dcfce7,#f0fdf4); border-color: #22c55e;">
+                                <div class="kpi-title">Porcentaje merma</div>
+                                <div class="kpi-value"><?php echo number_format($merma, 2, ',', '.'); ?>%</div>
+                                <div class="kpi-hint text-<?php echo $merma < 3 ? 'success' : ($merma < 7 ? 'warning' : 'danger'); ?>">Desviación declarada vs neto</div>
                             </div>
                         </div>
-
-                        <div class="col-xl-4 col-12">
-                            <div class="box compact-card collage-card h-100">
-                                <div class="box-header with-border">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Documentos próximos a vencer</h4>
-                                        <span class="badge badge-outline badge-warning">Prioridad</span>
-                                    </div>
-                                </div>
-                                <div class="box-body p-10">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover table-sm mb-0 compact-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Nombre registrado</th>
-                                                    <th class="text-center">Días</th>
-                                                    <th class="text-center">Descargar</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if ($DOCUMENTOSPORVENCER) { ?>
-                                                    <?php $hoy = new DateTime(); ?>
-                                                    <?php foreach ($DOCUMENTOSPORVENCER as $documento) {
-                                                        $vigencia = new DateTime($documento->vigencia_documento);
-                                                        $diasRestantes = (int) $hoy->diff($vigencia)->format('%r%a');
-                                                        $chipClass = $diasRestantes <= 15 ? 'doc-chip near' : 'doc-chip';
-                                                    ?>
-                                                        <tr>
-                                                            <td>
-                                                                <div class="font-weight-600 mb-0"><?php echo htmlspecialchars($documento->nombre_documento); ?></div>
-                                                                <div class="text-muted small">Vence: <?php echo $documento->vigencia_documento; ?></div>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <span class="<?php echo $chipClass; ?>">
-                                                                    <?php echo $diasRestantes >= 0 ? $diasRestantes . ' días' : 'Vencido'; ?>
-                                                                </span>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <a href="../../data/data_productor/<?php echo $documento->archivo_documento; ?>" target="_blank" class="btn btn-primary btn-xs px-2 py-1 d-inline-flex align-items-center">
-                                                                    <i class="ti-download mr-1"></i><span>Descargar</span>
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    <?php } ?>
-                                                <?php } else { ?>
-                                                    <tr>
-                                                        <td colspan="3" class="text-center text-muted">Sin documentos pendientes.</td>
-                                                    </tr>
-                                                <?php } ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="kpi-card" style="background: linear-gradient(135deg,#e0f2fe,#eff6ff);">
+                                <div class="kpi-title">Promedio kilos por recepción</div>
+                                <div class="kpi-value"><?php echo $recepcionesProcesadas > 0 ? number_format($resumen['kilos_neto'] / $recepcionesProcesadas, 2, ',', '.') : '0,00'; ?> kg</div>
+                                <div class="kpi-hint">Recepciones contabilizadas</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="kpi-card" style="background: linear-gradient(135deg,#f1f5f9,#e2e8f0);">
+                                <div class="kpi-title">Top productor</div>
+                                <div class="kpi-value"><?php echo isset($porProductor[0]) ? htmlspecialchars($porProductor[0]['NOMBRE']) : 'Sin datos'; ?></div>
+                                <div class="kpi-hint">Neto: <?php echo isset($porProductor[0]) ? number_format($porProductor[0]['NETO'], 2, ',', '.') . ' kg' : '--'; ?></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row dashboard-row row-stretch">
-                        <div class="col-lg-6 col-12 mb-15">
-                            <div class="box compact-card h-100">
-                                <div class="box-header with-border">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Recepciones por semana</h4>
-                                        <span class="badge badge-outline badge-info">Neto recepcionado</span>
+                    <div class="row g-3 mt-3">
+                        <div class="col-xl-6">
+                            <div class="panel-card p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <h5 class="mb-0">Kilos por productor (CSG)</h5>
+                                        <small class="text-muted">Productores asociados al usuario</small>
                                     </div>
+                                    <span class="badge badge-soft badge-primary"><?php echo number_format($totalProductores, 0, ',', '.'); ?> activos</span>
                                 </div>
-                                <div class="box-body">
-                                    <div id="chartSemanas" class="chart-container"></div>
+                                <div id="chartProductor" style="height: 260px;"></div>
+                                <div class="table-responsive mt-2">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Productor</th>
+                                                <th class="text-right">CSG</th>
+                                                <th class="text-right">Kilos netos</th>
+                                                <th class="text-right">Recepciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if ($porProductor) : ?>
+                                                <?php foreach (array_slice($porProductor, 0, 5) as $prod) : ?>
+                                                    <tr>
+                                                        <td><?php echo htmlspecialchars($prod['NOMBRE']); ?></td>
+                                                        <td class="text-right"><?php echo htmlspecialchars($prod['CSG']); ?></td>
+                                                        <td class="text-right"><?php echo number_format($prod['NETO'], 2, ',', '.'); ?> kg</td>
+                                                        <td class="text-right"><?php echo number_format($prod['ENVASES'], 0, ',', '.'); ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php else : ?>
+                                                <tr><td colspan="4" class="text-center text-muted">Sin datos en el rango seleccionado</td></tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-12 mb-15">
-                            <div class="box compact-card h-100">
-                                <div class="box-header with-border">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Top 5 variedades por kilo neto</h4>
-                                        <span class="badge badge-outline badge-success">Materia prima</span>
+                        <div class="col-xl-6">
+                            <div class="panel-card p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <h5 class="mb-0">Kilos por variedad</h5>
+                                        <small class="text-muted">Top variedades por volumen neto</small>
+                                    </div>
+                                    <span class="badge badge-soft badge-success">Variedades <?php echo number_format($totalVariedades, 0, ',', '.'); ?></span>
+                                </div>
+                                <div id="chartVariedad" style="height: 220px;"></div>
+                            </div>
+                            <div class="panel-card p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <h5 class="mb-0">Distribución por especie</h5>
+                                        <small class="text-muted">Participación porcentual</small>
                                     </div>
                                 </div>
-                                <div class="box-body">
-                                    <div id="chartVariedades" class="chart-container"></div>
-                                </div>
+                                <div id="chartEspecie" style="height: 220px;"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row dashboard-row row-stretch">
-                        <div class="col-lg-12 col-12 mb-15">
-                            <div class="box compact-card h-100">
-                                <div class="box-header with-border">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h4 class="box-title mb-0">Kilos por CSP y variedad</h4>
-                                        <span class="badge badge-outline badge-success">Materia prima</span>
+                    <div class="row g-3 mt-3">
+                        <div class="col-xl-12">
+                            <div class="panel-card p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <h5 class="mb-0">Envases vs kilos netos</h5>
+                                        <small class="text-muted">Nombres de estándar visibles</small>
                                     </div>
+                                    <span class="badge badge-soft badge-info">Total envases <?php echo number_format($resumen['envases'], 0, ',', '.'); ?></span>
                                 </div>
-                                <div class="box-body p-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-compact mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>Productor</th>
-                                                    <th>CSP</th>
-                                                    <th>Variedad</th>
-                                                    <th class="text-right">Kilos netos</th>
-                                                    <th class="text-right">Envases</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if ($DETALLECSPVARIEDAD) { ?>
-                                                    <?php foreach ($DETALLECSPVARIEDAD as $fila) { ?>
-                                                        <tr>
-                                                            <td><?php echo htmlspecialchars($fila['PRODUCTOR']); ?></td>
-                                                            <td><?php echo $fila['CSP'] ? $fila['CSP'] : 'Sin dato'; ?></td>
-                                                            <td><?php echo htmlspecialchars($fila['VARIEDAD']); ?></td>
-                                                            <td class="text-right"><?php echo number_format((float)$fila['TOTAL'], 2, ',', '.'); ?> kg</td>
-                                                            <td class="text-right"><?php echo number_format((float)$fila['ENVASES'], 0, ',', '.'); ?></td>
-                                                        </tr>
-                                                    <?php } ?>
-                                                <?php } else { ?>
-                                                    <tr>
-                                                        <td colspan="5" class="text-center text-muted">Sin registros por variedad.</td>
-                                                    </tr>
-                                                <?php } ?>
-                                            </tbody>
-                                            <?php if ($DETALLECSPVARIEDAD) { ?>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="3">Totales</td>
-                                                        <td class="text-right"><?php echo number_format((float)$TOTALCSPVARIEDAD, 2, ',', '.'); ?> kg</td>
-                                                        <td class="text-right"><?php echo number_format((float)$TOTALCSPVARIEDADENVASES, 0, ',', '.'); ?></td>
-                                                    </tr>
-                                                </tfoot>
-                                            <?php } ?>
-                                        </table>
-                                    </div>
-                                </div>
+                                <div id="chartEnvase" style="height: 260px;"></div>
                             </div>
                         </div>
                     </div>
@@ -709,58 +506,72 @@ if ($PRODUCTORESASOCIADOS) {
     <script src="../../api/cryptioadmin10/html/assets/vendor_components/d3/d3.min.js"></script>
     <script src="../../api/cryptioadmin10/html/assets/vendor_components/c3/c3.min.js"></script>
     <script>
-        const datosSemanas = <?php echo json_encode($KILOSSEMANA); ?>;
-        const datosVariedades = <?php echo json_encode($KILOSVARIEDAD); ?>;
+        const datosProductor = <?php echo json_encode($porProductor); ?>;
+        const datosVariedad = <?php echo json_encode($porVariedad); ?>;
+        const datosEspecie = <?php echo json_encode($porEspecie); ?>;
+        const datosEnvase = <?php echo json_encode($porEnvase); ?>;
 
         (function generarCharts() {
-            const semanasColumns = [
-                ['Kilos netos', ...datosSemanas.map((s) => parseFloat(s.TOTAL))]
-            ];
-            const semanasCategories = datosSemanas.map((s) => 'Semana ' + s.SEMANA);
-
             c3.generate({
-                bindto: '#chartSemanas',
+                bindto: '#chartProductor',
                 data: {
-                    columns: semanasColumns,
-                    type: 'line',
-                    colors: {
-                        'Kilos netos': '#198754'
-                    }
+                    columns: [
+                        ['Kilos netos', ...datosProductor.map(p => parseFloat(p.NETO || 0))]
+                    ],
+                    type: 'bar',
+                    colors: { 'Kilos netos': '#2563eb' }
                 },
                 axis: {
                     x: {
                         type: 'category',
-                        categories: semanasCategories
+                        categories: datosProductor.map(p => `${p.CSG || ''} ${p.NOMBRE || ''}`.trim())
                     },
-                    y: {
-                        label: 'Kilos netos'
+                    y: { label: 'Kilos netos' }
+                },
+                bar: { width: { ratio: 0.6 } },
+                tooltip: {
+                    format: {
+                        name: (name, ratio, id, index) => datosProductor[index]?.NOMBRE || name
                     }
                 }
             });
 
-            const variedadColumns = [
-                ['Kilos netos', ...datosVariedades.map((v) => parseFloat(v.TOTAL))]
-            ];
-            const variedadCategories = datosVariedades.map((v) => v.VARIEDAD);
-
             c3.generate({
-                bindto: '#chartVariedades',
+                bindto: '#chartVariedad',
                 data: {
-                    columns: variedadColumns,
+                    columns: datosVariedad.map(v => [v.NOMBRE, parseFloat(v.NETO || 0)]),
                     type: 'bar',
-                    colors: {
-                        'Kilos netos': '#0d6efd'
-                    }
+                    colors: { ...datosVariedad.reduce((acc, v, i) => ({ ...acc, [v.NOMBRE]: d3.schemeTableau10[i % 10] }), {}) }
                 },
                 axis: {
-                    x: {
-                        type: 'category',
-                        categories: variedadCategories
-                    },
-                    y: {
-                        label: 'Kilos netos'
-                    }
-                }
+                    x: { type: 'category', categories: datosVariedad.map(v => v.NOMBRE), tick: { rotate: 45, multiline: false } },
+                    y: { label: 'Kilos netos' }
+                },
+                bar: { width: { ratio: 0.65 } }
+            });
+
+            c3.generate({
+                bindto: '#chartEspecie',
+                data: {
+                    columns: datosEspecie.map(e => [e.NOMBRE, parseFloat(e.NETO || 0)]),
+                    type: 'donut',
+                    colors: { ...datosEspecie.reduce((acc, e, i) => ({ ...acc, [e.NOMBRE]: d3.schemeSet2[i % 8] }), {}) }
+                },
+                donut: { title: 'Especies' }
+            });
+
+            c3.generate({
+                bindto: '#chartEnvase',
+                data: {
+                    columns: datosEnvase.map(e => [e.NOMBRE, parseFloat(e.NETO || 0)]),
+                    type: 'bar',
+                    colors: { ...datosEnvase.reduce((acc, e, i) => ({ ...acc, [e.NOMBRE]: d3.schemeCategory10[i % 10] }), {}) }
+                },
+                axis: {
+                    x: { type: 'category', categories: datosEnvase.map(e => e.NOMBRE), tick: { rotate: 35, multiline: false } },
+                    y: { label: 'Kilos netos' }
+                },
+                bar: { width: { ratio: 0.6 } }
             });
         })();
     </script>
