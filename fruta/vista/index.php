@@ -61,13 +61,15 @@ $totalCajasAprobadas = 0;
 $totalEntradaProcesosCerrados = 0;
 $totalExportProcesosCerrados = 0;
 
-function clampPercent($value)
-{
-    if (!is_numeric($value)) {
-        return 0;
-    }
+if (!function_exists('clampPercent')) {
+    function clampPercent($value)
+    {
+        if (!is_numeric($value)) {
+            return 0;
+        }
 
-    return max(0, min(100, round($value, 2)));
+        return max(0, min(100, round($value, 2)));
+    }
 }
 
 if ($query_exportacionProductor) {
