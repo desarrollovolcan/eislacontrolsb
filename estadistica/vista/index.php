@@ -24,18 +24,13 @@ $CONDUCTOR_ADO = new CONDUCTOR_ADO();
 // Parámetros y filtros
 $fechaDesde = isset($_GET['fecha_desde']) && $_GET['fecha_desde'] !== '' ? $_GET['fecha_desde'] : (new DateTime('-30 days'))->format('Y-m-d');
 $fechaHasta = isset($_GET['fecha_hasta']) && $_GET['fecha_hasta'] !== '' ? $_GET['fecha_hasta'] : (new DateTime('yesterday'))->format('Y-m-d');
-$filtroProductor = isset($_GET['productor']) ? trim($_GET['productor']) : '';
-$filtroEspecie = isset($_GET['especie']) ? trim($_GET['especie']) : '';
 $filtroVariedad = isset($_GET['variedad']) ? trim($_GET['variedad']) : '';
-$filtroSemana = isset($_GET['semana']) ? trim($_GET['semana']) : '';
 
 // Variables de ayuda
 $PRODUCTORESASOCIADOS = [];
 $cacheProductores = [];
 $cacheVariedades = [];
 $cacheEspecies = [];
-$cacheTransporte = [];
-$cacheConductores = [];
 $detalleRecepciones = [];
 
 // Resumen general
@@ -52,8 +47,6 @@ $porVariedad = [];
 $porEspecie = [];
 $porEnvase = [];
 $porCSG = [];
-$logisticaPatente = [];
-$temperaturas = [];
 
 // Obtener productores asociados al usuario
 $ARRAYEMPRESAPRODUCTOR = $EMPRESAPRODUCTOR_ADO->buscarEmpresaProductorPorUsuarioCBX($IDUSUARIOS);
@@ -94,23 +87,9 @@ if ($ARRAYEMPRESAPRODUCTOR) {
             $csg = $productorData ? $productorData['CSG_PRODUCTOR'] : '';
             $tipoProductor = $productorData ? $productorData['TIPO_PRODUCTOR'] : '';
 
-            $temperatura = isset($recepcion['TEMPERATURA_RECEPCION']) ? (float)$recepcion['TEMPERATURA_RECEPCION'] : null;
-            if ($temperatura !== null) {
-                $temperaturas[] = $temperatura;
-            }
-
             $kilosDeclaradosRecepcion = isset($recepcion['TOTAL_KILOS_GUIA_RECEPCION']) ? (float)$recepcion['TOTAL_KILOS_GUIA_RECEPCION'] : 0;
             $acumNetoRecepcion = 0;
             $acumEnvasesRecepcion = 0;
-
-            if ($transportistaId && !isset($cacheTransporte[$transportistaId])) {
-                $transporte = $TRANSPORTE_ADO->verTransporte($transportistaId);
-                $cacheTransporte[$transportistaId] = $transporte ? $transporte[0] : null;
-            }
-            if ($conductorId && !isset($cacheConductores[$conductorId])) {
-                $conductor = $CONDUCTOR_ADO->verConductor($conductorId);
-                $cacheConductores[$conductorId] = $conductor ? $conductor[0] : null;
-            }
 
             $detalles = $DRECEPCIONMP_ADO->buscarPorRecepcion($recepcion['ID_RECEPCION']);
             foreach ($detalles as $detalle) {
@@ -122,13 +101,7 @@ if ($ARRAYEMPRESAPRODUCTOR) {
                 $variedadData = $cacheVariedades[$vespecieId];
                 $especieId = $variedadData ? $variedadData['ID_ESPECIES'] : null;
 
-                if ($filtroEspecie && $especieId != $filtroEspecie) {
-                    continue;
-                }
                 if ($filtroVariedad && $vespecieId != $filtroVariedad) {
-                    continue;
-                }
-                if ($filtroProductor && $productorId != $filtroProductor) {
                     continue;
                 }
 
@@ -147,9 +120,6 @@ if ($ARRAYEMPRESAPRODUCTOR) {
                 $acumEnvasesRecepcion += $envases;
 
                 $semanaRecepcion = (new DateTime($fechaRecepcion))->format('W');
-                if ($filtroSemana && $semanaRecepcion !== $filtroSemana) {
-                    continue;
-                }
 
                 $resumen['kilos_neto'] += $neto;
                 $resumen['envases'] += $envases;
@@ -198,9 +168,13 @@ if ($ARRAYEMPRESAPRODUCTOR) {
 
                 // Agrupación envase / estándar
                 $codigoEstandar = $detalle['ID_ESTANDAR'] ?? 'N/D';
+                $nombreEstandar = isset($detalle['NOMBRE_ESTANDAR']) && $detalle['NOMBRE_ESTANDAR'] !== ''
+                    ? $detalle['NOMBRE_ESTANDAR']
+                    : 'Estándar ' . $codigoEstandar;
                 if (!isset($porEnvase[$codigoEstandar])) {
                     $porEnvase[$codigoEstandar] = [
                         'CODIGO' => $codigoEstandar,
+                        'NOMBRE' => $nombreEstandar,
                         'NETO' => 0,
                         'ENVASES' => 0,
                     ];
@@ -217,22 +191,6 @@ if ($ARRAYEMPRESAPRODUCTOR) {
                         ];
                     }
                     $porCSG[$csg]['NETO'] += $neto;
-                }
-
-                // Logística por patente
-                $patenteCamion = $recepcion['PATENTE_CAMION'] ?? '';
-                if ($patenteCamion !== '') {
-                    if (!isset($logisticaPatente[$patenteCamion])) {
-                        $logisticaPatente[$patenteCamion] = [
-                            'PATENTE' => $patenteCamion,
-                            'VIAJES' => 0,
-                            'KILOS' => 0,
-                            'DIFERENCIA' => 0,
-                        ];
-                    }
-                    $logisticaPatente[$patenteCamion]['VIAJES'] += 1;
-                    $logisticaPatente[$patenteCamion]['KILOS'] += $neto;
-                    $logisticaPatente[$patenteCamion]['DIFERENCIA'] += isset($recepcion['TOTAL_KILOS_GUIA_RECEPCION']) ? ((float)$recepcion['TOTAL_KILOS_GUIA_RECEPCION'] - $neto) : 0;
                 }
 
                 $detalleRecepciones[] = [
@@ -256,7 +214,7 @@ if ($ARRAYEMPRESAPRODUCTOR) {
                     'CAMARA' => $recepcion['CAMARA_RECEPCION'] ?? '',
                     'OBSERVACIONES' => $recepcion['OBSERVACION_RECEPCION'] ?? '',
                     'TIPO_PRODUCTOR' => $tipoProductor,
-                    'PATENTE_CAMION' => $patenteCamion,
+                    'PATENTE_CAMION' => $recepcion['PATENTE_CAMION'] ?? '',
                     'PATENTE_CARRO' => $recepcion['PATENTE_CARRO'] ?? '',
                     'SEMANA_RECEPCION' => $semanaRecepcion,
                     'SEMANA_GUIA' => isset($recepcion['FECHA_GUIA_RECEPCION']) ? (new DateTime($recepcion['FECHA_GUIA_RECEPCION']))->format('W') : '',
@@ -292,11 +250,9 @@ usort($porEnvase, fn($a, $b) => $b['NETO'] <=> $a['NETO']);
 
 $porCSG = array_values($porCSG);
 
-$logisticaPatente = array_values($logisticaPatente);
-usort($logisticaPatente, fn($a, $b) => $b['KILOS'] <=> $a['KILOS']);
-
 $merma = $resumen['kilos_declarados'] > 0 ? (($resumen['kilos_declarados'] - $resumen['kilos_neto']) / max($resumen['kilos_declarados'], 1)) * 100 : 0;
-$promedioTemperatura = $temperaturas ? array_sum($temperaturas) / count($temperaturas) : null;
+$totalVariedades = count($porVariedad);
+$totalProductores = count($porProductor);
 ?>
 
 <!DOCTYPE html>
@@ -430,29 +386,17 @@ $promedioTemperatura = $temperaturas ? array_sum($temperaturas) / count($tempera
                 <section class="content">
                     <div class="filter-bar p-3 mb-4">
                         <form method="GET" class="row g-3 align-items-end">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Variedad</label>
+                                <input type="text" name="variedad" value="<?php echo htmlspecialchars($filtroVariedad); ?>" class="form-control" placeholder="ID Variedad o nombre">
+                            </div>
+                            <div class="col-md-4">
                                 <label class="form-label">Fecha cosecha desde</label>
                                 <input type="date" name="fecha_desde" value="<?php echo htmlspecialchars($fechaDesde); ?>" class="form-control">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label class="form-label">Fecha cosecha hasta</label>
                                 <input type="date" name="fecha_hasta" value="<?php echo htmlspecialchars($fechaHasta); ?>" class="form-control">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Productor</label>
-                                <input type="text" name="productor" value="<?php echo htmlspecialchars($filtroProductor); ?>" class="form-control" placeholder="ID Productor">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Especie</label>
-                                <input type="text" name="especie" value="<?php echo htmlspecialchars($filtroEspecie); ?>" class="form-control" placeholder="ID Especie">
-                            </div>
-                            <div class="col-md-1">
-                                <label class="form-label">Variedad</label>
-                                <input type="text" name="variedad" value="<?php echo htmlspecialchars($filtroVariedad); ?>" class="form-control" placeholder="ID">
-                            </div>
-                            <div class="col-md-1">
-                                <label class="form-label">Semana</label>
-                                <input type="text" name="semana" value="<?php echo htmlspecialchars($filtroSemana); ?>" class="form-control" placeholder="Ej: 08">
                             </div>
                             <div class="col-md-12 d-flex justify-content-between mt-3">
                                 <div>
@@ -516,6 +460,35 @@ $promedioTemperatura = $temperaturas ? array_sum($temperaturas) / count($tempera
                                     </div>
                                     <div class="summary-icon bg-amber">
                                         <i class="mdi mdi-alert-decagram"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-3 col-lg-6 col-12">
+                            <div class="box box-body summary-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="mb-0 text-muted">Variedades activas</p>
+                                        <h3 class="mb-0"><?php echo number_format($totalVariedades, 0, ',', '.'); ?></h3>
+                                    </div>
+                                    <div class="summary-icon bg-blue">
+                                        <i class="mdi mdi-flower"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-12">
+                            <div class="box box-body summary-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="mb-0 text-muted">Productores activos</p>
+                                        <h3 class="mb-0"><?php echo number_format($totalProductores, 0, ',', '.'); ?></h3>
+                                    </div>
+                                    <div class="summary-icon bg-green">
+                                        <i class="mdi mdi-account-multiple"></i>
                                     </div>
                                 </div>
                             </div>
@@ -610,44 +583,9 @@ $promedioTemperatura = $temperaturas ? array_sum($temperaturas) / count($tempera
                                             <tbody>
                                                 <?php foreach ($porEnvase as $env) { ?>
                                                     <tr>
-                                                        <td><?php echo htmlspecialchars($env['CODIGO']); ?></td>
+                                                        <td><?php echo htmlspecialchars($env['NOMBRE']); ?></td>
                                                         <td class="text-right"><?php echo number_format($env['ENVASES'], 0, ',', '.'); ?></td>
                                                         <td class="text-right"><?php echo number_format($env['NETO'], 2, ',', '.'); ?> kg</td>
-                                                    </tr>
-                                                <?php } ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xl-6 col-12">
-                            <div class="box">
-                                <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                    <h4 class="box-title panel-title mb-0">Logística y seguimiento</h4>
-                                    <span class="badge-soft bg-light text-primary">Patentes</span>
-                                </div>
-                                <div class="box-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Patente camión</th>
-                                                    <th class="text-right">Viajes</th>
-                                                    <th class="text-right">Kilos transportados</th>
-                                                    <th class="text-right">Diferencias</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($logisticaPatente as $log) { ?>
-                                                    <tr>
-                                                        <td><?php echo htmlspecialchars($log['PATENTE'] ?? ''); ?></td>
-                                                        <td class="text-right"><?php echo number_format($log['VIAJES'], 0, ',', '.'); ?></td>
-                                                        <td class="text-right"><?php echo number_format($log['KILOS'], 2, ',', '.'); ?> kg</td>
-                                                        <td class="text-right text-<?php echo $log['DIFERENCIA'] <= 0 ? 'success' : 'danger'; ?>"><?php echo number_format($log['DIFERENCIA'], 2, ',', '.'); ?> kg</td>
                                                     </tr>
                                                 <?php } ?>
                                             </tbody>
@@ -759,6 +697,7 @@ $promedioTemperatura = $temperaturas ? array_sum($temperaturas) / count($tempera
                             </div>
                         </div>
                     </div>
+
                 </section>
             </div>
         </div>
@@ -774,14 +713,6 @@ $promedioTemperatura = $temperaturas ? array_sum($temperaturas) / count($tempera
         const datosEspecie = <?php echo json_encode($porEspecie); ?>;
         const datosEnvase = <?php echo json_encode($porEnvase); ?>;
         const datosDetalle = <?php echo json_encode($detalleRecepciones); ?>;
-
-        function buscarFolio(valor) {
-            const term = valor.toLowerCase();
-            document.querySelectorAll('#tablaDetalle tbody tr').forEach((fila) => {
-                const folio = fila.cells[0].innerText.toLowerCase();
-                fila.style.display = folio.includes(term) ? '' : 'none';
-            });
-        }
 
         (function generarCharts() {
             c3.generate({
@@ -871,31 +802,16 @@ $promedioTemperatura = $temperaturas ? array_sum($temperaturas) / count($tempera
             c3.generate({
                 bindto: '#chartEnvase',
                 data: {
-                    columns: datosEnvase.map(e => [e.CODIGO, parseFloat(e.NETO || 0)]),
+                    columns: datosEnvase.map(e => [e.NOMBRE, parseFloat(e.NETO || 0)]),
                     type: 'bar',
-                    colors: { ...datosEnvase.reduce((acc, e, i) => ({ ...acc, [e.CODIGO]: d3.schemeSet2[i % 8] }), {}) }
+                    colors: { ...datosEnvase.reduce((acc, e, i) => ({ ...acc, [e.NOMBRE]: d3.schemeSet2[i % 8] }), {}) }
                 },
                 axis: {
-                    x: { type: 'category', categories: datosEnvase.map(e => e.CODIGO) },
+                    x: { type: 'category', categories: datosEnvase.map(e => e.NOMBRE) },
                     y: { label: 'Kilos netos' }
                 }
             });
 
-            const difTotales = datosProductor.map(p => p.DIFERENCIA || 0);
-            c3.generate({
-                bindto: '#chartDiferencias',
-                data: {
-                    columns: [
-                        ['Diferencia', ...difTotales]
-                    ],
-                    type: 'area-spline',
-                    colors: { 'Diferencia': '#d97706' }
-                },
-                axis: {
-                    x: { type: 'category', categories: datosProductor.map(p => p.NOMBRE) },
-                    y: { label: 'Kg declarados - Kg netos' }
-                }
-            });
         })();
     </script>
 </body>
