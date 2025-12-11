@@ -340,10 +340,13 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
         .table-sm td {
             padding: 6px 10px;
         }
+
+        .table thead th { white-space: nowrap; }
+        .kpi-diff { font-weight: 700; }
     </style>
 </head>
 
-<body class="hold-transition light-skin fixed sidebar-mini theme-primary">
+<body class="hold-transition light-skin fixed sidebar-mini theme-primary dashboard-bg">
     <div class="wrapper">
         <?php include_once "../../assest/config/menuOpera.php"; ?>
         <div class="content-wrapper">
@@ -610,9 +613,11 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
                                         </tbody>
                                     </table>
                                 </div>
+                                <div id="chartEnvase" style="height: 260px;"></div>
                             </div>
                         </div>
                     </div>
+
                 </section>
             </div>
         </div>
@@ -649,7 +654,8 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
                     format: {
                         name: (name, ratio, id, index) => datosProductor[index]?.NOMBRE || name
                     }
-                }
+                },
+                bar: { width: { ratio: 0.7 } }
             });
 
             c3.generate({
@@ -679,6 +685,20 @@ $kilosDiferencia = $resumen['kilos_declarados'] - $resumen['kilos_neto'];
                 },
                 bar: { width: { ratio: 0.6 } }
             });
+
+            c3.generate({
+                bindto: '#chartEnvase',
+                data: {
+                    columns: datosEnvase.map(e => [e.NOMBRE, parseFloat(e.NETO || 0)]),
+                    type: 'bar',
+                    colors: { ...datosEnvase.reduce((acc, e, i) => ({ ...acc, [e.NOMBRE]: d3.schemeSet2[i % 8] }), {}) }
+                },
+                axis: {
+                    x: { type: 'category', categories: datosEnvase.map(e => e.NOMBRE) },
+                    y: { label: 'Kilos netos' }
+                }
+            });
+
         })();
     </script>
 </body>
