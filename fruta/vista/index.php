@@ -61,6 +61,15 @@ $totalCajasAprobadas = 0;
 $totalEntradaProcesosCerrados = 0;
 $totalExportProcesosCerrados = 0;
 
+function clampPercent($value)
+{
+    if (!is_numeric($value)) {
+        return 0;
+    }
+
+    return max(0, min(100, round($value, 2)));
+}
+
 if ($query_exportacionProductor) {
     foreach ($query_exportacionProductor as $fila) {
         if ($fila["TOTAL"] > $maxExportProd) {
@@ -261,9 +270,11 @@ if($ARRAYREGISTROSABIERTOS){
                             <div class="d-flex align-items-center">
                                 <div class="mr-auto">
                                     <h3 class="page-title">Dashboard planta <?php echo isset($nombePlanta) ? strtoupper($nombePlanta) : ""; ?></h3>
-                                    <p class="mb-0">Datos filtrados por empresa, temporada y planta activa.</p>
+                                    <p class="mb-0">Resumen actualizado automáticamente por empresa, temporada y planta activa.</p>
                                 </div>
-                                <?php include_once "../../assest/config/verIndicadorEconomico.php"; ?>
+                                <div class="text-right text-muted small d-none d-md-block">
+                                    <span class="badge badge-outline badge-info">Vista sin filtros manuales</span>
+                                </div>
                             </div>
                         </div>
 
@@ -396,7 +407,7 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php foreach ($query_existenciaVariedad as $fila) {
                                                             $nombreExi = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre";
                                                             $totalExi = round($fila["TOTAL"], 0);
-                                                            $porcentajeExi = $maxExistencia > 0 ? ($totalExi / $maxExistencia) * 100 : 0;
+                                                            $porcentajeExi = clampPercent($maxExistencia > 0 ? ($totalExi / $maxExistencia) * 100 : 0);
                                                         ?>
                                                             <tr>
                                                                 <td><?php echo $nombreExi; ?></td>
@@ -445,7 +456,7 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php foreach ($query_exportacionProductor as $fila) {
                                                             $nombreProd = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre";
                                                             $totalProd = round($fila["TOTAL"], 0);
-                                                            $porcentajeProd = $maxExportProd > 0 ? ($totalProd / $maxExportProd) * 100 : 0;
+                                                            $porcentajeProd = clampPercent($maxExportProd > 0 ? ($totalProd / $maxExportProd) * 100 : 0);
                                                         ?>
                                                             <tr>
                                                                 <td><?php echo $nombreProd; ?></td>
@@ -497,7 +508,7 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php foreach ($query_exportacionVariedad as $fila) {
                                                             $nombreVar = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin nombre";
                                                             $totalVar = round($fila["TOTAL"], 0);
-                                                            $porcentajeVar = $maxExportVariedad > 0 ? ($totalVar / $maxExportVariedad) * 100 : 0;
+                                                            $porcentajeVar = clampPercent($maxExportVariedad > 0 ? ($totalVar / $maxExportVariedad) * 100 : 0);
                                                         ?>
                                                             <tr>
                                                                 <td><?php echo $nombreVar; ?></td>
@@ -547,7 +558,7 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php foreach ($query_exportacionPais as $fila) {
                                                             $nombrePais = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin país";
                                                             $totalPais = round($fila["TOTAL"], 0);
-                                                            $porcentajePais = $maxExportPais > 0 ? ($totalPais / $maxExportPais) * 100 : 0;
+                                                            $porcentajePais = clampPercent($maxExportPais > 0 ? ($totalPais / $maxExportPais) * 100 : 0);
                                                         ?>
                                                             <tr>
                                                                 <td><?php echo $nombrePais; ?></td>
@@ -597,7 +608,7 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php foreach ($query_exportacionRecibidor as $fila) {
                                                             $nombreRecibidor = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin recibidor";
                                                             $totalRecibidor = round($fila["TOTAL"], 0);
-                                                            $porcentajeRecibidor = $maxExportRecibidor > 0 ? ($totalRecibidor / $maxExportRecibidor) * 100 : 0;
+                                                            $porcentajeRecibidor = clampPercent($maxExportRecibidor > 0 ? ($totalRecibidor / $maxExportRecibidor) * 100 : 0);
                                                         ?>
                                                             <tr>
                                                                 <td><?php echo $nombreRecibidor; ?></td>
@@ -647,7 +658,7 @@ if($ARRAYREGISTROSABIERTOS){
                                                         <?php foreach ($query_cajasPorPais as $fila) {
                                                             $nombreCajaPais = $fila["NOMBRE"] ? $fila["NOMBRE"] : "Sin país";
                                                             $totalCajas = round($fila["TOTAL"], 0);
-                                                            $porcentajeCajaPais = $maxCajasPais > 0 ? ($totalCajas / $maxCajasPais) * 100 : 0;
+                                                            $porcentajeCajaPais = clampPercent($maxCajasPais > 0 ? ($totalCajas / $maxCajasPais) * 100 : 0);
                                                         ?>
                                                             <tr>
                                                                 <td><?php echo $nombreCajaPais; ?></td>
@@ -694,15 +705,15 @@ if($ARRAYREGISTROSABIERTOS){
                                                     </thead>
                                                     <tbody>
                                                         <?php foreach ($query_procesosBajaExportacion as $proceso) {
-                                                            $porcentajeExpo = number_format($proceso["PDEXPORTACION_PROCESO"], 2, ".", "");
-                                                            $porcentajeTotal = number_format($proceso["PDEXPORTACIONCD_PROCESO"], 2, ".", "");
+                                                            $porcentajeExpo = number_format(clampPercent($proceso["PDEXPORTACION_PROCESO"]), 2, ".", "");
+                                                            $porcentajeTotal = number_format(clampPercent($proceso["PDEXPORTACIONCD_PROCESO"]), 2, ".", "");
                                                         ?>
                                                             <tr>
                                                                 <td>
                                                                     <div class="font-weight-600">#<?php echo $proceso["NUMERO_PROCESO"]; ?></div>
                                                                     <div class="text-muted small"><?php echo $proceso["FECHA_PROCESO"]; ?></div>
                                                                     <div class="progress mini-progress super-thin mt-1">
-                                                                        <div class="progress-bar progress-amber" role="progressbar" style="width: <?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>%" aria-valuenow="<?php echo $proceso["PDEXPORTACION_PROCESO"]; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                        <div class="progress-bar progress-amber" role="progressbar" style="width: <?php echo $porcentajeExpo; ?>%" aria-valuenow="<?php echo $porcentajeExpo; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                                                     </div>
                                                                 </td>
                                                                 <td class="text-right align-middle"><?php echo number_format($proceso["KILOS_NETO_ENTRADA"], 0, ",", "."); ?></td>
