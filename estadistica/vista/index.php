@@ -77,6 +77,7 @@ if ($ARRAYEMPRESAPRODUCTOR) {
             $productorId = $recepcion['ID_PRODUCTOR'];
             $transportistaId = $recepcion['ID_TRANSPORTE'];
             $conductorId = $recepcion['ID_CONDUCTOR'];
+            $temperatura = $recepcion['TEMPERATURA_RECEPCION'] ?? '';
 
             if (!isset($cacheProductores[$productorId])) {
                 $prodData = $PRODUCTOR_ADO->verProductor($productorId);
@@ -266,68 +267,67 @@ $totalProductores = count($porProductor);
     <link rel="stylesheet" href="../../api/cryptioadmin10/html/assets/vendor_components/c3/c3.min.css">
     <style>
         :root {
-            --green: #16a34a;
-            --blue: #2563eb;
-            --teal: #0ea5e9;
-            --amber: #d97706;
+            --green: #2ecc71;
+            --blue: #1e88e5;
+            --teal: #26c6da;
+            --amber: #f6c344;
+            --dark: #0f172a;
         }
 
         .dashboard-bg {
-            background: radial-gradient(circle at 20% 20%, rgba(22, 163, 74, 0.08), transparent 25%),
-                radial-gradient(circle at 80% 10%, rgba(37, 99, 235, 0.08), transparent 25%),
-                radial-gradient(circle at 50% 80%, rgba(14, 165, 233, 0.06), transparent 20%), #f8fafc;
+            background: linear-gradient(135deg, rgba(30, 136, 229, 0.12), rgba(46, 204, 113, 0.14)), #f7fafc;
         }
 
         .summary-card {
-            color: #0f172a;
+            color: #fff;
             border: 0;
             border-radius: 18px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-            background: linear-gradient(135deg, #ffffff, #f0f9ff);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+            position: relative;
+            overflow: hidden;
             height: 100%;
         }
 
-        .summary-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(37, 99, 235, 0.2);
+        .summary-card:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), transparent 45%),
+                radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.12), transparent 35%);
+            pointer-events: none;
+        }
+
+        .summary-card .box-body {
+            position: relative;
+            z-index: 2;
         }
 
         .summary-icon {
-            width: 52px;
-            height: 52px;
+            width: 56px;
+            height: 56px;
             display: grid;
             place-items: center;
             border-radius: 14px;
             color: #fff;
             font-size: 24px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
         }
 
-        .bg-blue {
-            background: linear-gradient(120deg, #2563eb, #60a5fa);
-        }
-
-        .bg-green {
-            background: linear-gradient(120deg, #16a34a, #4ade80);
-        }
-
-        .bg-teal {
-            background: linear-gradient(120deg, #0ea5e9, #38bdf8);
-        }
-
-        .bg-amber {
-            background: linear-gradient(120deg, #d97706, #fbbf24);
-        }
+        .bg-blue { background: linear-gradient(120deg, #1e88e5, #64b5f6); }
+        .bg-green { background: linear-gradient(120deg, #2ecc71, #6ee7b7); }
+        .bg-teal { background: linear-gradient(120deg, #26c6da, #67e8f9); }
+        .bg-amber { background: linear-gradient(120deg, #f6c344, #f59e0b); }
 
         .panel-title {
             font-weight: 700;
-            color: #0f172a;
+            color: var(--dark);
         }
 
         .box {
-            border-radius: 18px;
+            border-radius: 16px;
             border: 0;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
         }
 
         .box-header {
@@ -344,15 +344,11 @@ $totalProductores = count($porProductor);
             border-radius: 14px;
             background: #ffffff;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
         }
 
-        .table thead th {
-            white-space: nowrap;
-        }
-
-        .kpi-diff {
-            font-weight: 700;
-        }
+        .table thead th { white-space: nowrap; }
+        .kpi-diff { font-weight: 700; }
     </style>
     <script type="text/javascript">
         function irPagina(url) {
@@ -386,17 +382,21 @@ $totalProductores = count($porProductor);
                 <section class="content">
                     <div class="filter-bar p-3 mb-4">
                         <form method="GET" class="row g-3 align-items-end">
-                            <div class="col-md-4">
+                            <div class="col-md-5">
                                 <label class="form-label">Variedad</label>
                                 <input type="text" name="variedad" value="<?php echo htmlspecialchars($filtroVariedad); ?>" class="form-control" placeholder="ID Variedad o nombre">
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Fecha cosecha desde</label>
-                                <input type="date" name="fecha_desde" value="<?php echo htmlspecialchars($fechaDesde); ?>" class="form-control">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Fecha cosecha hasta</label>
-                                <input type="date" name="fecha_hasta" value="<?php echo htmlspecialchars($fechaHasta); ?>" class="form-control">
+                            <div class="col-md-7">
+                                <div class="row g-2">
+                                    <div class="col-sm-6">
+                                        <label class="form-label">Fecha cosecha desde</label>
+                                        <input type="date" name="fecha_desde" value="<?php echo htmlspecialchars($fechaDesde); ?>" class="form-control">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-label">Fecha cosecha hasta</label>
+                                        <input type="date" name="fecha_hasta" value="<?php echo htmlspecialchars($fechaHasta); ?>" class="form-control">
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-12 d-flex justify-content-between mt-3">
                                 <div>
@@ -412,55 +412,47 @@ $totalProductores = count($porProductor);
 
                     <div class="row">
                         <div class="col-xl-3 col-lg-6 col-12">
-                            <div class="box box-body summary-card">
+                            <div class="box box-body summary-card bg-green">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <p class="mb-0 text-muted">Total kilos netos</p>
-                                        <h3 class="mb-0"><?php echo number_format($resumen['kilos_neto'], 2, ',', '.'); ?> kg</h3>
+                                        <p class="mb-0 text-white-50">Total kilos netos</p>
+                                        <h3 class="mb-0 text-white"><?php echo number_format($resumen['kilos_neto'], 2, ',', '.'); ?> kg</h3>
                                     </div>
-                                    <div class="summary-icon bg-green">
-                                        <i class="mdi mdi-scale-balance"></i>
-                                    </div>
+                                    <div class="summary-icon bg-green"><i class="mdi mdi-scale-balance"></i></div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-lg-6 col-12">
-                            <div class="box box-body summary-card">
+                            <div class="box box-body summary-card bg-blue">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <p class="mb-0 text-muted">Total envases</p>
-                                        <h3 class="mb-0"><?php echo number_format($resumen['envases'], 0, ',', '.'); ?></h3>
+                                        <p class="mb-0 text-white-50">Total envases</p>
+                                        <h3 class="mb-0 text-white"><?php echo number_format($resumen['envases'], 0, ',', '.'); ?></h3>
                                     </div>
-                                    <div class="summary-icon bg-blue">
-                                        <i class="mdi mdi-archive"></i>
-                                    </div>
+                                    <div class="summary-icon bg-blue"><i class="mdi mdi-archive"></i></div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-lg-6 col-12">
-                            <div class="box box-body summary-card">
+                            <div class="box box-body summary-card bg-teal">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <p class="mb-0 text-muted">Folios procesados</p>
-                                        <h3 class="mb-0"><?php echo number_format($resumen['folios'], 0, ',', '.'); ?></h3>
+                                        <p class="mb-0 text-white-50">Folios procesados</p>
+                                        <h3 class="mb-0 text-white"><?php echo number_format($resumen['folios'], 0, ',', '.'); ?></h3>
                                     </div>
-                                    <div class="summary-icon bg-teal">
-                                        <i class="mdi mdi-format-list-checks"></i>
-                                    </div>
+                                    <div class="summary-icon bg-teal"><i class="mdi mdi-format-list-checks"></i></div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-lg-6 col-12">
-                            <div class="box box-body summary-card">
+                            <div class="box box-body summary-card bg-amber">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <p class="mb-0 text-muted">Kilos declarados vs neto</p>
-                                        <h3 class="mb-0"><?php echo number_format($resumen['kilos_declarados'], 2, ',', '.'); ?> kg</h3>
+                                        <p class="mb-0 text-white-50">Kilos declarados vs neto</p>
+                                        <h3 class="mb-0 text-white"><?php echo number_format($resumen['kilos_declarados'], 2, ',', '.'); ?> kg</h3>
                                         <small class="kpi-diff text-<?php echo $merma < 3 ? 'success' : ($merma < 7 ? 'warning' : 'danger'); ?>">Diferencia: <?php echo number_format($resumen['kilos_declarados'] - $resumen['kilos_neto'], 2, ',', '.'); ?> kg (<?php echo number_format($merma, 2, ',', '.'); ?>%)</small>
                                     </div>
-                                    <div class="summary-icon bg-amber">
-                                        <i class="mdi mdi-alert-decagram"></i>
-                                    </div>
+                                    <div class="summary-icon bg-amber"><i class="mdi mdi-alert-decagram"></i></div>
                                 </div>
                             </div>
                         </div>
@@ -468,28 +460,46 @@ $totalProductores = count($porProductor);
 
                     <div class="row">
                         <div class="col-xl-3 col-lg-6 col-12">
-                            <div class="box box-body summary-card">
+                            <div class="box box-body summary-card bg-blue">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <p class="mb-0 text-muted">Variedades activas</p>
-                                        <h3 class="mb-0"><?php echo number_format($totalVariedades, 0, ',', '.'); ?></h3>
+                                        <p class="mb-0 text-white-50">Variedades activas</p>
+                                        <h3 class="mb-0 text-white"><?php echo number_format($totalVariedades, 0, ',', '.'); ?></h3>
                                     </div>
-                                    <div class="summary-icon bg-blue">
-                                        <i class="mdi mdi-flower"></i>
-                                    </div>
+                                    <div class="summary-icon bg-blue"><i class="mdi mdi-flower"></i></div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-lg-6 col-12">
-                            <div class="box box-body summary-card">
+                            <div class="box box-body summary-card bg-green">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <p class="mb-0 text-muted">Productores activos</p>
-                                        <h3 class="mb-0"><?php echo number_format($totalProductores, 0, ',', '.'); ?></h3>
+                                        <p class="mb-0 text-white-50">Productores activos</p>
+                                        <h3 class="mb-0 text-white"><?php echo number_format($totalProductores, 0, ',', '.'); ?></h3>
                                     </div>
-                                    <div class="summary-icon bg-green">
-                                        <i class="mdi mdi-account-multiple"></i>
+                                    <div class="summary-icon bg-green"><i class="mdi mdi-account-multiple"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-12">
+                            <div class="box box-body summary-card bg-teal">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="mb-0 text-white-50">Merma estimada</p>
+                                        <h3 class="mb-0 text-white"><?php echo number_format($merma, 2, ',', '.'); ?>%</h3>
                                     </div>
+                                    <div class="summary-icon bg-teal"><i class="mdi mdi-chart-areaspline"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-12">
+                            <div class="box box-body summary-card bg-amber">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="mb-0 text-white-50">Diferencia total</p>
+                                        <h3 class="mb-0 text-white"><?php echo number_format($resumen['kilos_declarados'] - $resumen['kilos_neto'], 2, ',', '.'); ?> kg</h3>
+                                    </div>
+                                    <div class="summary-icon bg-amber"><i class="mdi mdi-balance-scale"></i></div>
                                 </div>
                             </div>
                         </div>
@@ -613,87 +623,6 @@ $totalProductores = count($porProductor);
                                         <li>Óptimo bajo 3% en verde.</li>
                                     </ul>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="box">
-                        <div class="box-header with-border d-flex justify-content-between align-items-center">
-                            <h4 class="box-title panel-title mb-0">Detallado de recepciones</h4>
-                            <div>
-                                <input type="search" class="form-control" placeholder="Buscar folio" onkeyup="buscarFolio(this.value)">
-                            </div>
-                        </div>
-                        <div class="box-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0" id="tablaDetalle">
-                                    <thead>
-                                        <tr class="text-center">
-                                            <th>N° Folio</th>
-                                            <th>Fecha Cosecha</th>
-                                            <th>Código Estándar</th>
-                                            <th>Envase / Estándar</th>
-                                            <th>CSG</th>
-                                            <th>Productor</th>
-                                            <th>Especie</th>
-                                            <th>Variedad</th>
-                                            <th>Cantidad Envase</th>
-                                            <th>Kilo Neto</th>
-                                            <th>Kilo Bruto</th>
-                                            <th>Kilos Declarados</th>
-                                            <th>Diferencia</th>
-                                            <th>Rango</th>
-                                            <th>Diferencia Declarada</th>
-                                            <th>Fecha Recepción</th>
-                                            <th>Número Guía</th>
-                                            <th>Temperatura</th>
-                                            <th>Cámara</th>
-                                            <th>Observaciones</th>
-                                            <th>Tipo de Productor</th>
-                                            <th>Patente Camión</th>
-                                            <th>Patente Carro</th>
-                                            <th>Semana Recepción</th>
-                                            <th>Semana Guía</th>
-                                            <th>Empresa</th>
-                                            <th>Planta</th>
-                                            <th>Temporada</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($detalleRecepciones as $detalle) { ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($detalle['FOLIO']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['FECHA_COSECHA']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['CODIGO_ESTANDAR']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['CODIGO_ESTANDAR']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['CSG']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['PRODUCTOR']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['ESPECIE']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['VARIEDAD']); ?></td>
-                                                <td class="text-right"><?php echo number_format($detalle['ENVASE'], 0, ',', '.'); ?></td>
-                                                <td class="text-right"><?php echo number_format($detalle['KILO_NETO'], 2, ',', '.'); ?></td>
-                                                <td class="text-right"><?php echo number_format($detalle['KILO_BRUTO'], 2, ',', '.'); ?></td>
-                                                <td class="text-right"><?php echo number_format($detalle['KILO_DECLARADO'], 2, ',', '.'); ?></td>
-                                                <td class="text-right text-<?php echo $detalle['DIFERENCIA'] <= 0 ? 'success' : 'danger'; ?>"><?php echo number_format($detalle['DIFERENCIA'], 2, ',', '.'); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['RANGO']); ?></td>
-                                                <td class="text-right"><?php echo number_format($detalle['DIFERENCIA_DECLARADA'], 2, ',', '.'); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['FECHA_RECEPCION']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['NUMERO_GUIA']); ?></td>
-                                                <td><?php echo $detalle['TEMPERATURA'] !== null ? number_format($detalle['TEMPERATURA'], 1, ',', '.') : 'N/D'; ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['CAMARA']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['OBSERVACIONES']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['TIPO_PRODUCTOR']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['PATENTE_CAMION']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['PATENTE_CARRO']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['SEMANA_RECEPCION']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['SEMANA_GUIA']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['EMPRESA']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['PLANTA']); ?></td>
-                                                <td><?php echo htmlspecialchars($detalle['TEMPORADA']); ?></td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
